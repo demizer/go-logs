@@ -1,203 +1,91 @@
-// package logger is a very light wrapper around 'log' so we can control IO.
-// It can also print pretty colors.
+// Copyright 2013 The go-logger Authors. All rights reserved.
+// This code is MIT licensed. See the LICENSE file for more info.
+
+// Package logger is a better logging system for Go than the generic log
+// package in the Go Standard Library. The logger packages provides colored
+// output, logging levels, and simultaneous logging output to stdout, stderr,
+// and file streams.
 package logger
 
 import (
-	"fmt"
 	"log"
 	"os"
 )
 
-import (
-	. "github.com/str1ngs/ansi/color"
-)
-
-type logger struct {
-	logType int
-	plain   *log.Logger
-	colored *log.Logger
+// Used for string output of the logging object
+var levels = [5]string{
+	"DEBUG",
+	"INFO",
+	"WARNING",
+	"ERROR",
+	"CRITICAL",
 }
 
+type LoggingLevel int
+
+// Returns the string representation of the level
+func (l LoggingLevel) String() string { return levels[l] }
+
+// The DEBUG level is the lowest possible output level. This is meant for
+// development use. The default output level is WARNING.
 const (
-	FlagError   = 1 << iota // errors are very bad and unrecoverable
-	FlagWarning             // warnings are bad things that don't stop us
-	FlagMessage             // casual; typically describing state changes
-	FlagLots                // more output than you could possibly need
-	FlagDebug               // random debug output formatted differently
+	DEBUG    LoggingLevel = iota // Used for development
+	INFO                         // Used to indicate extra information
+	WARNING                      // Indicates something is wrong, but not broken
+	ERROR                        // Something is broken
+	CRITICAL                     // A message so bad it ends the application process
 )
 
 var (
-	flags    = FlagDebug | FlagMessage | FlagWarning | FlagError
-	logFlags = log.Lshortfile
-	colors   = true
-	levels   = []int{
-		FlagDebug,
-		FlagDebug | FlagError,
-		FlagDebug | FlagError | FlagWarning,
-		FlagDebug | FlagError | FlagWarning | FlagMessage,
-		FlagDebug | FlagError | FlagWarning | FlagMessage | FlagLots,
-	}
+	Colors = true // Enable/Disable colored output
 
-	Debug, Lots, Message, Warning, Error *logger
+	// The default level only displays WARNING messages and higher.
+	Level = WARNING
 )
 
-func init() {
-	Debug = newLogger(
-		FlagDebug,
-		log.New(os.Stderr, "WINGO DEBUG: *** ", logFlags),
-		log.New(os.Stderr,
-			BgGreen(Blue("WINGO DEBUG:")).String()+" ", logFlags))
-	Lots = newLogger(
-		FlagLots,
-		log.New(os.Stderr, "WINGO LOTS: ", logFlags),
-		log.New(os.Stderr, "WINGO LOTS: ", logFlags))
-	Message = newLogger(
-		FlagMessage,
-		log.New(os.Stderr, "WINGO MESSAGE: ", logFlags),
-		log.New(os.Stderr, "WINGO MESSAGE: ", logFlags))
-	Warning = newLogger(
-		FlagWarning,
-		log.New(os.Stderr, "WINGO WARNING: ", logFlags),
-		log.New(os.Stderr,
-			Bold(Red("WINGO WARNING:")).String()+" ", logFlags))
-	Error = newLogger(
-		FlagError,
-		log.New(os.Stderr, "WINGO ERROR: ", logFlags),
-		log.New(os.Stderr, BgMagenta("WINGO ERROR:").String()+" ", logFlags))
+// StdLogger is the default logger. By default it directs output to stderr.
+var StdLogger = log.New(os.Stderr, "", log.Ldate|log.Ltime)
+
+// SetLogger sets a new logger.
+func SetLogger(l *log.Logger) {
+	StdLogger = l
 }
 
-func newLogger(logType int, plain *log.Logger, colored *log.Logger) *logger {
-	return &logger{logType, plain, colored}
-}
-
-func FlagsSet(newFlags int) {
-	flags = newFlags
-}
-
-// LevelSet is a shortcut for setting log output flags. Valid log levels
-// are integers in the range 0 to 4, inclusive. The higher the level, the
-// more output.
-func LevelSet(lvl int) {
-	if lvl < 0 || lvl > 4 {
-		panic("log level must be in [0, 4]")
-	}
-	FlagsSet(levels[lvl])
-}
-
-func Colors(enable bool) {
-	colors = enable
-}
-
-func (lg *logger) Print(v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprint(v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprint(v...))
+// Debug logs a message at debug level.
+func Debug(v ...interface{}) {
+	if Level <= DEBUG {
+		if Colors {
+			// StdLogger.Printf("%s %v\n", e_DEBUG, v)
+		} else {
+			StdLogger.Printf("[D] %v\n", v)
+		}
 	}
 }
 
-func (lg *logger) Printf(format string, v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprintf(format, v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprintf(format, v...))
+// Info logs a message at info level.
+func Info(v ...interface{}) {
+	if Level <= INFO {
+		StdLogger.Printf("[I] %v\n", v)
 	}
 }
 
-func (lg *logger) Println(v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprintln(v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprintln(v...))
+// Warning logs a message at warning level.
+func Warn(v ...interface{}) {
+	if Level <= WARNING {
+		StdLogger.Printf("[W] %v\n", v)
 	}
 }
 
-func (lg *logger) Fatal(v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
+// Error logs a message at error level.
+func Error(v ...interface{}) {
+	if Level <= ERROR {
+		StdLogger.Printf("[E] %v\n", v)
 	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprint(v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprint(v...))
-	}
-	os.Exit(1)
 }
 
-func (lg *logger) Fatalf(format string, v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
+// Critical logs a message at critical level.
+func Critical(v ...interface{}) {
+	if Level <= CRITICAL {
+		StdLogger.Printf("[C] %v\n", v)
 	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprintf(format, v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprintf(format, v...))
-	}
-	os.Exit(1)
-}
-
-func (lg *logger) Fatalln(v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprintln(v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprintln(v...))
-	}
-	os.Exit(1)
-}
-
-func (lg *logger) Panic(v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprint(v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprint(v...))
-	}
-	panic("")
-}
-
-func (lg *logger) Panicf(format string, v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprintf(format, v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprintf(format, v...))
-	}
-	panic("")
-}
-
-func (lg *logger) Panicln(v ...interface{}) {
-	if lg.logType&flags == 0 {
-		return
-	}
-
-	if colors {
-		lg.colored.Output(2, fmt.Sprintln(v...))
-	} else {
-		lg.plain.Output(2, fmt.Sprintln(v...))
-	}
-	panic("")
 }
