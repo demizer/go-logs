@@ -3,7 +3,6 @@
 package logger
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -45,19 +44,17 @@ var colorTests = []struct {
 		"\x1b[4m\x1b[32mgreen underline text\x1b[0m"},
 	{[]interface{}{BOLD, UNDERLINE, GREEN, "bold green underline text"},
 		"\x1b[1m\x1b[4m\x1b[32mbold green underline text\x1b[0m"},
-	{[]interface{}{BOLD, GREEN, "[DEBUG] ", OFF,
-		"colored prefix to normal text"},
-		"\x1b[1m\x1b[32m[DEBUG] \x1b[0mcolored prefix to normal text\x1b[0m"},
+	{[]interface{}{BOLD, GREEN, "colored ", OFF,
+		"to normal text"},
+		"\x1b[1m\x1b[32mcolored \x1b[0mto normal text\x1b[0m"},
 }
 
 func TestColors(t *testing.T) {
 	for i, v := range colorTests {
 		var out string
-		fmt.Printf(">>> Testing %s\n", v.escapeCodes[1])
 		if out = AnsiEscape(v.escapeCodes...); out != v.output {
 			t.Errorf("%d. Escape(%q) = %q, want %q", i,
 				v.escapeCodes, out, v.output)
 		}
-		fmt.Println(out)
 	}
 }
