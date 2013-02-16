@@ -161,6 +161,11 @@ func New(stream io.Writer, prefix string, dateFormat string,
 		logTemplate: logTemplate, level: level, flags: flags}
 }
 
+// Level returns the logging level of the current logger object
+func Level() level {
+	return std.level
+}
+
 // SetLevel sets the logging output level for the standard logger.
 func SetLevel(level level) {
 	std.level = level
