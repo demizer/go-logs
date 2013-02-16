@@ -68,14 +68,11 @@ const (
 	LstdFlags = Ldate | Lansi
 )
 
-const (
-	defPrefix = ">>>"
-)
-
 var (
+	defPrefix      = ">>>"
 	defColorPrefix = AnsiEscape(BOLD, GREEN, ">>>", OFF)
 	// std is the default logger object
-	std = New(os.Stderr, defColorPrefix, time.RubyDate, logFormat, WARNING, LstdFlags)
+	log = New(os.Stderr, WARNING)
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -83,15 +80,15 @@ var (
 // Write method. A Logger can be used simultaneously from multiple goroutines;
 // it guarantees to serialize access to the Writer.
 type Logger struct {
-	mu          sync.Mutex // Ensures atomic writes
-	buf         []byte     // For marshaling output to write
-	colors      bool       // Enable/Disable colored output
-	dateFormat  string     // time.RubyDate is the default format
-	flags       int        // Properties of the output
-	level       level      // The default level is warning
-	logTemplate string     // The format order of the output
-	prefix      string     // Inserted into every logging output
-	stream      io.Writer  // Destination for output
+	mu          sync.Mutex         // Ensures atomic writes
+	buf         []byte             // For marshaling output to write
+	Colors      bool               // Enable/Disable colored output
+	DateFormat  string             // time.RubyDate is the default format
+	Flags       int                // Properties of the output
+	Level       level              // The default level is warning
+	LogTemplate *template.Template // The format order of the output
+	Prefix      string             // Inserted into every logging output
+	Stream      io.Writer          // Destination for output
 }
 
 // formatOutput is used by Output() to apply the desired output format using
@@ -115,14 +112,14 @@ func (l *Logger) formatOutput(buf *[]byte, t time.Time, file string,
 //
 // stream will be used as the output stream the text will be written to. If
 // stream is nil, the stream value contained in the logger object is used.
-func (l *Logger) Output(calldepth int,
+func (l *Logger) Fprint(calldepth int,
 	text string, stream io.Writer) (n int, err error) {
 	now := time.Now()
 	var file string
 	var line int
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	if l.flags&(Lshortfile|Llongfile) != 0 {
+	if l.Flags&(Lshortfile|Llongfile) != 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
@@ -136,90 +133,41 @@ func (l *Logger) Output(calldepth int,
 	l.buf = l.buf[:0]
 	l.formatOutput(&l.buf, now, file, line, text)
 	if stream == nil {
-		n, err = l.stream.Write(l.buf)
+		n, err = l.Stream.Write(l.buf)
 	} else {
 		n, err = stream.Write(l.buf)
 	}
 	return int(n), err
 }
 
-// New creates a new logger object.
-func New(stream io.Writer, prefix string, dateFormat string,
-	logTemplate string, level level, flags int) *Logger {
-	return &Logger{stream: stream, prefix: prefix, dateFormat: dateFormat,
-		logTemplate: logTemplate, level: level, flags: flags}
-}
-
-// Level returns the logging level of the current logger object
-func Level() level {
-	return std.level
-}
-
-// SetLevel sets the logging output level for the standard logger.
-func SetLevel(level level) {
-	std.level = level
-}
-
-// Stream gets the output stream for the standard logger object.
-func Stream() io.Writer {
-	return std.stream
-}
-
-// SetStream sets the output stream for the standard logger object.
-func SetStream(stream io.Writer) {
-	std.stream = stream
-}
-
-// Prefix returns the output prefix.
-func Prefix() string {
-	return std.prefix
-}
-
-// SetPrefix set the output prefix.
-func SetPrefix(prefix string) {
-	std.prefix = prefix
-}
-
-// DateFormat returns the date format as a string.
-func DateFormat() string {
-	return std.dateFormat
-}
-
-// SetDateFormat sets the date format. See the time package on how to create a
-// date format.
-func SetDateFormat(format string) {
-	std.dateFormat = format
-}
-
-// Flags returns the flags of the standard logger.
-func Flags() int {
-	return std.flags
-}
-
-// SetFlags sets the flags of the standard logging object.
-func SetFlags(flags int) {
-	std.flags = flags
-}
-
 // Print sends output to the standard logger output stream regardless of
 // logging level including the logger format properties and flags. Spaces are
 // added between operands when neither is a string. It returns the number of
 // bytes written and any write error encountered.
-func Print(v ...interface{}) (n int, err error) {
-	return std.Output(2, fmt.Sprint(v...), os.Stdout)
+func (l *Logger) Print(v ...interface{}) (n int, err error) {
+	return l.Fprint(2, fmt.Sprint(v...), os.Stdout)
 }
 
 // Println formats using the default formats for its operands and writes to
 // standard output. Spaces are always added between operands and a newline is
 // appended. It returns the number of bytes written and any write error
 // encountered.
-func Println(v ...interface{}) (n int, err error) {
-	return std.Output(2, fmt.Sprintln(v...), os.Stdout)
+func (l *Logger) Println(v ...interface{}) (n int, err error) {
+	return l.Fprint(2, fmt.Sprintln(v...), os.Stdout)
 }
 
 // Printf formats according to a format specifier and writes to standard
 // output. It returns the number of bytes written and any write error
 // encountered.
-func Printf(format string, v ...interface{}) (n int, err error) {
-	return std.Output(2, fmt.Sprintf(format, v...), os.Stdout)
+func (l *Logger) Printf(format string, v ...interface{}) (n int, err error) {
+	return l.Fprint(2, fmt.Sprintf(format, v...), os.Stdout)
+}
+
+// New creates a new logger object and returns it.
+func New(stream io.Writer, level level) (obj *Logger) {
+	tmpl := template.Must(template.New("std").Funcs(funcMap).Parse(logFmt))
+	obj = &Logger{Stream: stream, Colors: true, DateFormat: time.RubyDate,
+		Flags: LstdFlags, Level: level, LogTemplate: tmpl,
+		Prefix: defColorPrefix}
+	return
 }
