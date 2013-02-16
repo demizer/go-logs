@@ -68,10 +68,15 @@ const (
 	LstdFlags = Ldate | Lansi
 )
 
+const (
+	logFormat = "{{.Prefix}}: {{.Date}}: {{.File}}: {{.Text}}"
+	defPrefix = ">>>"
+)
+
 var (
+	defColorPrefix = AnsiEscape(BOLD, GREEN, ">>>", OFF)
 	// funcMap contains the available functions to the log format template.
 	funcMap = template.FuncMap{"ansiEscape": AnsiEscape}
-	logFormat = "{{.Prefix}} {{.Date}} {{.File}} {{.Text}}"
 	// std is the default logger object
 	std = New(os.Stderr, time.RubyDate, logFormat, WARNING, LstdFlags)
 )
