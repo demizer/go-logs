@@ -111,14 +111,15 @@ func (l *Logger) formatOutput(buf *[]byte, t time.Time, file string,
 // Output is used by all of the logging functions to send output to the output
 // stream.
 //
-// stream will be used as the output stream the text will be written to.
-//
 // calldepth is the number of stack frames to skip when getting the file
 // name of original calling function for file name output.
 //
 // text is the string to append to the assembled log format output.
-func (l *Logger) Output(stream io.Writer,
-	calldepth int, text string) (n int, err error) {
+//
+// stream will be used as the output stream the text will be written to. If
+// stream is nil, the stream value contained in the logger object is used.
+func (l *Logger) Output(calldepth int,
+	text string, stream io.Writer) (n int, err error) {
 	now := time.Now()
 	var file string
 	var line int
@@ -137,7 +138,11 @@ func (l *Logger) Output(stream io.Writer,
 	}
 	l.buf = l.buf[:0]
 	l.formatOutput(&l.buf, now, file, line, text)
-	n, err = stream.Write(l.buf)
+	if stream == nil {
+		n, err = l.stream.Write(l.buf)
+	} else {
+		n, err = stream.Write(l.buf)
+	}
 	return int(n), err
 }
 
@@ -161,9 +166,9 @@ func SetLevel(level level) {
 	std.level = level
 }
 
-// Level returns the logging level of the current logger object
-func Level() level {
-	return std.level
+// Stream gets the output stream for the standard logger object.
+func Stream() io.Writer {
+	return std.stream
 }
 
 // SetStream sets the output stream for the standard logger object.
@@ -181,12 +186,33 @@ func SetPrefix(prefix string) {
 	std.prefix = prefix
 }
 
+// DateFormat returns the date format as a string.
+func DateFormat() string {
+	return std.dateFormat
+}
+
+// SetDateFormat sets the date format. See the time package on how to create a
+// date format.
+func SetDateFormat(format string) {
+	std.dateFormat = format
+}
+
+// Flags returns the flags of the standard logger.
+func Flags() int {
+	return std.flags
+}
+
+// SetFlags sets the flags of the standard logging object.
+func SetFlags(flags int) {
+	std.flags = flags
+}
+
 // Print sends output to the standard logger output stream regardless of
 // logging level including the logger format properties and flags. Spaces are
 // added between operands when neither is a string. It returns the number of
 // bytes written and any write error encountered.
 func Print(v ...interface{}) (n int, err error) {
-	return std.Output(os.Stdout, 2, fmt.Sprint(v...))
+	return std.Output(2, fmt.Sprint(v...), os.Stdout)
 }
 
 // Println formats using the default formats for its operands and writes to
@@ -194,12 +220,12 @@ func Print(v ...interface{}) (n int, err error) {
 // appended. It returns the number of bytes written and any write error
 // encountered.
 func Println(v ...interface{}) (n int, err error) {
-	return std.Output(os.Stdout, 2, fmt.Sprintln(v...))
+	return std.Output(2, fmt.Sprintln(v...), os.Stdout)
 }
 
 // Printf formats according to a format specifier and writes to standard
 // output. It returns the number of bytes written and any write error
 // encountered.
 func Printf(format string, v ...interface{}) (n int, err error) {
-	return std.Output(os.Stdout, 2, fmt.Sprintf(format, v...))
+	return std.Output(2, fmt.Sprintf(format, v...), os.Stdout)
 }
