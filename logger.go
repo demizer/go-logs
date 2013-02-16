@@ -78,7 +78,7 @@ var (
 	// funcMap contains the available functions to the log format template.
 	funcMap = template.FuncMap{"ansiEscape": AnsiEscape}
 	// std is the default logger object
-	std = New(os.Stderr, time.RubyDate, logFormat, WARNING, LstdFlags)
+	std = New(os.Stderr, defColorPrefix, time.RubyDate, logFormat, WARNING, LstdFlags)
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -93,6 +93,7 @@ type Logger struct {
 	flags       int        // Properties of the output
 	level       level      // The default level is warning
 	logTemplate string     // The format order of the output
+	prefix      string     // Inserted into every logging output
 	stream      io.Writer  // Destination for output
 }
 
@@ -149,9 +150,9 @@ type format struct {
 }
 
 // New creates a new logger object.
-func New(stream io.Writer, dateFormat string,
+func New(stream io.Writer, prefix string, dateFormat string,
 	logTemplate string, level level, flags int) *Logger {
-	return &Logger{stream: stream, dateFormat: dateFormat,
+	return &Logger{stream: stream, prefix: prefix, dateFormat: dateFormat,
 		logTemplate: logTemplate, level: level, flags: flags}
 }
 
@@ -170,9 +171,14 @@ func SetStream(stream io.Writer) {
 	std.stream = stream
 }
 
-// Stream gets the output stream for the standard logger object.
-func Stream() io.Writer {
-	return std.stream
+// Prefix returns the output prefix.
+func Prefix() string {
+	return std.prefix
+}
+
+// SetPrefix set the output prefix.
+func SetPrefix(prefix string) {
+	std.prefix = prefix
 }
 
 // Print sends output to the standard logger output stream regardless of
