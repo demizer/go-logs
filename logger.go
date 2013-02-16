@@ -69,14 +69,11 @@ const (
 )
 
 const (
-	logFormat = "{{.Prefix}}: {{.Date}}: {{.File}}: {{.Text}}"
 	defPrefix = ">>>"
 )
 
 var (
 	defColorPrefix = AnsiEscape(BOLD, GREEN, ">>>", OFF)
-	// funcMap contains the available functions to the log format template.
-	funcMap = template.FuncMap{"ansiEscape": AnsiEscape}
 	// std is the default logger object
 	std = New(os.Stderr, defColorPrefix, time.RubyDate, logFormat, WARNING, LstdFlags)
 )
@@ -144,14 +141,6 @@ func (l *Logger) Output(calldepth int,
 		n, err = stream.Write(l.buf)
 	}
 	return int(n), err
-}
-
-// format is the possible values that can be used in a log output format
-type format struct {
-	Prefix string
-	Date   string
-	File   string
-	Text   string
 }
 
 // New creates a new logger object.
