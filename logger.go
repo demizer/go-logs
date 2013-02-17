@@ -80,15 +80,15 @@ var (
 // Write method. A Logger can be used simultaneously from multiple goroutines;
 // it guarantees to serialize access to the Writer.
 type Logger struct {
-	mu          sync.Mutex         // Ensures atomic writes
-	buf         []byte             // For marshaling output to write
-	Colors      bool               // Enable/Disable colored output
-	DateFormat  string             // time.RubyDate is the default format
-	Flags       int                // Properties of the output
-	Level       level              // The default level is warning
-	LogTemplate *template.Template // The format order of the output
-	Prefix      string             // Inserted into every logging output
-	Stream      io.Writer          // Destination for output
+	mu         sync.Mutex         // Ensures atomic writes
+	buf        []byte             // For marshaling output to write
+	Colors     bool               // Enable/Disable colored output
+	DateFormat string             // time.RubyDate is the default format
+	Flags      int                // Properties of the output
+	Level      level              // The default level is warning
+	Template   *template.Template // The format order of the output
+	Prefix     string             // Inserted into every logging output
+	Stream     io.Writer          // Destination for output
 }
 
 // formatOutput is used by Output() to apply the desired output format using
@@ -167,7 +167,7 @@ func (l *Logger) Printf(format string, v ...interface{}) (n int, err error) {
 func New(stream io.Writer, level level) (obj *Logger) {
 	tmpl := template.Must(template.New("std").Funcs(funcMap).Parse(logFmt))
 	obj = &Logger{Stream: stream, Colors: true, DateFormat: time.RubyDate,
-		Flags: LstdFlags, Level: level, LogTemplate: tmpl,
+		Flags: LstdFlags, Level: level, Template: tmpl,
 		Prefix: defColorPrefix}
 	return
 }
