@@ -82,7 +82,6 @@ var (
 type Logger struct {
 	mu         sync.Mutex         // Ensures atomic writes
 	buf        []byte             // For marshaling output to write
-	Colors     bool               // Enable/Disable colored output
 	DateFormat string             // time.RubyDate is the default format
 	Flags      int                // Properties of the output
 	Level      level              // The default level is warning
@@ -157,7 +156,7 @@ func (l *Logger) Printf(format string, v ...interface{}) (err error) {
 // New creates a new logger object and returns it.
 func New(stream io.Writer, level level) (obj *Logger) {
 	tmpl := template.Must(template.New("std").Funcs(funcMap).Parse(logFmt))
-	obj = &Logger{Stream: stream, Colors: true, DateFormat: time.RubyDate,
+	obj = &Logger{Stream: stream, DateFormat: time.RubyDate,
 		Flags: LstdFlags, Level: level, Template: tmpl,
 		Prefix: defColorPrefix}
 	return
