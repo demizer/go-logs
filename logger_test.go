@@ -2,8 +2,10 @@ package logger
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestStream(t *testing.T) {
@@ -34,24 +36,25 @@ var outputTests = []struct {
 	wantErr    bool
 }{
 	{logFmt, boldPrefix, date, LstdFlags, "test number 1",
-		"\x1b[1mTEST>\x1b[0m: Mon Jan 02 15:04 2006: test number 1",
-		false},
+		"\x1b[1mTEST>\x1b[0m: %s: test number 1", false},
 	{logFmt, colorPrefix, date, Ldate, "test number 2",
-		"\x1b[1m\x1b[31mTEST>\x1b[0m: Mon Jan 02 15:04 2006: test number 2",
-		false},
+		"\x1b[1m\x1b[31mTEST>\x1b[0m: %s: test number 2", false},
 }
 
 func TestOutput(t *testing.T) {
 	for i, k := range outputTests {
+		// var buf bytes.Buffer
 		var buf bytes.Buffer
 		log := New(&buf, DEBUG)
 		log.Prefix = k.prefix
 		log.DateFormat = k.dateFormat
 		log.Flags = k.flags
-		_, err := log.Fprint(1, k.text, &buf)
-		if buf.String() != k.want || err != nil {
-			t.Errorf("Print test %d failed, got \"%s\" want "+
-				"\"%s\"", i, buf.String(), k.want)
+		d := time.Now().Format(log.DateFormat)
+		err := log.Fprint(1, k.text, &buf)
+		want := fmt.Sprintf(k.want, d)
+		if buf.String() != want || err != nil {
+			t.Errorf("Print test %d failed, got \"%q\" want "+
+				"\"%q\"", i, buf.String(), want)
 		}
 		log = nil
 	}
