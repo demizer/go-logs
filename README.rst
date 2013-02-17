@@ -41,6 +41,9 @@ Logging output is customizable with text templates.
 Example
 -------
 
+Here is a simple example for using go-logger to hide debug output when not
+needed.
+
 .. code-block:: go
 
     import (
