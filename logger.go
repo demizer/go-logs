@@ -102,7 +102,7 @@ type Logger struct {
 // stream will be used as the output stream the text will be written to. If
 // stream is nil, the stream value contained in the logger object is used.
 func (l *Logger) Fprint(calldepth int,
-	text string, stream io.Writer) (n int, err error) {
+	text string, stream io.Writer) (err error) {
 	now := time.Now()
 	var file string
 	var line int
@@ -121,18 +121,16 @@ func (l *Logger) Fprint(calldepth int,
 	}
 	l.buf = l.buf[:0]
 	if stream == nil {
-		n, err = l.Stream.Write(l.buf)
 	} else {
-		n, err = stream.Write(l.buf)
 	}
-	return int(n), err
+	return
 }
 
 // Print sends output to the standard logger output stream regardless of
 // logging level including the logger format properties and flags. Spaces are
 // added between operands when neither is a string. It returns the number of
 // bytes written and any write error encountered.
-func (l *Logger) Print(v ...interface{}) (n int, err error) {
+func (l *Logger) Print(v ...interface{}) (err error) {
 	return l.Fprint(2, fmt.Sprint(v...), os.Stdout)
 }
 
@@ -140,14 +138,14 @@ func (l *Logger) Print(v ...interface{}) (n int, err error) {
 // standard output. Spaces are always added between operands and a newline is
 // appended. It returns the number of bytes written and any write error
 // encountered.
-func (l *Logger) Println(v ...interface{}) (n int, err error) {
+func (l *Logger) Println(v ...interface{}) (err error) {
 	return l.Fprint(2, fmt.Sprintln(v...), os.Stdout)
 }
 
 // Printf formats according to a format specifier and writes to standard
 // output. It returns the number of bytes written and any write error
 // encountered.
-func (l *Logger) Printf(format string, v ...interface{}) (n int, err error) {
+func (l *Logger) Printf(format string, v ...interface{}) (err error) {
 	return l.Fprint(2, fmt.Sprintf(format, v...), os.Stdout)
 }
 
