@@ -68,6 +68,8 @@ func AnsiEscape(c ...interface{}) (out string) {
 			fmt.Printf("unexpected type: %T\n", t)
 		}
 	}
-	out += "\x1b[0m"
+	if c[len(c)-1] != OFF {
+		out += "\x1b[0m"
+	}
 	return
 }
