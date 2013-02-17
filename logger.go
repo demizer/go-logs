@@ -91,17 +91,6 @@ type Logger struct {
 	Stream     io.Writer          // Destination for output
 }
 
-// formatOutput is used by Output() to apply the desired output format using
-// the logTemplate. Using this template, an output string is built containing
-// the desired structure such as prefix, date, and file + line number.
-func (l *Logger) formatOutput(buf *[]byte, t time.Time, file string,
-	line int, text string) {
-	l.buf = append(l.buf, t.Format(l.dateFormat)...)
-	if len(text) > 0 && text[len(text)-1] != '\n' {
-		l.buf = append(l.buf, '\n')
-	}
-}
-
 // Output is used by all of the logging functions to send output to the output
 // stream.
 //
@@ -131,7 +120,6 @@ func (l *Logger) Fprint(calldepth int,
 		l.mu.Lock()
 	}
 	l.buf = l.buf[:0]
-	l.formatOutput(&l.buf, now, file, line, text)
 	if stream == nil {
 		n, err = l.Stream.Write(l.buf)
 	} else {
