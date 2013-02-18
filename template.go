@@ -22,6 +22,6 @@ type format struct {
 	Prefix string
 	Date   string
 	File   string
-	Line   string
+	Line   int
 	Text   string
 }

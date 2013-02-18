@@ -116,12 +116,22 @@ func (l *Logger) Fprint(calldepth int,
 			file = "???"
 			line = 0
 		}
+		if l.Flags&Lshortfile != 0 {
+			short := file
+			for i := len(file) - 1; i > 0; i-- {
+				if file[i] == '/' {
+					short = file[i+1:]
+					break
+				}
+			}
+			file = short
+		}
 		l.mu.Lock()
 	}
 	l.buf = l.buf[:0]
 	l.buf = append(l.buf, text...)
 	date := now.Format(l.DateFormat)
-	f := &format{l.Prefix, date, file, string(line), string(l.buf)}
+	f := &format{l.Prefix, date, file, line, string(l.buf)}
 	if stream == nil {
 		err = l.Template.Execute(l.Stream, f)
 	} else {

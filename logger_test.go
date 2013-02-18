@@ -39,6 +39,8 @@ var outputTests = []struct {
 		"\x1b[1mTEST>\x1b[0m: %s: test number 1", false},
 	{logFmt, colorPrefix, date, Ldate, "test number 2",
 		"\x1b[1m\x1b[31mTEST>\x1b[0m: %s: test number 2", false},
+	{logFmt, ">>>", time.Kitchen, Ldate | Lshortfile , "test number 3",
+		">>>: %s: logger_test.go:56: test number 3", false},
 }
 
 func TestOutput(t *testing.T) {
