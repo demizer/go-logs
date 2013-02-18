@@ -23,7 +23,6 @@ var (
 	boldPrefix  = AnsiEscape(BOLD, "TEST>", OFF)
 	colorPrefix = AnsiEscape(BOLD, RED, "TEST>", OFF)
 	date        = "Mon Jan 02 15:04 2006"
-	badDate     = "on Jan _2 1504:05 006"
 )
 
 var outputTests = []struct {
@@ -37,10 +36,12 @@ var outputTests = []struct {
 }{
 	{logFmt, boldPrefix, date, LstdFlags, "test number 1",
 		"\x1b[1mTEST>\x1b[0m: %s: test number 1", false},
-	{logFmt, colorPrefix, date, Ldate, "test number 2",
+	{logFmt, colorPrefix, date, LstdFlags, "test number 2",
 		"\x1b[1m\x1b[31mTEST>\x1b[0m: %s: test number 2", false},
 	{logFmt, ">>>", time.Kitchen, Ldate | Lshortfile , "test number 3",
 		">>>: %s: logger_test.go:56: test number 3", false},
+	{logFmt, AnsiEscape(BOLD, ">>>", OFF), date, Ldate, "test number 4",
+		">>>: %s: test number 4", false},
 }
 
 func TestOutput(t *testing.T) {
@@ -54,10 +55,11 @@ func TestOutput(t *testing.T) {
 		d := time.Now().Format(log.DateFormat)
 		err := log.Fprint(1, k.text, &buf)
 		want := fmt.Sprintf(k.want, d)
-		if buf.String() != want || err != nil {
-			t.Errorf("Print test %d failed, got \"%q\" want "+
-				"\"%q\"", i, buf.String(), want)
+		if buf.String() != want || err != nil && !k.wantErr {
+			t.Errorf("Print test %d failed, got %q want "+
+				"%q", i, buf.String(), want)
+			continue
 		}
-		log = nil
+		fmt.Printf("Test %d OK: %q\n", i, buf.String())
 	}
 }
