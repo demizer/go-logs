@@ -11,6 +11,7 @@ import (
 var (
 	funcMap = template.FuncMap{"ansiEscape": AnsiEscape}
 	logFmt  = "{{if .Prefix}}{{.Prefix}}: {{end}}" +
+		"{{if .LogPrefix}}{{.LogPrefix}}: {{end}}" +
 		"{{if .Date}}{{.Date}}: {{end}}" +
 		"{{if .File}}{{.File}}:" +
 		"{{if .Line}}{{.Line}}: {{end}}{{end}}" +
@@ -19,9 +20,10 @@ var (
 
 // format is the possible values that can be used in a log output format
 type format struct {
-	Prefix string
-	Date   string
-	File   string
-	Line   int
-	Text   string
+	Prefix    string
+	LogPrefix logPrefix
+	Date      string
+	File      string
+	Line      int
+	Text      string
 }
