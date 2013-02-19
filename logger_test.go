@@ -46,7 +46,6 @@ var outputTests = []struct {
 
 func TestOutput(t *testing.T) {
 	for i, k := range outputTests {
-		// var buf bytes.Buffer
 		var buf bytes.Buffer
 		log := New(&buf, DEBUG)
 		log.Prefix = k.prefix

@@ -9,6 +9,7 @@ package logger
 
 import (
 	"fmt"
+	"bytes"
 	"io"
 	"os"
 	"runtime"
@@ -132,10 +133,16 @@ func (l *Logger) Fprint(calldepth int,
 	l.buf = append(l.buf, text...)
 	date := now.Format(l.DateFormat)
 	f := &format{l.Prefix, date, file, line, string(l.buf)}
+	var out bytes.Buffer
+	err = l.Template.Execute(&out, f)
+	text = out.String()
+	if l.Flags&Lansi == 0 {
+		text = stripAnsi(out.String())
+	}
 	if stream == nil {
-		err = l.Template.Execute(l.Stream, f)
+		l.Stream.Write([]byte(text))
 	} else {
-		err = l.Template.Execute(stream, f)
+		stream.Write([]byte(text))
 	}
 	return
 }
