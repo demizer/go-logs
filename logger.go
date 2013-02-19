@@ -178,3 +178,63 @@ func (l *Logger) Println(v ...interface{}) (err error) {
 func (l *Logger) Printf(format string, v ...interface{}) (err error) {
 	return l.Fprint(2, fmt.Sprintf(format, v...), os.Stdout)
 }
+
+func (l *Logger) Debug(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprint(v...), l.Stream)
+}
+
+func (l *Logger) Debugln(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintln(v...), l.Stream)
+}
+
+func (l *Logger) Debugf(format string, v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintf(format, v...), l.Stream)
+}
+
+func (l *Logger) Info(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprint(v...), l.Stream)
+}
+
+func (l *Logger) Infoln(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintln(v...), l.Stream)
+}
+
+func (l *Logger) Infof(format string, v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintf(format, v...), l.Stream)
+}
+
+func (l *Logger) Warning(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprint(v...), l.Stream)
+}
+
+func (l *Logger) Warningln(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintln(v...), l.Stream)
+}
+
+func (l *Logger) Warningf(format string, v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintf(format, v...), l.Stream)
+}
+
+func (l *Logger) Error(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprint(v...), l.Stream)
+}
+
+func (l *Logger) Errorln(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintln(v...), l.Stream)
+}
+
+func (l *Logger) Errorf(format string, v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintf(format, v...), l.Stream)
+}
+
+func (l *Logger) Critical(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprint(v...), l.Stream)
+}
+
+func (l *Logger) Criticalln(v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintln(v...), l.Stream)
+}
+
+func (l *Logger) Criticalf(format string, v ...interface{}) (err error) {
+	return l.Fprint(2, fmt.Sprintf(format, v...), l.Stream)
+}
