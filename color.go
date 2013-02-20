@@ -13,9 +13,8 @@ type eCode int
 // Ansi escape code constants. See
 // http://ascii-table.com/ansi-escape-sequences.php
 
-// Constants for text attributes, the underscores represent attributes that are
-// not supported.
 const (
+	// General text attributes
 	OFF eCode = iota
 	BOLD
 	_
@@ -27,8 +26,8 @@ const (
 	CONCEALED
 )
 
-// Constants for text forground coloring.
 const (
+	// Foreground text attributes
 	BLACK eCode = iota + 30
 	RED
 	GREEN
@@ -39,8 +38,8 @@ const (
 	WHITE
 )
 
-// Constants for text background coloring.
 const (
+	// Background text attributes
 	BG_GREY eCode = iota + 40
 	BG_RED
 	BG_GREEN
