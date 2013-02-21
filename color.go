@@ -15,39 +15,39 @@ type eCode int
 
 const (
 	// General text attributes
-	OFF eCode = iota
-	BOLD
+	OFF  eCode = iota
+	BOLD       // 1
 	_
 	_
-	UNDERLINE
-	BLINK
+	UNDERLINE // 4
+	BLINK     // 5
 	_
-	REVERSE
-	CONCEALED
+	REVERSE   // 7
+	CONCEALED // 8
 )
 
 const (
 	// Foreground text attributes
-	BLACK eCode = iota + 30
-	RED
-	GREEN
-	YELLOW
-	BLUE
-	MAGENTA
-	CYAN
-	WHITE
+	BLACK   eCode = iota + 30
+	RED           // 31
+	GREEN         // 32
+	YELLOW        // 33
+	BLUE          // 34
+	MAGENTA       // 35
+	CYAN          // 36
+	WHITE         // 37
 )
 
 const (
 	// Background text attributes
-	BG_GREY eCode = iota + 40
-	BG_RED
-	BG_GREEN
-	BG_YELLOW
-	BG_BLUE
-	BG_MAGENTA
-	BG_CYAN
-	BG_WHITE
+	BG_GREY    eCode = iota + 40
+	BG_RED           // 41
+	BG_GREEN         // 42
+	BG_YELLOW        // 43
+	BG_BLUE          // 44
+	BG_MAGENTA       // 45
+	BG_CYAN          // 46
+	BG_WHITE         // 47
 )
 
 // AnsiEscape accepts ANSI escape codes and strings to form escape sequences.
