@@ -87,15 +87,14 @@ var (
 	defPrefix      = ">>>"
 	defColorPrefix = AnsiEscape(BOLD, GREEN, ">>>", OFF)
 	// std is the default logger object
-	log = New(os.Stderr, WARNING)
+	log = New(WARNING, os.Stderr)
 )
 
 // New creates a new logger object and returns it.
-func New(stream io.Writer, level level) (obj *Logger) {
+func New(level level, streams ...io.Writer) (obj *Logger) {
 	tmpl := template.Must(template.New("std").Funcs(funcMap).Parse(logFmt))
-	obj = &Logger{Stream: stream, DateFormat: time.RubyDate,
-		Flags: LstdFlags, Level: level, Template: tmpl,
-		Prefix: defColorPrefix}
+	obj = &Logger{Streams: streams, DateFormat: time.RubyDate,
+		Flags: LstdFlags, Level: level, Template: tmpl, Prefix: defColorPrefix}
 	return
 }
 
@@ -111,7 +110,27 @@ type Logger struct {
 	Level      level              // The default level is warning
 	Template   *template.Template // The format order of the output
 	Prefix     string             // Inserted into every logging output
-	Stream     io.Writer          // Destination for output
+	Streams    []io.Writer        // Destination for output
+}
+
+func (l *Logger) Write(p []byte) (n int, err error) {
+	for _, w := range l.Streams {
+		if w != os.Stdout && w != os.Stderr && w != os.Stdin &&
+			l.Flags&LnoFileAnsi != 0 {
+			p = stripAnsiByte(p)
+			n, err = w.Write(p)
+		} else {
+			n, err = w.Write(p)
+		}
+		if err != nil {
+			return
+		}
+		if n != len(p) {
+			err = io.ErrShortWrite
+			return
+		}
+	}
+	return len(p), nil
 }
 
 // Fprint is used by all of the logging functions to send output to the output
@@ -127,7 +146,7 @@ type Logger struct {
 // stream will be used as the output stream the text will be written to. If
 // stream is nil, the stream value contained in the logger object is used.
 func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
-	text string, stream io.Writer) (err error) {
+	text string, stream io.Writer) (n int, err error) {
 	now := time.Now()
 	var file string
 	var line int
@@ -165,9 +184,9 @@ func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
 		text = stripAnsi(out.String())
 	}
 	if stream == nil {
-		l.Stream.Write([]byte(text))
+		n, err = l.Write([]byte(text))
 	} else {
-		stream.Write([]byte(text))
+		n, err = stream.Write([]byte(text))
 	}
 	return
 }
@@ -176,7 +195,7 @@ func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
 // logging level including the logger format properties and flags. Spaces are
 // added between operands when neither is a string. It returns the number of
 // bytes written and any write error encountered.
-func (l *Logger) Print(v ...interface{}) (err error) {
+func (l *Logger) Print(v ...interface{}) (n int, err error) {
 	return l.Fprint(PrintPrefix, 2, fmt.Sprint(v...), os.Stdout)
 }
 
@@ -184,103 +203,103 @@ func (l *Logger) Print(v ...interface{}) (err error) {
 // standard output. Spaces are always added between operands and a newline is
 // appended. It returns the number of bytes written and any write error
 // encountered.
-func (l *Logger) Println(v ...interface{}) (err error) {
+func (l *Logger) Println(v ...interface{}) (n int, err error) {
 	return l.Fprint(PrintPrefix, 2, fmt.Sprintln(v...), os.Stdout)
 }
 
 // Printf formats according to a format specifier and writes to standard
 // output. It returns the number of bytes written and any write error
 // encountered.
-func (l *Logger) Printf(format string, v ...interface{}) (err error) {
+func (l *Logger) Printf(format string, v ...interface{}) (n int, err error) {
 	return l.Fprint(PrintPrefix, 2, fmt.Sprintf(format, v...), os.Stdout)
 }
 
 // Debug has the same properties as Print except the DEBUG logPrefix is
 // included with the output.
-func (l *Logger) Debug(v ...interface{}) (err error) {
-	return l.Fprint(DebugPrefix, 2, fmt.Sprint(v...), l.Stream)
+func (l *Logger) Debug(v ...interface{}) (n int, err error) {
+	return l.Fprint(DebugPrefix, 2, fmt.Sprint(v...), nil)
 }
 
 // Debugln has the same properties as Println, except the DEBUG logPrefix is
 // included with the output.
-func (l *Logger) Debugln(v ...interface{}) (err error) {
-	return l.Fprint(DebugPrefix, 2, fmt.Sprintln(v...), l.Stream)
+func (l *Logger) Debugln(v ...interface{}) (n int, err error) {
+	return l.Fprint(DebugPrefix, 2, fmt.Sprintln(v...), nil)
 }
 
 // Debugf has the same properties as Printf, except the DEBUG logPrefix is
 // included with the output.
-func (l *Logger) Debugf(format string, v ...interface{}) (err error) {
-	return l.Fprint(DebugPrefix, 2, fmt.Sprintf(format, v...), l.Stream)
+func (l *Logger) Debugf(format string, v ...interface{}) (n int, err error) {
+	return l.Fprint(DebugPrefix, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Info has the same properties as Print except the INFO logPrefix is included
 // with the output.
-func (l *Logger) Info(v ...interface{}) (err error) {
-	return l.Fprint(InfoPrefix, 2, fmt.Sprint(v...), l.Stream)
+func (l *Logger) Info(v ...interface{}) (n int, err error) {
+	return l.Fprint(InfoPrefix, 2, fmt.Sprint(v...), nil)
 }
 
 // Infoln has the same properties as Println, except the INFO logPrefix is
 // included with the output.
-func (l *Logger) Infoln(v ...interface{}) (err error) {
-	return l.Fprint(InfoPrefix, 2, fmt.Sprintln(v...), l.Stream)
+func (l *Logger) Infoln(v ...interface{}) (n int, err error) {
+	return l.Fprint(InfoPrefix, 2, fmt.Sprintln(v...), nil)
 }
 
 // Infof has the same properties as Println, except the INFO logPrefix is
 // included with the output.
-func (l *Logger) Infof(format string, v ...interface{}) (err error) {
-	return l.Fprint(InfoPrefix, 2, fmt.Sprintf(format, v...), l.Stream)
+func (l *Logger) Infof(format string, v ...interface{}) (n int, err error) {
+	return l.Fprint(InfoPrefix, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Warning has the same properties as Print except the WARNING logPrefix is
 // included with the output.
-func (l *Logger) Warning(v ...interface{}) (err error) {
-	return l.Fprint(WarningPrefix, 2, fmt.Sprint(v...), l.Stream)
+func (l *Logger) Warning(v ...interface{}) (n int, err error) {
+	return l.Fprint(WarningPrefix, 2, fmt.Sprint(v...), nil)
 }
 
 // Warningln has the same properties as Println, except the WARNING logPrefix
 // is included with the output.
-func (l *Logger) Warningln(v ...interface{}) (err error) {
-	return l.Fprint(WarningPrefix, 2, fmt.Sprintln(v...), l.Stream)
+func (l *Logger) Warningln(v ...interface{}) (n int, err error) {
+	return l.Fprint(WarningPrefix, 2, fmt.Sprintln(v...), nil)
 }
 
 // Warningf has the same properties as Println, except the WARNING logPrefix is
 // included with the output.
-func (l *Logger) Warningf(format string, v ...interface{}) (err error) {
-	return l.Fprint(WarningPrefix, 2, fmt.Sprintf(format, v...), l.Stream)
+func (l *Logger) Warningf(format string, v ...interface{}) (n int, err error) {
+	return l.Fprint(WarningPrefix, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Error has the same properties as Print except the ERROR logPrefix is
 // included with the output.
-func (l *Logger) Error(v ...interface{}) (err error) {
-	return l.Fprint(ErrorPrefix, 2, fmt.Sprint(v...), l.Stream)
+func (l *Logger) Error(v ...interface{}) (n int, err error) {
+	return l.Fprint(ErrorPrefix, 2, fmt.Sprint(v...), nil)
 }
 
 // Errorln has the same properties as Println, except the ERROR logPrefix is
 // included with the output.
-func (l *Logger) Errorln(v ...interface{}) (err error) {
-	return l.Fprint(ErrorPrefix, 2, fmt.Sprintln(v...), l.Stream)
+func (l *Logger) Errorln(v ...interface{}) (n int, err error) {
+	return l.Fprint(ErrorPrefix, 2, fmt.Sprintln(v...), nil)
 }
 
 // Errorf has the same properties as Println, except the ERROR logPrefix is
 // included with the output.
-func (l *Logger) Errorf(format string, v ...interface{}) (err error) {
-	return l.Fprint(ErrorPrefix, 2, fmt.Sprintf(format, v...), l.Stream)
+func (l *Logger) Errorf(format string, v ...interface{}) (n int, err error) {
+	return l.Fprint(ErrorPrefix, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Critical has the same properties as Print except the CRITICAL logPrefix is
 // included with the output.
-func (l *Logger) Critical(v ...interface{}) (err error) {
-	return l.Fprint(CriticalPrefix, 2, fmt.Sprint(v...), l.Stream)
+func (l *Logger) Critical(v ...interface{}) (n int, err error) {
+	return l.Fprint(CriticalPrefix, 2, fmt.Sprint(v...), nil)
 }
 
 // Criticalln has the same properties as Println, except the CRITICAL logPrefix
 // is included with the output.
-func (l *Logger) Criticalln(v ...interface{}) (err error) {
-	return l.Fprint(CriticalPrefix, 2, fmt.Sprintln(v...), l.Stream)
+func (l *Logger) Criticalln(v ...interface{}) (n int, err error) {
+	return l.Fprint(CriticalPrefix, 2, fmt.Sprintln(v...), nil)
 }
 
 // Criticalf has the same properties as Println, except the CRITICAL logPrefix
 // is included with the output.
-func (l *Logger) Criticalf(format string, v ...interface{}) (err error) {
-	return l.Fprint(CriticalPrefix, 2, fmt.Sprintf(format, v...), l.Stream)
+func (l *Logger) Criticalf(format string, v ...interface{}) (n int, err error) {
+	return l.Fprint(CriticalPrefix, 2, fmt.Sprintf(format, v...), nil)
 }

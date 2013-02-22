@@ -13,3 +13,10 @@ func stripAnsi(text string) string {
 	reg := regexp.MustCompile("\x1b\\[\\d+m")
 	return reg.ReplaceAllString(text, "")
 }
+
+// stripAnsiByte removes all ansi escapes from a string and returns the clean
+// string.
+func stripAnsiByte(text []byte) []byte {
+	reg := regexp.MustCompile("\x1b\\[\\d+m")
+	return reg.ReplaceAll(text, []byte(""))
+}

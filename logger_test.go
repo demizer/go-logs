@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"runtime"
 	"fmt"
+	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,13 +15,43 @@ import (
 )
 
 func TestStream(t *testing.T) {
-	if out := log.Stream; out != os.Stderr {
+	if out := log.Streams[0]; out != os.Stderr {
 		t.Errorf("log.Stream is not stderr by default")
 	}
 	var buf bytes.Buffer
-	log.Stream = &buf
-	if out := log.Stream; out != &buf {
+	log.Streams[0] = &buf
+	if out := log.Streams[0]; out != &buf {
 		t.Errorf("log.Stream = %p, want %p", out, &buf)
+	}
+}
+
+func TestMultiStreams(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	fPath := filepath.Join(os.TempDir(), fmt.Sprint("go_test_",
+		rand.Int()))
+	file, err := os.Create(fPath)
+	if err != nil {
+		t.Error("Create(%q) = %v; want: nil", fPath, err)
+	}
+	defer file.Close()
+	var buf bytes.Buffer
+	var wLen int
+	eLen := 68
+	log := New(DEBUG, file, &buf)
+	in := "Testing debug output!"
+	wLen, err = log.Debugln(in)
+	if err != nil {
+		t.Errorf("Debugln(%q) = %d, %v; want: %d, nil", in, wLen, err,
+			eLen, nil)
+	}
+	b := make([]byte, wLen)
+	n, err := file.ReadAt(b, 0)
+	if n != eLen || err != nil {
+		t.Errorf("Read(%d) = %d, %v; want: %d, nil", wLen, n, err,
+			wLen)
+	}
+	if buf.Len() != eLen {
+		t.Errorf("buf.Len() = %d; want: %d", buf.Len(), eLen)
 	}
 }
 
@@ -93,12 +125,15 @@ var outputTests = []struct {
 func TestOutput(t *testing.T) {
 	for i, k := range outputTests {
 		var buf bytes.Buffer
-		log := New(&buf, DEBUG)
+		log := New(DEBUG, &buf)
 		log.Prefix = k.prefix
 		log.DateFormat = k.dateFormat
 		log.Flags = k.flags
 		d := time.Now().Format(log.DateFormat)
-		err := log.Fprint(k.logPrefix, 1, k.text, &buf)
+		n, err := log.Fprint(k.logPrefix, 1, k.text, &buf)
+		if n != buf.Len() {
+			t.Error("Error: ", io.ErrShortWrite)
+		}
 		want := fmt.Sprintf(k.want, d)
 		if buf.String() != want || err != nil && !k.wantErr {
 			t.Errorf("Print test %d failed, \ngot:  %q\nwant: "+
