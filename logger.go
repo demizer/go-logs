@@ -72,13 +72,15 @@ const (
 	// by the Logger. Bits or'ed together to control what's printed.
 	Ldate = 1 << iota
 	// full file name and line number: /a/b/c/d.go:23
-	Llongfile
+	LlongFile
 	// base file name and line number: d.go:23. overrides Llongfile
-	Lshortfile
+	LshortFile
 	// Use ansi escape sequences
 	Lansi
+	// Disable ansi in file output
+	LnoFileAnsi
 	// initial values for the standard logger
-	LstdFlags = Ldate | Lansi
+	LstdFlags = Ldate | Lansi | LnoFileAnsi
 )
 
 var (
@@ -131,7 +133,7 @@ func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
 	var line int
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	if l.Flags&(Lshortfile|Llongfile) != 0 {
+	if l.Flags&(LshortFile|LlongFile) != 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
@@ -140,7 +142,7 @@ func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
 			file = "???"
 			line = 0
 		}
-		if l.Flags&Lshortfile != 0 {
+		if l.Flags&LshortFile != 0 {
 			short := file
 			for i := len(file) - 1; i > 0; i-- {
 				if file[i] == '/' {

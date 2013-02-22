@@ -2,8 +2,12 @@ package logger
 
 import (
 	"bytes"
+	"strings"
+	"strconv"
+	"runtime"
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -16,6 +20,39 @@ func TestStream(t *testing.T) {
 	log.Stream = &buf
 	if out := log.Stream; out != &buf {
 		t.Errorf("log.Stream = %p, want %p", out, &buf)
+	}
+}
+
+func TestLongFileFlag(t *testing.T) {
+	b := new(bytes.Buffer)
+	log := New(DEBUG, b)
+	log.Flags = LstdFlags | LlongFile
+	log.Debugln("testing long file flag")
+	_, file, lNum, _ := runtime.Caller(0)
+	dOut := b.String()
+	if strings.Index(dOut, file) < 0 {
+		t.Errorf("Debugln() = %q; does not contain %s", dOut, file)
+	}
+	lSrch := ".go:" + strconv.Itoa(lNum - 1)
+	if strings.Index(dOut, lSrch) < 0 {
+		t.Errorf("Debugln() = %q; does not contain %q", dOut, lSrch)
+	}
+}
+
+func TestShortFileFlag(t *testing.T) {
+	b := new(bytes.Buffer)
+	log := New(DEBUG, b)
+	log.Flags = LstdFlags | LshortFile
+	log.Debugln("testing short file flag")
+	_, file, lNum, _ := runtime.Caller(0)
+	sName := filepath.Base(file)
+	dOut := b.String()
+	if strings.Index(dOut, sName) < 0 || strings.Index(dOut, file) > 0 {
+		t.Errorf("Debugln() = %q; does not contain %s", dOut, file)
+	}
+	lSrch := ".go:" + strconv.Itoa(lNum - 1)
+	if strings.Index(dOut, lSrch) < 0 {
+		t.Errorf("Debugln() = %q; does not contain %q", dOut, lSrch)
 	}
 }
 
@@ -39,9 +76,6 @@ var outputTests = []struct {
 		"\x1b[1mTEST>\x1b[0m: %s: test number 1", false},
 	{logFmt, colorPrefix, PrintPrefix, date, LstdFlags, "test number 2",
 		"\x1b[1m\x1b[31mTEST>\x1b[0m: %s: test number 2", false},
-	{logFmt, ">>>", PrintPrefix, time.Kitchen, Ldate | Lshortfile,
-		"test number 3", ">>>: %s: logger_test.go:67: test number 3",
-		false},
 	{logFmt, AnsiEscape(BOLD, ">>>", OFF), PrintPrefix, date, Ldate,
 		"test number 4", ">>>: %s: test number 4", false},
 	{logFmt, defColorPrefix, DebugPrefix, time.RubyDate, LstdFlags,
