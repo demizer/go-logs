@@ -15,13 +15,13 @@ import (
 )
 
 func TestStream(t *testing.T) {
-	if out := log.Streams[0]; out != os.Stderr {
+	if out := Streams()[0]; out != os.Stderr {
 		t.Errorf("log.Stream is not stderr by default")
 	}
 	var buf bytes.Buffer
-	log.Streams[0] = &buf
-	if out := log.Streams[0]; out != &buf {
-		t.Errorf("log.Stream = %p, want %p", out, &buf)
+	Streams()[0] = &buf
+	if out := Streams()[0]; out != &buf {
+		t.Errorf("Stream = %p, want %p", out, &buf)
 	}
 }
 
@@ -35,20 +35,14 @@ func TestMultiStreams(t *testing.T) {
 	}
 	defer file.Close()
 	var buf bytes.Buffer
-	var wLen int
 	eLen := 68
 	log := New(DEBUG, file, &buf)
-	in := "Testing debug output!"
-	wLen, err = log.Debugln(in)
-	if err != nil {
-		t.Errorf("Debugln(%q) = %d, %v; want: %d, nil", in, wLen, err,
-			eLen, nil)
-	}
-	b := make([]byte, wLen)
+	log.Debugln("Testing debug output!")
+	b := make([]byte, eLen)
 	n, err := file.ReadAt(b, 0)
 	if n != eLen || err != nil {
-		t.Errorf("Read(%d) = %d, %v; want: %d, nil", wLen, n, err,
-			wLen)
+		t.Errorf("Read(%d) = %d, %v; want: %d, nil", eLen, n, err,
+			eLen)
 	}
 	if buf.Len() != eLen {
 		t.Errorf("buf.Len() = %d; want: %d", buf.Len(), eLen)
