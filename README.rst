@@ -47,10 +47,10 @@ needed.
 .. code-block:: go
 
     import (
-            . "github.com/demizer/go-logger"
+            "github.com/demizer/go-logger"
     )
-    log.Level = DEBUG
-    log.Debugln("This message will only be shown if the logging level is DEBUG!")
+    log.Println("This message will be sent to stdout.")
+    log.Debugln("This message will only be shown on stderr if the logging level is DEBUG!")
 
 ------------
 Contributors
