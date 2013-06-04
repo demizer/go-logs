@@ -3,9 +3,9 @@
 
 // Package logger is a better logging system for Go than the generic log
 // package in the Go Standard Library. The logger packages provides colored
-// output, logging levels, custom log formatting, and simultaneous logging
-// output stream to stdout, stderr, and os.File.
-package logger
+// output, logging levels, custom log formatting, and multiple simultaneous
+// output streams like stdout or a file.
+package log
 
 import (
 	"bytes"
