@@ -5,7 +5,7 @@
 // package in the Go Standard Library. The logger packages provides colored
 // output, logging levels, custom log formatting, and multiple simultaneous
 // output streams like stdout or a file.
-package log
+package logger
 
 import (
 	"bytes"

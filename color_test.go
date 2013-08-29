@@ -1,6 +1,6 @@
 // Copyright 2013 The go-logger Authors. All rights reserved.
 // Thi code is MIT licensed. See the LICENSE file for more info.
-package log
+package logger
 
 import (
 	"testing"
