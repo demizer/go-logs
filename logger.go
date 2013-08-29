@@ -83,27 +83,6 @@ const (
 	LstdFlags = Ldate | Lansi | LnoFileAnsi
 )
 
-var (
-	defPrefix      = ">>>"
-	defColorPrefix = AnsiEscape(BOLD, GREEN, ">>>", OFF)
-
-	// The default logger
-	std = New(CRITICAL, os.Stderr)
-)
-
-// New creates a new logger object and returns it.
-func New(level level, streams ...io.Writer) (obj *Logger) {
-	tmpl := template.Must(template.New("std").Funcs(funcMap).Parse(logFmt))
-	obj = &Logger{Streams: streams, DateFormat: time.RubyDate,
-		Flags: LstdFlags, Level: level, Template: tmpl, Prefix: defColorPrefix}
-	return
-}
-
-// Streams returns the Streams for the standard logger.
-func Streams() []io.Writer {
-	return std.Streams
-}
-
 // A Logger represents an active logging object that generates lines of output
 // to an io.Writer. Each logging operation makes a single call to the Writer's
 // Write method. A Logger can be used simultaneously from multiple goroutines;
@@ -119,7 +98,31 @@ type Logger struct {
 	Streams    []io.Writer        // Destination for output
 }
 
-// Write writes the array of bytes (p) to all of the logger.Streams.
+var (
+	defaultPrefix      = "::"
+	defaultPrefixColor = AnsiEscape(BOLD, GREEN, "::", OFF)
+	defaultDate = "20060102-Mon-15:04:05"
+)
+
+// New creates a new logger object and returns it.
+func New(level level, streams ...io.Writer) (obj *Logger) {
+	tmpl := template.Must(template.New("default").Funcs(funcMap).Parse(logFmt))
+	obj = &Logger{Streams: streams, DateFormat: defaultDate,
+		Flags: LstdFlags, Level: level, Template: tmpl, Prefix: defaultPrefixColor}
+	return
+}
+
+func (l *Logger) ParseTemplate(temp string) error {
+	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
+	if err != nil {
+		return err
+	}
+	l.Template = tmpl
+	return nil
+}
+
+// Write writes the array of bytes (p) to all of the logger.Streams. If the
+// Lansi flag is set, ansi escape codes are used to add coloring to the output.
 func (l *Logger) Write(p []byte) (n int, err error) {
 	for _, w := range l.Streams {
 		if w != os.Stdout && w != os.Stderr && w != os.Stdin &&
@@ -206,8 +209,8 @@ func (l *Logger) Print(v ...interface{}) {
 	l.Fprint(PrintLabel, 2, fmt.Sprint(v...), nil)
 }
 
-// Println formats using the default formats for its operands and writes to
-// standard output. Spaces are always added between operands and a newline is
+// Println formats using the default formats for its operands and writes to the
+// output streams. Spaces are always added between operands and a newline is
 // appended.
 func (l *Logger) Println(v ...interface{}) {
 	l.Fprint(PrintLabel, 2, fmt.Sprintln(v...), nil)
