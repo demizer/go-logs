@@ -10,9 +10,9 @@ import (
 // funcMap contains the available functions to the log format template.
 var (
 	funcMap = template.FuncMap{"ansiEscape": AnsiEscape}
-	logFmt  = "{{if .Prefix}}{{.Prefix}}: {{end}}" +
-		"{{if .LogPrefix}}{{.LogPrefix}}: {{end}}" +
-		"{{if .Date}}{{.Date}}: {{end}}" +
+	logFmt  = "{{if .Date}}{{.Date}} {{end}}" +
+		"{{if .Prefix}}{{.Prefix}} {{end}}" +
+		"{{if .LogPrefix}}{{.LogPrefix}} {{end}}" +
 		"{{if .File}}{{.File}}:" +
 		"{{if .Line}}{{.Line}}: {{end}}{{end}}" +
 		"{{if .Text}}{{.Text}}{{end}}"
