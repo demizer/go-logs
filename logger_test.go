@@ -2,25 +2,23 @@ package logger
 
 import (
 	"bytes"
-	"strings"
-	"strconv"
-	"runtime"
 	"fmt"
 	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
 
 func TestStream(t *testing.T) {
-	if out := Streams()[0]; out != os.Stderr {
-		t.Errorf("log.Stream is not stderr by default")
-	}
 	var buf bytes.Buffer
-	Streams()[0] = &buf
-	if out := Streams()[0]; out != &buf {
+	log := New(CRITICAL, os.Stdout, &buf)
+	log.Streams[1] = &buf
+	if out := log.Streams[1]; out != &buf {
 		t.Errorf("Stream = %p, want %p", out, &buf)
 	}
 }
@@ -35,7 +33,7 @@ func TestMultiStreams(t *testing.T) {
 	}
 	defer file.Close()
 	var buf bytes.Buffer
-	eLen := 68
+	eLen := 55
 	log := New(DEBUG, file, &buf)
 	log.Debugln("Testing debug output!")
 	b := make([]byte, eLen)
@@ -59,7 +57,7 @@ func TestLongFileFlag(t *testing.T) {
 	if strings.Index(dOut, file) < 0 {
 		t.Errorf("Debugln() = %q; does not contain %s", dOut, file)
 	}
-	lSrch := ".go:" + strconv.Itoa(lNum - 1)
+	lSrch := ".go:" + strconv.Itoa(lNum-1)
 	if strings.Index(dOut, lSrch) < 0 {
 		t.Errorf("Debugln() = %q; does not contain %q", dOut, lSrch)
 	}
@@ -76,7 +74,7 @@ func TestShortFileFlag(t *testing.T) {
 	if strings.Index(dOut, sName) < 0 || strings.Index(dOut, file) > 0 {
 		t.Errorf("Debugln() = %q; does not contain %s", dOut, file)
 	}
-	lSrch := ".go:" + strconv.Itoa(lNum - 1)
+	lSrch := ".go:" + strconv.Itoa(lNum-1)
 	if strings.Index(dOut, lSrch) < 0 {
 		t.Errorf("Debugln() = %q; does not contain %q", dOut, lSrch)
 	}
@@ -85,7 +83,7 @@ func TestShortFileFlag(t *testing.T) {
 var (
 	boldPrefix  = AnsiEscape(BOLD, "TEST>", OFF)
 	colorPrefix = AnsiEscape(BOLD, RED, "TEST>", OFF)
-	date        = "Mon Jan 02 15:04 2006"
+	date        = "Mon 20060102 15:04:05"
 )
 
 var outputTests = []struct {
@@ -98,22 +96,47 @@ var outputTests = []struct {
 	want       string
 	wantErr    bool
 }{
-	{logFmt, boldPrefix, PrintPrefix, date, LstdFlags, "test number 1",
-		"\x1b[1mTEST>\x1b[0m: %s: test number 1", false},
-	{logFmt, colorPrefix, PrintPrefix, date, LstdFlags, "test number 2",
-		"\x1b[1m\x1b[31mTEST>\x1b[0m: %s: test number 2", false},
-	{logFmt, AnsiEscape(BOLD, ">>>", OFF), PrintPrefix, date, Ldate,
-		"test number 4", ">>>: %s: test number 4", false},
-	{logFmt, defColorPrefix, DebugPrefix, time.RubyDate, LstdFlags,
-		"test number 5", "\x1b[1m\x1b[32m>>>\x1b[0m: \x1b[1m\x1b[37m[DEBUG]\x1b[0m: %s: test number 5", false},
-	{logFmt, defColorPrefix, InfoPrefix, time.RubyDate, LstdFlags,
-		"test number 6", "\x1b[1m\x1b[32m>>>\x1b[0m: \x1b[1m\x1b[32m[INFO]\x1b[0m: %s: test number 6", false},
-	{logFmt, defColorPrefix, WarningPrefix, time.RubyDate, LstdFlags,
-		"test number 7", "\x1b[1m\x1b[32m>>>\x1b[0m: \x1b[1m\x1b[33m[WARNING]\x1b[0m: %s: test number 7", false},
-	{logFmt, defColorPrefix, ErrorPrefix, time.RubyDate, LstdFlags,
-		"test number 8", "\x1b[1m\x1b[32m>>>\x1b[0m: \x1b[1m\x1b[35m[ERROR]\x1b[0m: %s: test number 8", false},
-	{logFmt, defColorPrefix, CriticalPrefix, time.RubyDate, LstdFlags,
-		"test number 9", "\x1b[1m\x1b[32m>>>\x1b[0m: \x1b[1m\x1b[31m[CRITICAL]\x1b[0m: %s: test number 9", false},
+
+	// The %s format specifier is the placeholder for the date.
+	{logFmt, boldPrefix, PrintLabel, date, LstdFlags, "test number 1",
+		"%s \x1b[1mTEST>\x1b[0m test number 1", false},
+
+	{logFmt, colorPrefix, PrintLabel, date, LstdFlags, "test number 2",
+		"%s \x1b[1m\x1b[31mTEST>\x1b[0m test number 2", false},
+
+	// Test output with coloring turned off
+	{logFmt, AnsiEscape(BOLD, "::", OFF), PrintLabel, date, Ldate,
+		"test number 3", "%s :: test number 3", false},
+
+	{logFmt, defaultPrefixColor, DebugLabel, time.RubyDate, LstdFlags,
+		"test number 4",
+		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m test number 4",
+		false},
+
+	{logFmt, defaultPrefixColor, InfoLabel, time.RubyDate, LstdFlags,
+		"test number 5",
+		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[32m[INFO]\x1b[0m test number 5",
+		false},
+
+	{logFmt, defaultPrefixColor, WarningLabel, time.RubyDate, LstdFlags,
+		"test number 6",
+		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[33m[WARNING]\x1b[0m test number 6",
+		false},
+
+	{logFmt, defaultPrefixColor, ErrorLabel, time.RubyDate, LstdFlags,
+		"test number 7",
+		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[35m[ERROR]\x1b[0m test number 7",
+		false},
+
+	{logFmt, defaultPrefixColor, CriticalLabel, time.RubyDate, LstdFlags,
+		"test number 8",
+		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[31m[CRITICAL]\x1b[0m test number 8",
+		false},
+
+	// Test date format
+	{logFmt, defaultPrefixColor, PrintLabel, "Mon 20060102 15:04:05",
+		Ldate, "test number 9",
+		"%s :: test number 9", false},
 }
 
 func TestOutput(t *testing.T) {
@@ -130,8 +153,8 @@ func TestOutput(t *testing.T) {
 		}
 		want := fmt.Sprintf(k.want, d)
 		if buf.String() != want || err != nil && !k.wantErr {
-			t.Errorf("Print test %d failed, \ngot:  %q\nwant: "+
-				"%q", i, buf.String(), want)
+			t.Errorf("Print test %d failed, \ngot:  %q\nwant: " +
+				"%q", i+1, buf.String(), want)
 			continue
 		}
 		fmt.Printf("Test %d OK: %s\n", i, buf.String())
