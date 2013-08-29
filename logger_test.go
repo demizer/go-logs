@@ -89,7 +89,7 @@ var (
 var outputTests = []struct {
 	template   string
 	prefix     string
-	logPrefix  logPrefix
+	logLabel   logLabel
 	dateFormat string
 	flags      int
 	text       string
@@ -147,13 +147,13 @@ func TestOutput(t *testing.T) {
 		log.DateFormat = k.dateFormat
 		log.Flags = k.flags
 		d := time.Now().Format(log.DateFormat)
-		n, err := log.Fprint(k.logPrefix, 1, k.text, &buf)
+		n, err := log.Fprint(k.logLabel, 1, k.text, &buf)
 		if n != buf.Len() {
 			t.Error("Error: ", io.ErrShortWrite)
 		}
 		want := fmt.Sprintf(k.want, d)
 		if buf.String() != want || err != nil && !k.wantErr {
-			t.Errorf("Print test %d failed, \ngot:  %q\nwant: " +
+			t.Errorf("Print test %d failed, \ngot:  %q\nwant: "+
 				"%q", i+1, buf.String(), want)
 			continue
 		}

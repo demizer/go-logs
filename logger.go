@@ -53,18 +53,22 @@ const (
 	CRITICAL
 )
 
-// logPrefix is a string that is added to the output depending on the log
+// logLabel is a string that is added to the output depending on the log
 // function used.
-type logPrefix string
+type logLabel string
 
-const (
-	// Print labels included with log output
-	PrintLabel    logPrefix = ""
-	DebugLabel              = "\x1b[1m\x1b[37m[DEBUG]\x1b[0m"
-	InfoLabel               = "\x1b[1m\x1b[32m[INFO]\x1b[0m"
-	WarningLabel            = "\x1b[1m\x1b[33m[WARNING]\x1b[0m"
-	ErrorLabel              = "\x1b[1m\x1b[35m[ERROR]\x1b[0m"
-	CriticalLabel           = "\x1b[1m\x1b[31m[CRITICAL]\x1b[0m"
+var (
+	defaultDate        = "20060102-Mon-15:04:05"
+	defaultPrefix      = "::"
+	defaultPrefixColor = AnsiEscape(BOLD, GREEN, "::", OFF)
+
+	// Print labels for special logging functions
+	PrintLabel    = logLabel("")
+	DebugLabel    = logLabel(AnsiEscape(BOLD, WHITE, "[DEBUG]", OFF))
+	InfoLabel     = logLabel(AnsiEscape(BOLD, GREEN, "[INFO]", OFF))
+	WarningLabel  = logLabel(AnsiEscape(BOLD, YELLOW, "[WARNING]", OFF))
+	ErrorLabel    = logLabel(AnsiEscape(BOLD, MAGENTA, "[ERROR]", OFF))
+	CriticalLabel = logLabel(AnsiEscape(BOLD, RED, "[CRITICAL]", OFF))
 )
 
 const (
@@ -98,12 +102,6 @@ type Logger struct {
 	Streams    []io.Writer        // Destination for output
 }
 
-var (
-	defaultPrefix      = "::"
-	defaultPrefixColor = AnsiEscape(BOLD, GREEN, "::", OFF)
-	defaultDate = "20060102-Mon-15:04:05"
-)
-
 // New creates a new logger object and returns it.
 func New(level level, streams ...io.Writer) (obj *Logger) {
 	tmpl := template.Must(template.New("default").Funcs(funcMap).Parse(logFmt))
@@ -112,7 +110,9 @@ func New(level level, streams ...io.Writer) (obj *Logger) {
 	return
 }
 
-func (l *Logger) ParseTemplate(temp string) error {
+// SetTemplate allocates and parses a new output template for the logging
+// object.
+func (l *Logger) SetTemplate(temp string) error {
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 // Fprint is used by all of the logging functions to send output to the output
 // stream.
 //
-// logPrefix is the prefix that should be included with the output.
+// logLabel is the prefix that should be included with the output.
 //
 // calldepth is the number of stack frames to skip when getting the file
 // name of original calling function for file name output.
@@ -155,7 +155,7 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 //
 // stream will be used as the output stream the text will be written to. If
 // stream is nil, the stream value contained in the logger object is used.
-func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
+func (l *Logger) Fprint(logLabel logLabel, calldepth int,
 	text string, stream io.Writer) (n int, err error) {
 	now := time.Now()
 	var file string
@@ -186,7 +186,7 @@ func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
 	l.buf = l.buf[:0]
 	l.buf = append(l.buf, text...)
 	date := now.Format(l.DateFormat)
-	f := &format{l.Prefix, logPrefix, date, file, line, string(l.buf)}
+	f := &format{l.Prefix, logLabel, date, file, line, string(l.buf)}
 	var out bytes.Buffer
 	err = l.Template.Execute(&out, f)
 	text = out.String()
@@ -222,91 +222,91 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 	l.Fprint(PrintLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Debug has the same properties as Print except the DEBUG logPrefix is
+// Debug has the same properties as Print except the DEBUG logLabel is
 // included with the output.
 func (l *Logger) Debug(v ...interface{}) {
 	l.Fprint(DebugLabel, 2, fmt.Sprint(v...), nil)
 }
 
-// Debugln has the same properties as Println, except the DEBUG logPrefix is
+// Debugln has the same properties as Println, except the DEBUG logLabel is
 // included with the output.
 func (l *Logger) Debugln(v ...interface{}) {
 	l.Fprint(DebugLabel, 2, fmt.Sprintln(v...), nil)
 }
 
-// Debugf has the same properties as Printf, except the DEBUG logPrefix is
+// Debugf has the same properties as Printf, except the DEBUG logLabel is
 // included with the output.
 func (l *Logger) Debugf(format string, v ...interface{}) {
 	l.Fprint(DebugLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Info has the same properties as Print except the INFO logPrefix is included
+// Info has the same properties as Print except the INFO logLabel is included
 // with the output.
 func (l *Logger) Info(v ...interface{}) {
 	l.Fprint(InfoLabel, 2, fmt.Sprint(v...), nil)
 }
 
-// Infoln has the same properties as Println, except the INFO logPrefix is
+// Infoln has the same properties as Println, except the INFO logLabel is
 // included with the output.
 func (l *Logger) Infoln(v ...interface{}) {
 	l.Fprint(InfoLabel, 2, fmt.Sprintln(v...), nil)
 }
 
-// Infof has the same properties as Println, except the INFO logPrefix is
+// Infof has the same properties as Println, except the INFO logLabel is
 // included with the output.
 func (l *Logger) Infof(format string, v ...interface{}) {
 	l.Fprint(InfoLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Warning has the same properties as Print except the WARNING logPrefix is
+// Warning has the same properties as Print except the WARNING logLabel is
 // included with the output.
 func (l *Logger) Warning(v ...interface{}) {
 	l.Fprint(WarningLabel, 2, fmt.Sprint(v...), nil)
 }
 
-// Warningln has the same properties as Println, except the WARNING logPrefix
+// Warningln has the same properties as Println, except the WARNING logLabel
 // is included with the output.
 func (l *Logger) Warningln(v ...interface{}) {
 	l.Fprint(WarningLabel, 2, fmt.Sprintln(v...), nil)
 }
 
-// Warningf has the same properties as Println, except the WARNING logPrefix is
+// Warningf has the same properties as Println, except the WARNING logLabel is
 // included with the output.
 func (l *Logger) Warningf(format string, v ...interface{}) {
 	l.Fprint(WarningLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Error has the same properties as Print except the ERROR logPrefix is
+// Error has the same properties as Print except the ERROR logLabel is
 // included with the output.
 func (l *Logger) Error(v ...interface{}) {
 	l.Fprint(ErrorLabel, 2, fmt.Sprint(v...), nil)
 }
 
-// Errorln has the same properties as Println, except the ERROR logPrefix is
+// Errorln has the same properties as Println, except the ERROR logLabel is
 // included with the output.
 func (l *Logger) Errorln(v ...interface{}) {
 	l.Fprint(ErrorLabel, 2, fmt.Sprintln(v...), nil)
 }
 
-// Errorf has the same properties as Println, except the ERROR logPrefix is
+// Errorf has the same properties as Println, except the ERROR logLabel is
 // included with the output.
 func (l *Logger) Errorf(format string, v ...interface{}) {
 	l.Fprint(ErrorLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Critical has the same properties as Print except the CRITICAL logPrefix is
+// Critical has the same properties as Print except the CRITICAL logLabel is
 // included with the output.
 func (l *Logger) Critical(v ...interface{}) {
 	l.Fprint(CriticalLabel, 2, fmt.Sprint(v...), nil)
 }
 
-// Criticalln has the same properties as Println, except the CRITICAL logPrefix
+// Criticalln has the same properties as Println, except the CRITICAL logLabel
 // is included with the output.
 func (l *Logger) Criticalln(v ...interface{}) {
 	l.Fprint(CriticalLabel, 2, fmt.Sprintln(v...), nil)
 }
 
-// Criticalf has the same properties as Println, except the CRITICAL logPrefix
+// Criticalf has the same properties as Println, except the CRITICAL logLabel
 // is included with the output.
 func (l *Logger) Criticalf(format string, v ...interface{}) {
 	l.Fprint(CriticalLabel, 2, fmt.Sprintf(format, v...), nil)
