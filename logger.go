@@ -59,12 +59,12 @@ type logPrefix string
 
 const (
 	// Print labels included with log output
-	PrintPrefix    logPrefix = ""
-	DebugPrefix              = "\x1b[1m\x1b[37m[DEBUG]\x1b[0m"
-	InfoPrefix               = "\x1b[1m\x1b[32m[INFO]\x1b[0m"
-	WarningPrefix            = "\x1b[1m\x1b[33m[WARNING]\x1b[0m"
-	ErrorPrefix              = "\x1b[1m\x1b[35m[ERROR]\x1b[0m"
-	CriticalPrefix           = "\x1b[1m\x1b[31m[CRITICAL]\x1b[0m"
+	PrintLabel    logPrefix = ""
+	DebugLabel              = "\x1b[1m\x1b[37m[DEBUG]\x1b[0m"
+	InfoLabel               = "\x1b[1m\x1b[32m[INFO]\x1b[0m"
+	WarningLabel            = "\x1b[1m\x1b[33m[WARNING]\x1b[0m"
+	ErrorLabel              = "\x1b[1m\x1b[35m[ERROR]\x1b[0m"
+	CriticalLabel           = "\x1b[1m\x1b[31m[CRITICAL]\x1b[0m"
 )
 
 const (
@@ -203,108 +203,108 @@ func (l *Logger) Fprint(logPrefix logPrefix, calldepth int,
 // between operands when neither is a string. It returns the number of bytes
 // written and any write error encountered.
 func (l *Logger) Print(v ...interface{}) {
-	l.Fprint(PrintPrefix, 2, fmt.Sprint(v...), os.Stdout)
+	l.Fprint(PrintLabel, 2, fmt.Sprint(v...), nil)
 }
 
 // Println formats using the default formats for its operands and writes to
 // standard output. Spaces are always added between operands and a newline is
 // appended.
 func (l *Logger) Println(v ...interface{}) {
-	l.Fprint(PrintPrefix, 2, fmt.Sprintln(v...), os.Stdout)
+	l.Fprint(PrintLabel, 2, fmt.Sprintln(v...), nil)
 }
 
 // Printf formats according to a format specifier and writes to standard
 // output.
 func (l *Logger) Printf(format string, v ...interface{}) {
-	l.Fprint(PrintPrefix, 2, fmt.Sprintf(format, v...), os.Stdout)
+	l.Fprint(PrintLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Debug has the same properties as Print except the DEBUG logPrefix is
 // included with the output.
 func (l *Logger) Debug(v ...interface{}) {
-	l.Fprint(DebugPrefix, 2, fmt.Sprint(v...), nil)
+	l.Fprint(DebugLabel, 2, fmt.Sprint(v...), nil)
 }
 
 // Debugln has the same properties as Println, except the DEBUG logPrefix is
 // included with the output.
 func (l *Logger) Debugln(v ...interface{}) {
-	l.Fprint(DebugPrefix, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(DebugLabel, 2, fmt.Sprintln(v...), nil)
 }
 
 // Debugf has the same properties as Printf, except the DEBUG logPrefix is
 // included with the output.
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	l.Fprint(DebugPrefix, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(DebugLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Info has the same properties as Print except the INFO logPrefix is included
 // with the output.
 func (l *Logger) Info(v ...interface{}) {
-	l.Fprint(InfoPrefix, 2, fmt.Sprint(v...), nil)
+	l.Fprint(InfoLabel, 2, fmt.Sprint(v...), nil)
 }
 
 // Infoln has the same properties as Println, except the INFO logPrefix is
 // included with the output.
 func (l *Logger) Infoln(v ...interface{}) {
-	l.Fprint(InfoPrefix, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(InfoLabel, 2, fmt.Sprintln(v...), nil)
 }
 
 // Infof has the same properties as Println, except the INFO logPrefix is
 // included with the output.
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.Fprint(InfoPrefix, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(InfoLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Warning has the same properties as Print except the WARNING logPrefix is
 // included with the output.
 func (l *Logger) Warning(v ...interface{}) {
-	l.Fprint(WarningPrefix, 2, fmt.Sprint(v...), nil)
+	l.Fprint(WarningLabel, 2, fmt.Sprint(v...), nil)
 }
 
 // Warningln has the same properties as Println, except the WARNING logPrefix
 // is included with the output.
 func (l *Logger) Warningln(v ...interface{}) {
-	l.Fprint(WarningPrefix, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(WarningLabel, 2, fmt.Sprintln(v...), nil)
 }
 
 // Warningf has the same properties as Println, except the WARNING logPrefix is
 // included with the output.
 func (l *Logger) Warningf(format string, v ...interface{}) {
-	l.Fprint(WarningPrefix, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(WarningLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Error has the same properties as Print except the ERROR logPrefix is
 // included with the output.
 func (l *Logger) Error(v ...interface{}) {
-	l.Fprint(ErrorPrefix, 2, fmt.Sprint(v...), nil)
+	l.Fprint(ErrorLabel, 2, fmt.Sprint(v...), nil)
 }
 
 // Errorln has the same properties as Println, except the ERROR logPrefix is
 // included with the output.
 func (l *Logger) Errorln(v ...interface{}) {
-	l.Fprint(ErrorPrefix, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(ErrorLabel, 2, fmt.Sprintln(v...), nil)
 }
 
 // Errorf has the same properties as Println, except the ERROR logPrefix is
 // included with the output.
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.Fprint(ErrorPrefix, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(ErrorLabel, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Critical has the same properties as Print except the CRITICAL logPrefix is
 // included with the output.
 func (l *Logger) Critical(v ...interface{}) {
-	l.Fprint(CriticalPrefix, 2, fmt.Sprint(v...), nil)
+	l.Fprint(CriticalLabel, 2, fmt.Sprint(v...), nil)
 }
 
 // Criticalln has the same properties as Println, except the CRITICAL logPrefix
 // is included with the output.
 func (l *Logger) Criticalln(v ...interface{}) {
-	l.Fprint(CriticalPrefix, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(CriticalLabel, 2, fmt.Sprintln(v...), nil)
 }
 
 // Criticalf has the same properties as Println, except the CRITICAL logPrefix
 // is included with the output.
 func (l *Logger) Criticalf(format string, v ...interface{}) {
-	l.Fprint(CriticalPrefix, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(CriticalLabel, 2, fmt.Sprintf(format, v...), nil)
 }
