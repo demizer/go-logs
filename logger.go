@@ -58,7 +58,7 @@ const (
 type logLabel string
 
 var (
-	defaultDate        = "20060102-Mon-15:04:05"
+	defaultDate        = "Mon-20060102-15:04:05"
 	defaultPrefix      = "::"
 	defaultPrefixColor = AnsiEscape(BOLD, GREEN, "::", OFF)
 
