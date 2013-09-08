@@ -3,9 +3,7 @@
 
 package logger
 
-import (
-	"text/template"
-)
+import "text/template"
 
 // funcMap contains the available functions to the log format template.
 var (
@@ -21,7 +19,7 @@ var (
 // format is the possible values that can be used in a log output format
 type format struct {
 	Prefix   string
-	LogLabel logLabel
+	LogLabel string
 	Date     string
 	File     string
 	Line     int
