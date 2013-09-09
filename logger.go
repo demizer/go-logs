@@ -170,14 +170,17 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 // stream is nil, the stream value contained in the logger object is used.
 func (l *Logger) Fprint(logLevel level, calldepth int,
 	text string, stream io.Writer) (n int, err error) {
-	if (logLevel != ALL || l.Level != ALL) && logLevel < l.Level {
+
+	if (logLevel != ALL && l.Level != ALL) && logLevel < l.Level {
 		return 0, nil
 	}
+
 	now := time.Now()
 	var file string
 	var line int
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
 	if l.Flags&(LshortFile|LlongFile) != 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
@@ -199,21 +202,26 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		}
 		l.mu.Lock()
 	}
+
 	l.buf = l.buf[:0]
 	l.buf = append(l.buf, text...)
 	date := now.Format(l.DateFormat)
 	f := &format{l.Prefix, l.Level.Label(), date, file, line, string(l.buf)}
+
 	var out bytes.Buffer
 	err = l.Template.Execute(&out, f)
 	text = out.String()
+
 	if l.Flags&Lansi == 0 {
 		text = stripAnsi(out.String())
 	}
+
 	if stream == nil {
 		n, err = l.Write([]byte(text))
 	} else {
 		n, err = stream.Write([]byte(text))
 	}
+
 	return
 }
 

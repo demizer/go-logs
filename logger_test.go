@@ -174,4 +174,16 @@ func TestLevel(t *testing.T) {
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the DEBUG logging level")
 	}
+	buf.Reset()
+	logr.Level = CRITICAL
+	logr.Println("This level should produce output")
+	if buf.Len() == 0 {
+		t.Errorf("Debug() did not produce output at the ALL logging level")
+	}
+	buf.Reset()
+	logr.Level = ALL
+	logr.Debug("This level should produce output")
+	if buf.Len() == 0 {
+		t.Errorf("Debug() did not produce output at the ALL logging level")
+	}
 }
