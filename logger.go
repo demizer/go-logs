@@ -206,7 +206,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	l.buf = l.buf[:0]
 	l.buf = append(l.buf, text...)
 	date := now.Format(l.DateFormat)
-	f := &format{l.Prefix, l.Level.Label(), date, file, line, string(l.buf)}
+	f := &format{l.Prefix, logLevel.Label(), date, file, line, string(l.buf)}
 
 	var out bytes.Buffer
 	err = l.Template.Execute(&out, f)
