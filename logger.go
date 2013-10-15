@@ -1,11 +1,11 @@
-// Copyright 2013 The go-logger Authors. All rights reserved.
+// Copyright 2013 The go-elog Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
-// Package logger is a better logging system for Go than the generic log
-// package in the Go Standard Library. The logger packages provides colored
-// output, logging levels, custom log formatting, and multiple simultaneous
-// output streams like stdout or a file.
-package logger
+// Package log is a better logging system for Go than the generic log package
+// in the Go Standard Library. The logger packages provides colored output,
+// logging levels, custom log formatting, and multiple simultaneous output
+// streams like stdout or a file.
+package log
 
 import (
 	"bytes"

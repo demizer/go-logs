@@ -1,18 +1,18 @@
-===========================================
-go-logger - A simple logging library for Go
-===========================================
+============================================
+go-elog - An enhanced logging library for Go
+============================================
 
-go-logger is a simple logging library for Go that aims to be a more robust
+go-elog is a simple logging library for Go that aims to be a more robust
 logging package for Go than the log package in the standard library.
 
-------------------
-go-logger Features
-------------------
+----------------
+go-elog Features
+----------------
 
 Logging levels
 ==============
 
-never again have to hunt for and remove printf statements (or erroneous package
+Never again have to hunt for and remove printf statements (or erroneous package
 imports) when debugging code. Simply switch to another logging level.
 Supported log levels include DEBUG, INFO, WARNING, ERROR, and CRITICAL.
 
@@ -29,7 +29,7 @@ colore text output simply and easily by using:
 Multiple output streams
 =======================
 
-With go-logger it is possible to log to stdout, stderr, and a file at the same
+With go-elog it is possible to log to stdout, stderr, and a file at the same
 time.
 
 Customize the output format with templates
@@ -41,14 +41,13 @@ Logging output is customizable with text templates.
 Example
 -------
 
-Here is a simple example for using go-logger to hide debug output when not
+Here is a simple example for using go-elog to hide debug output when not
 needed.
 
 .. code-block:: go
 
-    import (
-            "github.com/demizer/go-logger"
-    )
+    import "github.com/demizer/go-elog"
+
     log.Println("This message will be sent to stdout.")
     log.Debugln("This message will only be shown on stderr if the logging level is DEBUG!")
 
@@ -57,5 +56,3 @@ Contributors
 ------------
 
 See the AUTHORS file.
-
-.. _wingo: https://github.com/BurntSushi/wingo
