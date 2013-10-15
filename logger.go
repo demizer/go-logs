@@ -115,6 +115,11 @@ type Logger struct {
 	Streams    []io.Writer        // Destination for output
 }
 
+var (
+	// The default logger
+	std = New(CRITICAL, os.Stderr)
+)
+
 // New creates a new logger object and returns it.
 func New(level level, streams ...io.Writer) (obj *Logger) {
 	tmpl := template.Must(template.New("default").Funcs(funcMap).Parse(logFmt))
@@ -335,3 +340,160 @@ func (l *Logger) Criticalln(v ...interface{}) {
 func (l *Logger) Criticalf(format string, v ...interface{}) {
 	l.Fprint(CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 }
+
+// Print sends output to the logger object output stream regardless of logging
+// level including the logger format properties and flags. Spaces are added
+// between operands when neither is a string. It returns the number of bytes
+// written and any write error encountered.
+func Print(v ...interface{}) {
+	std.Fprint(ALL, 1, fmt.Sprint(v...), nil)
+}
+
+// Println formats using the default formats for its operands and writes to the
+// output streams. Spaces are always added between operands and a newline is
+// appended.
+func Println(v ...interface{}) {
+	std.Fprint(ALL, 2, fmt.Sprintln(v...), nil)
+}
+
+// Printf formats according to a format specifier and writes to standard
+// output.
+func Printf(format string, v ...interface{}) {
+	std.Fprint(ALL, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Debug is similar to Print, except the colorized DEBUG label is prefixed to
+// the output.
+func Debug(v ...interface{}) {
+	std.Fprint(DEBUG, 2, fmt.Sprint(v...), nil)
+}
+
+// Debugln is similar to Println, except the colorized DEBUG label is prefixed to
+// the output.
+func Debugln(v ...interface{}) {
+	std.Fprint(DEBUG, 2, fmt.Sprintln(v...), nil)
+}
+
+// Debugln is similar to Printf, except the colorized DEBUG label is prefixed to
+// the output.
+func Debugf(format string, v ...interface{}) {
+	std.Fprint(DEBUG, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Info is similar to Print, except the colorized INFO label is prefixed to the
+// output.
+func Info(v ...interface{}) {
+	std.Fprint(INFO, 2, fmt.Sprint(v...), nil)
+}
+
+// Infoln is similar to Println, except the colorized INFO label is prefixed to
+// the output.
+func Infoln(v ...interface{}) {
+	std.Fprint(INFO, 2, fmt.Sprintln(v...), nil)
+}
+
+// Infof is similar to Printf, except the colorized INFO label is prefixed to
+// the output.
+func Infof(format string, v ...interface{}) {
+	std.Fprint(INFO, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Warning is similar to Print, except the colorized WARNING label is prefixed
+// to the output.
+func Warning(v ...interface{}) {
+	std.Fprint(WARNING, 2, fmt.Sprint(v...), nil)
+}
+
+// Warningln is similar to Println, except the colorized WARNING label is
+// prefixed to the output.
+func Warningln(v ...interface{}) {
+	std.Fprint(WARNING, 2, fmt.Sprintln(v...), nil)
+}
+
+// Warningf is similar to Printf, except the colorized WARNING label is
+// prefixed to the output.
+func Warningf(format string, v ...interface{}) {
+	std.Fprint(WARNING, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Error is similar to Print, except the colorized ERROR label is prefixed to
+// the output.
+func Error(v ...interface{}) {
+	std.Fprint(ERROR, 2, fmt.Sprint(v...), nil)
+}
+
+// Errorln is similar to Println, except the colorized ERROR label is prefixed
+// to the output.
+func Errorln(v ...interface{}) {
+	std.Fprint(ERROR, 2, fmt.Sprintln(v...), nil)
+}
+
+// Errorf is similar to Printf, except the colorized ERROR label is prefixed to
+// the output.
+func Errorf(format string, v ...interface{}) {
+	std.Fprint(ERROR, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Critical is similar to Print, except the colorized CRITICAL label is
+// prefixed to the output.
+func Critical(v ...interface{}) {
+	std.Fprint(CRITICAL, 2, fmt.Sprint(v...), nil)
+}
+
+// Criticalln is similar to Println, except the colorized CRITICAL label is
+// prefixed to the output.
+func Criticalln(v ...interface{}) {
+	std.Fprint(CRITICAL, 2, fmt.Sprintln(v...), nil)
+}
+
+// Criticalf is similar to Printf, except the colorized CRITICAL label is
+// prefixed to the output.
+func Criticalf(format string, v ...interface{}) {
+	std.Fprint(CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Returns the template of the standard logging object.
+func Template() *template.Template { return std.Template }
+
+// SetTemplate allocates and parses a new output template for the logging
+// object.
+func SetTemplate(temp string) error {
+	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
+	if err != nil {
+		return err
+	}
+	std.Template = tmpl
+	return nil
+}
+
+// Returns the date format used by the standard logging object as a string.
+func DateFormat() string { return std.DateFormat }
+
+// Set the date format of the standard logging object. See the date package
+// documentation for details on using the date format string.
+func SetDateFormat(format string) { std.DateFormat = format }
+
+// Returns the usages flags of the standard logging object.
+func Flags() int { return std.Flags }
+
+// Set the usage flags for the standard logging object.
+func SetFlags(flags int) { std.Flags = flags }
+
+// Get the logging level of the standard logging object.
+func Level() level { return std.Level }
+
+// Set the logging level of the standard logging object.
+func SetLevel(level level) { std.Level = level }
+
+// Get the logging prefix used by the standard logging object. By default it is
+// "::".
+func Prefix() string { return std.Prefix }
+
+// Set the logging prefix of the standard logging object.
+func SetPrefix(prefix string) { std.Prefix = prefix }
+
+// Get the output streams of the standard logger
+func Streams() []io.Writer { return std.Streams }
+
+// Set the output streams of the standard logger
+func SetStreams(streams ...io.Writer) { std.Streams = streams }
