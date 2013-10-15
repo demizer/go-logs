@@ -190,3 +190,30 @@ func TestLevel(t *testing.T) {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
 	}
 }
+
+func TestPrefixNewline(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(os.Stdout, &buf)
+	SetLevel(DEBUG)
+	Debugln("\n\nThis line should be padded with newlines.\n\n")
+
+	// If text sent with the logging functions is prepended with newlines,
+	// these newlines must be prepended to the output and stripped from the
+	// text. First we will make sure the two nl's are at the beginning of
+	// the output.
+	if buf. != '\n' {
+		t.Errorf(`First byte should be "\n", found "%s"`, string(c))
+	}
+	c, err = buf.ReadString('\n')
+	if err != nil {
+		t.Error("ReadString unexpected eof")
+	}
+	// Since nl should be stripped from the text and prepended to the
+	// output, we must make sure the nl is still not in the middle where it
+	// would be if it had not been stripped.
+	nlPos := strings.Index(buf.String(), "] ") + 1
+	if buf.Bytes()[nlPos+1] != '\n' {
+		t.Errorf(`"\n" found at position %d.`, nlPos+1)
+	}
+
+}

@@ -13,6 +13,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strings"
 	"sync"
 	"text/template"
 	"time"
@@ -169,7 +170,10 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 // calldepth is the number of stack frames to skip when getting the file
 // name of original calling function for file name output.
 //
-// text is the string to append to the assembled log format output.
+// text is the string to append to the assembled log format output. If the text
+// is prefixed with newlines, they will be stripped out and placed in front of
+// the completed output (test with template applied) before writing it to the
+// stream.
 //
 // stream will be used as the output stream the text will be written to. If
 // stream is nil, the stream value contained in the logger object is used.
@@ -208,14 +212,29 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		l.mu.Lock()
 	}
 
+	// Reset the buffer
 	l.buf = l.buf[:0]
-	l.buf = append(l.buf, text...)
+
+	trimText := strings.TrimLeft(text, "\n")
+	trimedCount := len(text) - len(trimText)
+	if trimedCount > 0 {
+		l.buf = append(l.buf, trimText...)
+	} else {
+		l.buf = append(l.buf, text...)
+	}
+
 	date := now.Format(l.DateFormat)
-	f := &format{l.Prefix, logLevel.Label(), date, file, line, string(l.buf)}
+	f := &format{l.Prefix, logLevel.Label(), date, file, line,
+		string(l.buf)}
 
 	var out bytes.Buffer
 	err = l.Template.Execute(&out, f)
-	text = out.String()
+
+	if trimedCount > 0 {
+		text = strings.Repeat("\n", trimedCount) + out.String()
+	} else {
+		text = out.String()
+	}
 
 	if l.Flags&Lansi == 0 {
 		text = stripAnsi(out.String())
