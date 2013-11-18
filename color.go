@@ -15,45 +15,45 @@ type eCode int
 
 const (
 	// General text attributes
-	OFF  eCode = iota
-	BOLD       // 1
+	ANSI_OFF  eCode = iota
+	ANSI_BOLD       // 1
 	_
 	_
-	UNDERLINE // 4
-	BLINK     // 5
+	ANSI_UNDERLINE // 4
+	ANSI_BLINK     // 5
 	_
-	REVERSE   // 7
-	CONCEALED // 8
+	ANSI_REVERSE   // 7
+	ANSI_CONCEALED // 8
 )
 
 const (
 	// Foreground text attributes
-	BLACK   eCode = iota + 30
-	RED           // 31
-	GREEN         // 32
-	YELLOW        // 33
-	BLUE          // 34
-	MAGENTA       // 35
-	CYAN          // 36
-	WHITE         // 37
+	ANSI_BLACK   eCode = iota + 30
+	ANSI_RED           // 31
+	ANSI_GREEN         // 32
+	ANSI_YELLOW        // 33
+	ANSI_BLUE          // 34
+	ANSI_MAGENTA       // 35
+	ANSI_CYAN          // 36
+	ANSI_WHITE         // 37
 )
 
 const (
 	// Background text attributes
-	BG_GREY    eCode = iota + 40
-	BG_RED           // 41
-	BG_GREEN         // 42
-	BG_YELLOW        // 43
-	BG_BLUE          // 44
-	BG_MAGENTA       // 45
-	BG_CYAN          // 46
-	BG_WHITE         // 47
+	ANSI_BG_GREY    eCode = iota + 40
+	ANSI_BG_RED           // 41
+	ANSI_BG_GREEN         // 42
+	ANSI_BG_YELLOW        // 43
+	ANSI_BG_BLUE          // 44
+	ANSI_BG_MAGENTA       // 45
+	ANSI_BG_CYAN          // 46
+	ANSI_BG_WHITE         // 47
 )
 
 // AnsiEscape accepts ANSI escape codes and strings to form escape sequences.
 // For example, to create a string with a colorized prefix,
 //
-//      AnsiEscape(BOLD, GREEN, "[DEBUG] ", OFF, "Here is the debug output")
+//      AnsiEscape(ANSI_BOLD, ANSI_GREEN, "[DEBUG] ", ANSI_OFF, "Text string")
 //
 // and a nicely escaped string for terminal output will be returned.
 func AnsiEscape(c ...interface{}) (out string) {
@@ -67,7 +67,7 @@ func AnsiEscape(c ...interface{}) (out string) {
 			fmt.Printf("unexpected type: %T\n", t)
 		}
 	}
-	if c[len(c)-1] != OFF {
+	if c[len(c)-1] != ANSI_OFF {
 		out += "\x1b[0m"
 	}
 	return

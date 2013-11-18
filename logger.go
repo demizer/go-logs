@@ -32,11 +32,11 @@ var levels = [6]string{
 // Used to retrieve a ansi colored label of the logger
 var labels = [6]string{
 	// Print labels for special logging functions
-	AnsiEscape(BOLD, WHITE, "[DEBUG]", OFF),
-	AnsiEscape(BOLD, GREEN, "[INFO]", OFF),
-	AnsiEscape(BOLD, YELLOW, "[WARNING]", OFF),
-	AnsiEscape(BOLD, MAGENTA, "[ERROR]", OFF),
-	AnsiEscape(BOLD, RED, "[CRITICAL]", OFF),
+	AnsiEscape(ANSI_BOLD, ANSI_WHITE, "[DEBUG]", ANSI_OFF),
+	AnsiEscape(ANSI_BOLD, ANSI_GREEN, "[INFO]", ANSI_OFF),
+	AnsiEscape(ANSI_BOLD, ANSI_YELLOW, "[WARNING]", ANSI_OFF),
+	AnsiEscape(ANSI_BOLD, ANSI_MAGENTA, "[ERROR]", ANSI_OFF),
+	AnsiEscape(ANSI_BOLD, ANSI_RED, "[CRITICAL]", ANSI_OFF),
 	"", // The Print* functions do not use a label
 }
 
@@ -84,7 +84,7 @@ const (
 var (
 	defaultDate        = "Mon-20060102-15:04:05"
 	defaultPrefix      = "::"
-	defaultPrefixColor = AnsiEscape(BOLD, GREEN, "::", OFF)
+	defaultPrefixColor = AnsiEscape(ANSI_BOLD, ANSI_GREEN, "::", ANSI_OFF)
 )
 
 const (
