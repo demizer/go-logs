@@ -1,10 +1,10 @@
 // Copyright 2013 The go-elog Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
-// Package log is a better logging system for Go than the generic log package
-// in the Go Standard Library. The logger packages provides colored output,
-// logging levels, custom log formatting, and multiple simultaneous output
-// streams like stdout or a file.
+// The go-elog package is a drop in replacement for the Go standard log package
+// that provides a number of enhancements. Including colored output, logging
+// levels, custom log formatting, and multiple simultaneous output streams like
+// os.Stdout or a File.
 package log
 
 import (
@@ -21,12 +21,12 @@ import (
 
 // Used for string output of the logging object
 var levels = [6]string{
-	"DEBUG",
-	"INFO",
-	"WARNING",
-	"ERROR",
-	"CRITICAL",
-	"ALL",
+	"LEVEL_DEBUG",
+	"LEVEL_INFO",
+	"LEVEL_WARNING",
+	"LEVEL_ERROR",
+	"LEVEL_CRITICAL",
+	"LEVEL_ALL",
 }
 
 // Used to retrieve a ansi colored label of the logger
@@ -51,32 +51,34 @@ func (l level) Label() string {
 }
 
 const (
-	// DEBUG level messages should be used for development logging instead
-	// of Printf calls. When used in this manner, instead of sprinkling
-	// Printf calls everywhere and then having to remove them once the bug
-	// is fixed, the developer can simply change to a higher logging level
-	// and the debug messages will not be sent to the output stream.
-	DEBUG level = iota
+	// LEVEL_DEBUG level messages should be used for development logging
+	// instead of Printf calls. When used in this manner, instead of
+	// sprinkling Printf calls everywhere and then having to remove them
+	// once the bug is fixed, the developer can simply change to a higher
+	// logging level and the debug messages will not be sent to the output
+	// stream.
+	LEVEL_DEBUG level = iota
 
-	// Info level messages should be used to convey more informative output
-	// than debug that could be used by a user.
-	INFO
+	// LEVEL_INFO level messages should be used to convey more informative
+	// output than debug that could be used by a user.
+	LEVEL_INFO
 
-	// Warning messages should be used to notify the user that something
-	// worked, but the expected value was not the result.
-	WARNING
+	// LEVEL_WARNING messages should be used to notify the user that
+	// something worked, but the expected value was not the result.
+	LEVEL_WARNING
 
-	// Error messages should be used when something just did not work at
-	// all.
-	ERROR
+	// LEVEL_ERROR messages should be used when something just did not work
+	// at all.
+	LEVEL_ERROR
 
-	// Critical messages are used when something is completely broken and
-	// unrecoverable. Critical messages are usually followed by os.Exit().
-	CRITICAL
+	// LEVEL_CRITICAL messages are used when something is completely broken
+	// and unrecoverable. Critical messages are usually followed by
+	// os.Exit().
+	LEVEL_CRITICAL
 
-	// ALL level shows all messages. This is used by default for the
+	// LEVEL_ALL level shows all messages. This is used by default for the
 	// Print*() functions.
-	ALL
+	LEVEL_ALL
 )
 
 var (
@@ -89,14 +91,19 @@ const (
 	// These flags define which text to prefix to each log entry generated
 	// by the Logger. Bits or'ed together to control what's printed.
 	Ldate = 1 << iota
+
 	// full file name and line number: /a/b/c/d.go:23
 	LlongFile
+
 	// base file name and line number: d.go:23. overrides Llongfile
 	LshortFile
+
 	// Use ansi escape sequences
 	Lansi
+
 	// Disable ansi in file output
 	LnoFileAnsi
+
 	// initial values for the standard logger
 	LstdFlags = Ldate | Lansi | LnoFileAnsi
 )
@@ -118,7 +125,7 @@ type Logger struct {
 
 var (
 	// The default logger
-	std = New(CRITICAL, os.Stderr)
+	std = New(LEVEL_CRITICAL, os.Stderr)
 )
 
 // New creates a new logger object and returns it.
@@ -177,10 +184,13 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 //
 // stream will be used as the output stream the text will be written to. If
 // stream is nil, the stream value contained in the logger object is used.
+//
+// Fprint returns the number of bytes written to the stream or an error.
 func (l *Logger) Fprint(logLevel level, calldepth int,
 	text string, stream io.Writer) (n int, err error) {
 
-	if (logLevel != ALL && l.Level != ALL) && logLevel < l.Level {
+	if (logLevel != LEVEL_ALL && l.Level != LEVEL_ALL) &&
+		logLevel < l.Level {
 		return 0, nil
 	}
 
@@ -192,6 +202,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	if l.Flags&(LshortFile|LlongFile) != 0 {
 		// release lock while getting caller info - it's expensive.
+		// TODO: Write the test!!
 		l.mu.Unlock()
 		var ok bool
 		_, file, line, ok = runtime.Caller(calldepth)
@@ -249,115 +260,124 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	return
 }
 
-// Print sends output to the logger object output stream regardless of logging
-// level including the logger format properties and flags. Spaces are added
-// between operands when neither is a string. It returns the number of bytes
-// written and any write error encountered.
-func (l *Logger) Print(v ...interface{}) {
-	l.Fprint(ALL, 1, fmt.Sprint(v...), nil)
-}
-
-// Println formats using the default formats for its operands and writes to the
-// output streams. Spaces are always added between operands and a newline is
-// appended.
-func (l *Logger) Println(v ...interface{}) {
-	l.Fprint(ALL, 2, fmt.Sprintln(v...), nil)
-}
-
-// Printf formats according to a format specifier and writes to standard
-// output.
+// Printf is equivalent to log.Printf().
 func (l *Logger) Printf(format string, v ...interface{}) {
-	l.Fprint(ALL, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_ALL, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Debug is similar to Print, except the colorized DEBUG label is prefixed to
-// the output.
-func (l *Logger) Debug(v ...interface{}) {
-	l.Fprint(DEBUG, 2, fmt.Sprint(v...), nil)
+// Print is equivalent to log.Print().
+func (l *Logger) Print(v ...interface{}) {
+	l.Fprint(LEVEL_ALL, 2, fmt.Sprint(v...), nil)
 }
 
-// Debugln is similar to Println, except the colorized DEBUG label is prefixed to
-// the output.
-func (l *Logger) Debugln(v ...interface{}) {
-	l.Fprint(DEBUG, 2, fmt.Sprintln(v...), nil)
+// Println is equivalent to log.Println().
+func (l *Logger) Println(v ...interface{}) {
+	l.Fprint(LEVEL_ALL, 2, fmt.Sprintln(v...), nil)
 }
 
-// Debugln is similar to Printf, except the colorized DEBUG label is prefixed to
-// the output.
+// Fatalf is equivalent to log.Fatalf().
+func (l *Logger) Fatalf(format string, v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Fatal is equivalent to log.Fatal().
+func (l *Logger) Fatal(v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+}
+
+// Fatalln is equivalent to log.Fatalln().
+func (l *Logger) Fatalln(v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
+}
+
+// Panicf is equivalent to log.Panicf().
+func (l *Logger) Panicf(format string, v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Panic is equivalent to log.Panic().
+func (l *Logger) Panic(v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+}
+
+// Panicln is equivalent to log.Panicln().
+func (l *Logger) Panicln(v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
+}
+
+// Debugf is equivalent to log.Debugf().
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	l.Fprint(DEBUG, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Info is similar to Print, except the colorized INFO label is prefixed to the
-// output.
-func (l *Logger) Info(v ...interface{}) {
-	l.Fprint(INFO, 2, fmt.Sprint(v...), nil)
+// Debug is equivalent to log.Debug().
+func (l *Logger) Debug(v ...interface{}) {
+	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
 }
 
-// Infoln is similar to Println, except the colorized INFO label is prefixed to
-// the output.
-func (l *Logger) Infoln(v ...interface{}) {
-	l.Fprint(INFO, 2, fmt.Sprintln(v...), nil)
+// Debugln is equivalent to log.Debugln().
+func (l *Logger) Debugln(v ...interface{}) {
+	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
 }
 
-// Infof is similar to Printf, except the colorized INFO label is prefixed to
-// the output.
+// Infof is equivalent to log.Infof().
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.Fprint(INFO, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Warning is similar to Print, except the colorized WARNING label is prefixed
-// to the output.
-func (l *Logger) Warning(v ...interface{}) {
-	l.Fprint(WARNING, 2, fmt.Sprint(v...), nil)
+// Info is equivalent to log.Info().
+func (l *Logger) Info(v ...interface{}) {
+	l.Fprint(LEVEL_INFO, 2, fmt.Sprint(v...), nil)
 }
 
-// Warningln is similar to Println, except the colorized WARNING label is
-// prefixed to the output.
-func (l *Logger) Warningln(v ...interface{}) {
-	l.Fprint(WARNING, 2, fmt.Sprintln(v...), nil)
+// Infoln is equivalent to log.Infoln().
+func (l *Logger) Infoln(v ...interface{}) {
+	l.Fprint(LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
 }
 
-// Warningf is similar to Printf, except the colorized WARNING label is
-// prefixed to the output.
+// Warningf is equivalent to log.Warningf().
 func (l *Logger) Warningf(format string, v ...interface{}) {
-	l.Fprint(WARNING, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Error is similar to Print, except the colorized ERROR label is prefixed to
-// the output.
-func (l *Logger) Error(v ...interface{}) {
-	l.Fprint(ERROR, 2, fmt.Sprint(v...), nil)
+// Warning is equivalent to log.Warning().
+func (l *Logger) Warning(v ...interface{}) {
+	l.Fprint(LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
 }
 
-// Errorln is similar to Println, except the colorized ERROR label is prefixed
-// to the output.
-func (l *Logger) Errorln(v ...interface{}) {
-	l.Fprint(ERROR, 2, fmt.Sprintln(v...), nil)
+// Warningln is equivalent to log.Warningln().
+func (l *Logger) Warningln(v ...interface{}) {
+	l.Fprint(LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
 }
 
-// Errorf is similar to Printf, except the colorized ERROR label is prefixed to
-// the output.
+// Errorf is equivalent to log.Errorf().
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.Fprint(ERROR, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Critical is similar to Print, except the colorized CRITICAL label is
-// prefixed to the output.
-func (l *Logger) Critical(v ...interface{}) {
-	l.Fprint(CRITICAL, 2, fmt.Sprint(v...), nil)
+// Error is equivalent to log.Error().
+func (l *Logger) Error(v ...interface{}) {
+	l.Fprint(LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
 }
 
-// Criticalln is similar to Println, except the colorized CRITICAL label is
-// prefixed to the output.
-func (l *Logger) Criticalln(v ...interface{}) {
-	l.Fprint(CRITICAL, 2, fmt.Sprintln(v...), nil)
+// Errorln is equivalent to log.Errorln().
+func (l *Logger) Errorln(v ...interface{}) {
+	l.Fprint(LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
 }
 
-// Criticalf is similar to Printf, except the colorized CRITICAL label is
-// prefixed to the output.
+// Criticalf is equivalent to log.Criticalf().
 func (l *Logger) Criticalf(format string, v ...interface{}) {
-	l.Fprint(CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Critical is equivalent to log.Critical().
+func (l *Logger) Critical(v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+}
+
+// Criticalln is equivalent to log.Criticalln().
+func (l *Logger) Criticalln(v ...interface{}) {
+	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
 
 // Print sends output to the logger object output stream regardless of logging
@@ -365,110 +385,151 @@ func (l *Logger) Criticalf(format string, v ...interface{}) {
 // between operands when neither is a string. It returns the number of bytes
 // written and any write error encountered.
 func Print(v ...interface{}) {
-	std.Fprint(ALL, 1, fmt.Sprint(v...), nil)
+	std.Fprint(LEVEL_ALL, 1, fmt.Sprint(v...), nil)
 }
 
 // Println formats using the default formats for its operands and writes to the
 // output streams. Spaces are always added between operands and a newline is
 // appended.
 func Println(v ...interface{}) {
-	std.Fprint(ALL, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(LEVEL_ALL, 2, fmt.Sprintln(v...), nil)
 }
 
 // Printf formats according to a format specifier and writes to standard
 // output.
 func Printf(format string, v ...interface{}) {
-	std.Fprint(ALL, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(LEVEL_ALL, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Debug is similar to Print, except the colorized DEBUG label is prefixed to
-// the output.
-func Debug(v ...interface{}) {
-	std.Fprint(DEBUG, 2, fmt.Sprint(v...), nil)
+// Fatal sends output to the standard logger object output stream(s) using
+// LEVEL_CRITICAL. Fatal will terminate the program on completion of output
+// with os.Exit(1). Spaces are added between operands when neither is a string.
+func Fatal(v ...interface{}) {
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 }
 
-// Debugln is similar to Println, except the colorized DEBUG label is prefixed to
-// the output.
-func Debugln(v ...interface{}) {
-	std.Fprint(DEBUG, 2, fmt.Sprintln(v...), nil)
+// Fatalln outputs using the default formats for its operands and writes to the
+// output streams of the standard logger object. Spaces are always added
+// between operands and a newline is appended.
+func Fatalln(v ...interface{}) {
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
 
-// Debugln is similar to Printf, except the colorized DEBUG label is prefixed to
-// the output.
-func Debugf(format string, v ...interface{}) {
-	std.Fprint(DEBUG, 2, fmt.Sprintf(format, v...), nil)
-}
-
-// Info is similar to Print, except the colorized INFO label is prefixed to the
+// Fatalf formats according to a format specifier and writes to standard
 // output.
-func Info(v ...interface{}) {
-	std.Fprint(INFO, 2, fmt.Sprint(v...), nil)
+func Fatalf(format string, v ...interface{}) {
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Infoln is similar to Println, except the colorized INFO label is prefixed to
-// the output.
-func Infoln(v ...interface{}) {
-	std.Fprint(INFO, 2, fmt.Sprintln(v...), nil)
+// Panic sends output to the standard logger object output stream(s) using
+// LEVEL_CRITICAL, then Panic() will be called. Spaces are added between
+// operands when neither is a string.
+func Panic(v ...interface{}) {
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 }
 
-// Infof is similar to Printf, except the colorized INFO label is prefixed to
-// the output.
-func Infof(format string, v ...interface{}) {
-	std.Fprint(INFO, 2, fmt.Sprintf(format, v...), nil)
+// Panicln outputs using the default formats for its operands and writes to the
+// output streams of the standard logger object. Spaces are always added
+// between operands and a newline is appended. Panic() is called once output
+// has been completed.
+func Panicln(v ...interface{}) {
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
 
-// Warning is similar to Print, except the colorized WARNING label is prefixed
+// Panicf formats according to a format specifier and writes to standard
+// output. Panic() is called once output has been completed.
+func Panicf(format string, v ...interface{}) {
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Debug is similar to Print, except the colorized LEVEL_DEBUG label is
+// prefixed to the output.
+func Debug(v ...interface{}) {
+	std.Fprint(LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
+}
+
+// Debugln is similar to Println, except the colorized LEVEL_DEBUG label is
+// prefixed to the output.
+func Debugln(v ...interface{}) {
+	std.Fprint(LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
+}
+
+// Debugln is similar to Printf, except the colorized LEVEL_DEBUG label is
+// prefixed to the output.
+func Debugf(format string, v ...interface{}) {
+	std.Fprint(LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Info is similar to Print, except the colorized LEVEL_INFO label is prefixed
 // to the output.
-func Warning(v ...interface{}) {
-	std.Fprint(WARNING, 2, fmt.Sprint(v...), nil)
+func Info(v ...interface{}) {
+	std.Fprint(LEVEL_INFO, 2, fmt.Sprint(v...), nil)
 }
 
-// Warningln is similar to Println, except the colorized WARNING label is
+// Infoln is similar to Println, except the colorized LEVEL_INFO label is
+// prefixed to the output.
+func Infoln(v ...interface{}) {
+	std.Fprint(LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
+}
+
+// Infof is similar to Printf, except the colorized LEVEL_INFO label is
+// prefixed to the output.
+func Infof(format string, v ...interface{}) {
+	std.Fprint(LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
+}
+
+// Warning is similar to Print, except the colorized LEVEL_WARNING label is
+// prefixed to the output.
+func Warning(v ...interface{}) {
+	std.Fprint(LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
+}
+
+// Warningln is similar to Println, except the colorized LEVEL_WARNING label is
 // prefixed to the output.
 func Warningln(v ...interface{}) {
-	std.Fprint(WARNING, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
 }
 
-// Warningf is similar to Printf, except the colorized WARNING label is
+// Warningf is similar to Printf, except the colorized LEVEL_WARNING label is
 // prefixed to the output.
 func Warningf(format string, v ...interface{}) {
-	std.Fprint(WARNING, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Error is similar to Print, except the colorized ERROR label is prefixed to
-// the output.
+// Error is similar to Print, except the colorized LEVEL_ERROR label is
+// prefixed to the output.
 func Error(v ...interface{}) {
-	std.Fprint(ERROR, 2, fmt.Sprint(v...), nil)
+	std.Fprint(LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
 }
 
-// Errorln is similar to Println, except the colorized ERROR label is prefixed
-// to the output.
+// Errorln is similar to Println, except the colorized LEVEL_ERROR label is
+// prefixed to the output.
 func Errorln(v ...interface{}) {
-	std.Fprint(ERROR, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
 }
 
-// Errorf is similar to Printf, except the colorized ERROR label is prefixed to
-// the output.
+// Errorf is similar to Printf, except the colorized LEVEL_ERROR label is
+// prefixed to the output.
 func Errorf(format string, v ...interface{}) {
-	std.Fprint(ERROR, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
 }
 
-// Critical is similar to Print, except the colorized CRITICAL label is
+// Critical is similar to Print, except the colorized LEVEL_CRITICAL label is
 // prefixed to the output.
 func Critical(v ...interface{}) {
-	std.Fprint(CRITICAL, 2, fmt.Sprint(v...), nil)
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 }
 
-// Criticalln is similar to Println, except the colorized CRITICAL label is
-// prefixed to the output.
+// Criticalln is similar to Println, except the colorized LEVEL_CRITICAL label
+// is prefixed to the output.
 func Criticalln(v ...interface{}) {
-	std.Fprint(CRITICAL, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
 
-// Criticalf is similar to Printf, except the colorized CRITICAL label is
+// Criticalf is similar to Printf, except the colorized LEVEL_CRITICAL label is
 // prefixed to the output.
 func Criticalf(format string, v ...interface{}) {
-	std.Fprint(CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Returns the template of the standard logging object.

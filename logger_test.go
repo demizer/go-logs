@@ -19,7 +19,7 @@ import (
 
 func TestStream(t *testing.T) {
 	var buf bytes.Buffer
-	logr := New(CRITICAL, os.Stdout, &buf)
+	logr := New(LEVEL_CRITICAL, os.Stdout, &buf)
 	logr.Streams[1] = &buf
 	if out := logr.Streams[1]; out != &buf {
 		t.Errorf("Stream = %p, want %p", out, &buf)
@@ -37,7 +37,7 @@ func TestMultiStreams(t *testing.T) {
 	defer file.Close()
 	var buf bytes.Buffer
 	eLen := 55
-	logr := New(DEBUG, file, &buf)
+	logr := New(LEVEL_DEBUG, file, &buf)
 	logr.Debugln("Testing debug output!")
 	b := make([]byte, eLen)
 	n, err := file.ReadAt(b, 0)
@@ -52,7 +52,7 @@ func TestMultiStreams(t *testing.T) {
 
 func TestLongFileFlag(t *testing.T) {
 	b := new(bytes.Buffer)
-	logr := New(DEBUG, b)
+	logr := New(LEVEL_DEBUG, b)
 	logr.Flags = LstdFlags | LlongFile
 	logr.Debugln("testing long file flag")
 	_, file, lNum, _ := runtime.Caller(0)
@@ -68,7 +68,7 @@ func TestLongFileFlag(t *testing.T) {
 
 func TestShortFileFlag(t *testing.T) {
 	b := new(bytes.Buffer)
-	logr := New(DEBUG, b)
+	logr := New(LEVEL_DEBUG, b)
 	logr.Flags = LstdFlags | LshortFile
 	logr.Debugln("testing short file flag")
 	_, file, lNum, _ := runtime.Caller(0)
@@ -84,8 +84,8 @@ func TestShortFileFlag(t *testing.T) {
 }
 
 var (
-	boldPrefix  = AnsiEscape(BOLD, "TEST>", OFF)
-	colorPrefix = AnsiEscape(BOLD, RED, "TEST>", OFF)
+	boldPrefix  = AnsiEscape(ANSI_BOLD, "TEST>", ANSI_OFF)
+	colorPrefix = AnsiEscape(ANSI_BOLD, ANSI_RED, "TEST>", ANSI_OFF)
 	date        = "Mon 20060102 15:04:05"
 )
 
@@ -101,43 +101,43 @@ var outputTests = []struct {
 }{
 
 	// The %s format specifier is the placeholder for the date.
-	{logFmt, boldPrefix, ALL, date, LstdFlags, "test number 1",
+	{logFmt, boldPrefix, LEVEL_ALL, date, LstdFlags, "test number 1",
 		"%s \x1b[1mTEST>\x1b[0m test number 1", false},
 
-	{logFmt, colorPrefix, ALL, date, LstdFlags, "test number 2",
+	{logFmt, colorPrefix, LEVEL_ALL, date, LstdFlags, "test number 2",
 		"%s \x1b[1m\x1b[31mTEST>\x1b[0m test number 2", false},
 
 	// Test output with coloring turned off
-	{logFmt, AnsiEscape(BOLD, "::", OFF), ALL, date, Ldate,
+	{logFmt, AnsiEscape(ANSI_BOLD, "::", ANSI_OFF), LEVEL_ALL, date, Ldate,
 		"test number 3", "%s :: test number 3", false},
 
-	{logFmt, defaultPrefixColor, DEBUG, time.RubyDate, LstdFlags,
+	{logFmt, defaultPrefixColor, LEVEL_DEBUG, time.RubyDate, LstdFlags,
 		"test number 4",
 		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m test number 4",
 		false},
 
-	{logFmt, defaultPrefixColor, INFO, time.RubyDate, LstdFlags,
+	{logFmt, defaultPrefixColor, LEVEL_INFO, time.RubyDate, LstdFlags,
 		"test number 5",
 		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[32m[INFO]\x1b[0m test number 5",
 		false},
 
-	{logFmt, defaultPrefixColor, WARNING, time.RubyDate, LstdFlags,
+	{logFmt, defaultPrefixColor, LEVEL_WARNING, time.RubyDate, LstdFlags,
 		"test number 6",
 		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[33m[WARNING]\x1b[0m test number 6",
 		false},
 
-	{logFmt, defaultPrefixColor, ERROR, time.RubyDate, LstdFlags,
+	{logFmt, defaultPrefixColor, LEVEL_ERROR, time.RubyDate, LstdFlags,
 		"test number 7",
 		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[35m[ERROR]\x1b[0m test number 7",
 		false},
 
-	{logFmt, defaultPrefixColor, CRITICAL, time.RubyDate, LstdFlags,
+	{logFmt, defaultPrefixColor, LEVEL_CRITICAL, time.RubyDate, LstdFlags,
 		"test number 8",
 		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[31m[CRITICAL]\x1b[0m test number 8",
 		false},
 
 	// Test date format
-	{logFmt, defaultPrefixColor, ALL, "Mon 20060102 15:04:05",
+	{logFmt, defaultPrefixColor, LEVEL_ALL, "Mon 20060102 15:04:05",
 		Ldate, "test number 9",
 		"%s :: test number 9", false},
 }
@@ -145,7 +145,7 @@ var outputTests = []struct {
 func TestOutput(t *testing.T) {
 	for i, k := range outputTests {
 		var buf bytes.Buffer
-		logr := New(DEBUG, &buf)
+		logr := New(LEVEL_DEBUG, &buf)
 		logr.Prefix = k.prefix
 		logr.DateFormat = k.dateFormat
 		logr.Flags = k.flags
@@ -167,24 +167,24 @@ func TestOutput(t *testing.T) {
 
 func TestLevel(t *testing.T) {
 	var buf bytes.Buffer
-	logr := New(CRITICAL, &buf)
+	logr := New(LEVEL_CRITICAL, &buf)
 	logr.Debug("This level should produce no output")
 	if buf.Len() != 0 {
-		t.Errorf("Debug() produced output at CRITICAL logging level")
+		t.Errorf("Debug() produced output at LEVEL_CRITICAL logging level")
 	}
-	logr.Level = DEBUG
+	logr.Level = LEVEL_DEBUG
 	logr.Debug("This level should produce output")
 	if buf.Len() == 0 {
-		t.Errorf("Debug() did not produce output at the DEBUG logging level")
+		t.Errorf("Debug() did not produce output at the LEVEL_DEBUG logging level")
 	}
 	buf.Reset()
-	logr.Level = CRITICAL
+	logr.Level = LEVEL_CRITICAL
 	logr.Println("This level should produce output")
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
 	}
 	buf.Reset()
-	logr.Level = ALL
+	logr.Level = LEVEL_ALL
 	logr.Debug("This level should produce output")
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
@@ -194,7 +194,7 @@ func TestLevel(t *testing.T) {
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(os.Stdout, &buf)
-	SetLevel(DEBUG)
+	SetLevel(LEVEL_DEBUG)
 	Debugln("\n\nThis line should be padded with newlines.\n\n")
 
 	// If text sent with the logging functions is prepended with newlines,
