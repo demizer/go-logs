@@ -104,6 +104,9 @@ const (
 	// Disable ansi in file output
 	LnoFileAnsi
 
+	// Disable prefix output
+	LnoPrefix
+
 	// initial values for the standard logger
 	LstdFlags = Ldate | Lansi | LnoFileAnsi
 )
@@ -373,7 +376,6 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	if l.Flags&(LshortFile|LlongFile) != 0 {
 		// release lock while getting caller info - it's expensive.
-		// TODO: Write the test!!
 		l.mu.Unlock()
 		var ok bool
 		_, file, line, ok = runtime.Caller(calldepth)
@@ -406,8 +408,14 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	date := now.Format(l.DateFormat)
-	f := &format{l.Prefix, logLevel.Label(), date, file, line,
-		string(l.buf)}
+
+	var prefix string
+	if l.Flags&(LnoPrefix) == 0 {
+		prefix = l.Prefix
+	}
+
+	f := &format{prefix, logLevel.Label(), date, file, line,
+		     string(l.buf)}
 
 	var out bytes.Buffer
 	err = l.Template.Execute(&out, f)
