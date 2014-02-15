@@ -221,3 +221,15 @@ func TestPrefixNewline(t *testing.T) {
 	}
 
 }
+
+func TestFlagsDate(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(os.Stdout, &buf)
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix)
+	Debugln("This output should not have a date.")
+	expect := "[DEBUG] This output should not have a date.\n"
+	if buf.String() != expect {
+		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
+	}
+}

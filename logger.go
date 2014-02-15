@@ -407,7 +407,11 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		l.buf = append(l.buf, text...)
 	}
 
-	date := now.Format(l.DateFormat)
+
+	var date string
+	if l.Flags&(Ldate) != 0 {
+		date = now.Format(l.DateFormat)
+	}
 
 	var prefix string
 	if l.Flags&(LnoPrefix) == 0 {
