@@ -211,9 +211,6 @@ func Println(v ...interface{}) {
 	std.Fprint(LEVEL_ALL, 2, fmt.Sprintln(v...), nil)
 }
 
-//
-// TODO: Need to test this!!
-//
 // Fatalf is equivalent to Printf(), but will terminate the program with
 // os.Exit(1) once output is complete.
 func Fatalf(format string, v ...interface{}) {
@@ -235,9 +232,6 @@ func Fatalln(v ...interface{}) {
 	os.Exit(1)
 }
 
-//
-// TODO: Need to test this!!
-//
 // Panicf is equivalent to Printf(), but panic() is called once output is
 // complete.
 func Panicf(format string, v ...interface{}) {
@@ -424,7 +418,6 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	} else {
 		l.buf = append(l.buf, text...)
 	}
-
 
 	var date string
 	var prefix string
