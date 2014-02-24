@@ -260,3 +260,15 @@ func TestFlagsLfunctionName(t *testing.T) {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
 }
+
+func TestFlagsNoLansiWithNewlinePadding(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(&buf)
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix)
+	Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
+	expect := "\n\n[DEBUG] This output should be padded with newlines and not colored.\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+	}
+}

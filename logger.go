@@ -449,22 +449,25 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	var out bytes.Buffer
+	var strippedText, finalText string
 	err = l.Template.Execute(&out, f)
 
-	if trimedCount > 0 {
-		text = strings.Repeat("\n", trimedCount) + out.String()
-	} else {
-		text = out.String()
+	if l.Flags&Lansi == 0 {
+		strippedText = stripAnsi(out.String())
 	}
 
-	if l.Flags&Lansi == 0 {
-		text = stripAnsi(out.String())
+	if trimedCount > 0 && l.Flags&Lansi == 0 {
+		finalText = strings.Repeat("\n", trimedCount) + strippedText
+	} else if l.Flags&Lansi == 0 {
+		finalText = strippedText
+	} else {
+		finalText = out.String()
 	}
 
 	if stream == nil {
-		n, err = l.Write([]byte(text))
+		n, err = l.Write([]byte(finalText))
 	} else {
-		n, err = stream.Write([]byte(text))
+		n, err = stream.Write([]byte(finalText))
 	}
 
 	return
