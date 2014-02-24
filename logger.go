@@ -92,11 +92,11 @@ const (
 	// by the Logger. Bits or'ed together to control what's printed.
 	Ldate = 1 << iota
 
-	// full file name and line number: /a/b/c/d.go:23
-	LlongFile
+	// Full file name and line number: /a/b/c/d.go:23
+	LlongFileName
 
-	// base file name and line number: d.go:23. overrides Llongfile
-	LshortFile
+	// Base file name and line number: d.go:23. overrides LshortFileName
+	LshortFileName
 
 	// Use ansi escape sequences
 	Lansi
@@ -374,7 +374,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.Flags&(LshortFile|LlongFile) != 0 {
+	if l.Flags&(LlongFileName|LshortFileName|LfunctionName) != 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
@@ -383,7 +383,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 			file = "???"
 			line = 0
 		}
-		if l.Flags&LshortFile != 0 {
+		if l.Flags&LshortFileName != 0 {
 			short := file
 			for i := len(file) - 1; i > 0; i-- {
 				if file[i] == '/' {
@@ -418,8 +418,17 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		prefix = l.Prefix
 	}
 
-	f := &format{prefix, logLevel.Label(), date, file, line,
-		     string(l.buf)}
+	if l.Flags&(LlongFileName|LshortFileName) == 0 {
+		file = ""
+	}
+
+	f := &format{
+		Prefix: prefix,
+		LogLabel: logLevel.Label(),
+		Date: date,
+		FileName: file,
+		Text: string(l.buf),
+	}
 
 	var out bytes.Buffer
 	err = l.Template.Execute(&out, f)
