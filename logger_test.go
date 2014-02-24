@@ -62,7 +62,7 @@ func TestLongFileFlag(t *testing.T) {
 	expect := fmt.Sprintf("[DEBUG] %s: Test long file flag\n", file)
 
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
 }
 
@@ -89,7 +89,7 @@ func TestShortFileFlag(t *testing.T) {
 	expect := fmt.Sprintf("[DEBUG] %s: Test short file flag\n", file)
 
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
 }
 
@@ -242,7 +242,7 @@ func TestFlagsDate(t *testing.T) {
 
 	expect := "[DEBUG] This output should not have a date.\n"
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
 }
 
@@ -256,6 +256,6 @@ func TestFlagsFunctionName(t *testing.T) {
 	Debugln("This output should have a function name.")
 	expect := "[DEBUG] TestFlagsFunction: This output should have a function name.\n"
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
 }
