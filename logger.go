@@ -98,6 +98,9 @@ const (
 	// Base file name and line number: d.go:23. overrides LshortFileName
 	LshortFileName
 
+	// Calling function name
+	LfunctionName
+
 	// Use ansi escape sequences
 	Lansi
 
@@ -369,8 +372,10 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	now := time.Now()
-	var file string
+	var pgmC uintptr
+	var file,fName string
 	var line int
+
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -378,7 +383,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
-		_, file, line, ok = runtime.Caller(calldepth)
+		pgmC, file, line, ok = runtime.Caller(calldepth)
 		if !ok {
 			file = "???"
 			line = 0
@@ -392,6 +397,23 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 				}
 			}
 			file = short
+		}
+		if l.Flags&LfunctionName != 0 {
+			fAtPC := runtime.FuncForPC(pgmC)
+			fName = fAtPC.Name()
+			// fmt.Println(fName)
+			// fmt.Println("fname length:", len(fName))
+			for i := len(fName) - 1; i >= 0; i-- {
+				// fmt.Printf("i = %d, %s == %s = %+v\n", i,
+					// string(fName[i]), string('.'), fName[i] == '.')
+				// if file[i] == ':' {
+					// endFname = i
+				// }
+				if fName[i] == '.' {
+					fName = fName[i+1:]
+					break
+				}
+			}
 		}
 		l.mu.Lock()
 	}
@@ -409,11 +431,12 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 
 	var date string
+	var prefix string
+
 	if l.Flags&(Ldate) != 0 {
 		date = now.Format(l.DateFormat)
 	}
 
-	var prefix string
 	if l.Flags&(LnoPrefix) == 0 {
 		prefix = l.Prefix
 	}
@@ -427,6 +450,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		LogLabel: logLevel.Label(),
 		Date: date,
 		FileName: file,
+		FunctionName: fName,
 		Text: string(l.buf),
 	}
 

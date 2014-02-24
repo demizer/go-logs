@@ -12,6 +12,7 @@ var (
 		"{{if .Prefix}}{{.Prefix}} {{end}}" +
 		"{{if .LogLabel}}{{.LogLabel}} {{end}}" +
 		"{{if .FileName}}{{.FileName}}: {{end}}" +
+		"{{if .FunctionName}}{{.FunctionName}}: {{end}}" +
 		"{{if .LineNumber}}Line {{.LineNumber}}: {{end}}" +
 		"{{if .Text}}{{.Text}}{{end}}"
 )
@@ -22,6 +23,7 @@ type format struct {
 	LogLabel string
 	Date     string
 	FileName     string
+	FunctionName string
 	LineNumber     int
 	Text     string
 }
