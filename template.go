@@ -19,11 +19,11 @@ var (
 
 // format is the possible values that can be used in a log output format
 type format struct {
-	Prefix   string
-	LogLabel string
-	Date     string
+	Prefix       string
+	LogLabel     string
+	Date         string
 	FileName     string
 	FunctionName string
-	LineNumber     int
-	Text     string
+	LineNumber   int
+	Text         string
 }

@@ -370,7 +370,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	now := time.Now()
 	var pgmC uintptr
-	var file,fName string
+	var file, fName string
 	var line int
 
 	l.mu.Lock()
@@ -439,13 +439,13 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	f := &format{
-		Prefix: prefix,
-		LogLabel: logLevel.Label(),
-		Date: date,
-		FileName: file,
+		Prefix:       prefix,
+		LogLabel:     logLevel.Label(),
+		Date:         date,
+		FileName:     file,
 		FunctionName: fName,
-		LineNumber: line,
-		Text: string(l.buf),
+		LineNumber:   line,
+		Text:         string(l.buf),
 	}
 
 	var out bytes.Buffer

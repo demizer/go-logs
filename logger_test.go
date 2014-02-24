@@ -10,8 +10,8 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"testing"
 	"runtime"
+	"testing"
 	"time"
 )
 
@@ -254,7 +254,7 @@ func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 
 	Debug("This output should have a file name and a function name.")
 
-	expect := "[DEBUG] logger_test.go: TestFlagsLfunctionNameWithFileName"+
+	expect := "[DEBUG] logger_test.go: TestFlagsLfunctionNameWithFileName" +
 		": This output should have a file name and a function name."
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
