@@ -50,9 +50,10 @@ func TestMultiStreams(t *testing.T) {
 
 func TestLongFileFlag(t *testing.T) {
 	var buf bytes.Buffer
+
+	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LlongFileName)
-	SetStreams(os.Stdout, &buf)
 
 	Debugln("Test long file flag")
 
@@ -67,9 +68,10 @@ func TestLongFileFlag(t *testing.T) {
 
 func TestShortFileFlag(t *testing.T) {
 	var buf bytes.Buffer
+
+	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LshortFileName)
-	SetStreams(os.Stdout, &buf)
 
 	Debugln("Test short file flag")
 
@@ -169,7 +171,6 @@ func TestOutput(t *testing.T) {
 				"%q", i+1, buf.String(), want)
 			continue
 		}
-		fmt.Printf("Test %d OK: %s\n", i, buf.String())
 	}
 }
 
@@ -201,9 +202,6 @@ func TestLevel(t *testing.T) {
 
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(os.Stdout, &buf)
-	SetLevel(LEVEL_DEBUG)
-	Debugln("\n\nThis line should be padded with newlines.\n\n")
 
 	c, err := buf.ReadString('\n')
 
@@ -214,6 +212,10 @@ func TestPrefixNewline(t *testing.T) {
 	if c[0] != '\n' {
 		t.Errorf(`First byte should be "\n", found "%s"`, string(c[0]))
 	}
+
+	SetStreams(&buf)
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix)
 
 	c, err = buf.ReadString('\n')
 	if err != nil {
@@ -227,15 +229,17 @@ func TestPrefixNewline(t *testing.T) {
 	if buf.Bytes()[nlPos+1] == '\n' {
 		t.Errorf(`"\n" found at position %d.`, nlPos+1)
 	}
-
 }
 
 func TestFlagsDate(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(os.Stdout, &buf)
+
+	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix)
+
 	Debugln("This output should not have a date.")
+
 	expect := "[DEBUG] This output should not have a date.\n"
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
@@ -244,9 +248,11 @@ func TestFlagsDate(t *testing.T) {
 
 func TestFlagsFunctionName(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(os.Stdout, &buf)
+
+	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LfunctionName)
+
 	Debugln("This output should have a function name.")
 	expect := "[DEBUG] TestFlagsFunction: This output should have a function name.\n"
 	if buf.String() != expect {
