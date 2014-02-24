@@ -246,7 +246,7 @@ func TestFlagsLdate(t *testing.T) {
 	}
 }
 
-func TestFlagsFunctionName(t *testing.T) {
+func TestFlagsLfunctionName(t *testing.T) {
 	var buf bytes.Buffer
 
 	SetStreams(&buf)
