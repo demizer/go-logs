@@ -404,14 +404,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		if l.Flags&LfunctionName != 0 {
 			fAtPC := runtime.FuncForPC(pgmC)
 			fName = fAtPC.Name()
-			// fmt.Println(fName)
-			// fmt.Println("fname length:", len(fName))
 			for i := len(fName) - 1; i >= 0; i-- {
-				// fmt.Printf("i = %d, %s == %s = %+v\n", i,
-					// string(fName[i]), string('.'), fName[i] == '.')
-				// if file[i] == ':' {
-					// endFname = i
-				// }
 				if fName[i] == '.' {
 					fName = fName[i+1:]
 					break
