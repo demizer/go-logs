@@ -101,6 +101,9 @@ const (
 	// Calling function name
 	LfunctionName
 
+	// Calling function line number
+	LlineNumber
+
 	// Use ansi escape sequences
 	Lansi
 
@@ -445,12 +448,17 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		file = ""
 	}
 
+	if l.Flags&(LlineNumber) == 0 {
+		line = 0
+	}
+
 	f := &format{
 		Prefix: prefix,
 		LogLabel: logLevel.Label(),
 		Date: date,
 		FileName: file,
 		FunctionName: fName,
+		LineNumber: line,
 		Text: string(l.buf),
 	}
 
