@@ -450,6 +450,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	var out bytes.Buffer
 	var strippedText, finalText string
+
 	err = l.Template.Execute(&out, f)
 
 	if l.Flags&Lansi == 0 {
@@ -458,6 +459,8 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	if trimedCount > 0 && l.Flags&Lansi == 0 {
 		finalText = strings.Repeat("\n", trimedCount) + strippedText
+	} else if trimedCount > 0 && l.Flags&Lansi != 0 {
+		finalText = strings.Repeat("\n", trimedCount) + out.String()
 	} else if l.Flags&Lansi == 0 {
 		finalText = strippedText
 	} else {
