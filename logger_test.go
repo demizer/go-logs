@@ -66,19 +66,28 @@ func TestLongFileFlag(t *testing.T) {
 }
 
 func TestShortFileFlag(t *testing.T) {
-	b := new(bytes.Buffer)
-	logr := New(LEVEL_DEBUG, b)
-	logr.Flags = LstdFlags | LshortFile
-	logr.Debugln("testing short file flag")
-	_, file, lNum, _ := runtime.Caller(0)
-	sName := filepath.Base(file)
-	dOut := b.String()
-	if strings.Index(dOut, sName) < 0 || strings.Index(dOut, file) > 0 {
-		t.Errorf("Debugln() = %q; does not contain %s", dOut, file)
+	var buf bytes.Buffer
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix | LshortFileName)
+	SetStreams(os.Stdout, &buf)
+
+	Debugln("Test short file flag")
+
+	_, file, _, _ := runtime.Caller(0)
+
+	short := file
+	for i := len(file) - 1; i > 0; i-- {
+		if file[i] == '/' {
+			short = file[i+1:]
+			break
+		}
 	}
-	lSrch := ".go:" + strconv.Itoa(lNum-1)
-	if strings.Index(dOut, lSrch) < 0 {
-		t.Errorf("Debugln() = %q; does not contain %q", dOut, lSrch)
+	file = short
+
+	expect := fmt.Sprintf("[DEBUG] %s: Test short file flag\n", file)
+
+	if buf.String() != expect {
+		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
 	}
 }
 
