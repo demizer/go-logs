@@ -10,10 +10,8 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strconv"
-	"strings"
 	"testing"
+	"runtime"
 	"time"
 )
 
@@ -51,18 +49,19 @@ func TestMultiStreams(t *testing.T) {
 }
 
 func TestLongFileFlag(t *testing.T) {
-	b := new(bytes.Buffer)
-	logr := New(LEVEL_DEBUG, b)
-	logr.Flags = LstdFlags | LlongFile
-	logr.Debugln("testing long file flag")
-	_, file, lNum, _ := runtime.Caller(0)
-	dOut := b.String()
-	if strings.Index(dOut, file) < 0 {
-		t.Errorf("Debugln() = %q; does not contain %s", dOut, file)
-	}
-	lSrch := ".go:" + strconv.Itoa(lNum-1)
-	if strings.Index(dOut, lSrch) < 0 {
-		t.Errorf("Debugln() = %q; does not contain %q", dOut, lSrch)
+	var buf bytes.Buffer
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix | LlongFileName)
+	SetStreams(os.Stdout, &buf)
+
+	Debugln("Test long file flag")
+
+	_, file, _, _ := runtime.Caller(0)
+
+	expect := fmt.Sprintf("[DEBUG] %s: Test long file flag\n", file)
+
+	if buf.String() != expect {
+		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
 	}
 }
 
