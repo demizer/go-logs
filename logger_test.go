@@ -241,3 +241,15 @@ func TestFlagsDate(t *testing.T) {
 		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
 	}
 }
+
+func TestFlagsFunctionName(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(os.Stdout, &buf)
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix | LfunctionName)
+	Debugln("This output should have a function name.")
+	expect := "[DEBUG] TestFlagsFunction: This output should have a function name.\n"
+	if buf.String() != expect {
+		t.Errorf("\nExpect:\n\t%s\nGot:\n\t%s\n", expect, buf.String())
+	}
+}
