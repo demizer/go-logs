@@ -245,6 +245,22 @@ func TestFlagsLfunctionName(t *testing.T) {
 	}
 }
 
+func TestFlagsLfunctionNameWithFileName(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(LnoPrefix | LfunctionName | LshortFileName)
+
+	Debug("This output should have a file name and a function name.")
+
+	expect := "[DEBUG] logger_test.go: TestFlagsLfunctionNameWithFileName"+
+		": This output should have a file name and a function name."
+	if buf.String() != expect {
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+	}
+}
+
 func TestFlagsNoLansiWithNewlinePadding(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
