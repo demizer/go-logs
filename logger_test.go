@@ -231,7 +231,7 @@ func TestPrefixNewline(t *testing.T) {
 	}
 }
 
-func TestFlagsDate(t *testing.T) {
+func TestFlagsLdate(t *testing.T) {
 	var buf bytes.Buffer
 
 	SetStreams(&buf)
@@ -254,7 +254,8 @@ func TestFlagsFunctionName(t *testing.T) {
 	SetFlags(LnoPrefix | LfunctionName)
 
 	Debugln("This output should have a function name.")
-	expect := "[DEBUG] TestFlagsFunction: This output should have a function name.\n"
+
+	expect := "[DEBUG] TestFlagsLfunctionName: This output should have a function name.\n"
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
