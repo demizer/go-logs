@@ -1,4 +1,4 @@
-// Copyright 2013 The go-logger Authors. All rights reserved.
+// Copyright 2013,2014 The go-logger Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
 package log
