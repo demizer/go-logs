@@ -50,17 +50,12 @@ func TestMultiStreams(t *testing.T) {
 
 func TestLongFileFlag(t *testing.T) {
 	var buf bytes.Buffer
-
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LlongFileName)
-
 	Debugln("Test long file flag")
-
 	_, file, _, _ := runtime.Caller(0)
-
 	expect := fmt.Sprintf("[DEBUG] %s: Test long file flag\n", file)
-
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
@@ -68,26 +63,23 @@ func TestLongFileFlag(t *testing.T) {
 
 func TestShortFileFlag(t *testing.T) {
 	var buf bytes.Buffer
-
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LshortFileName)
 
 	Debugln("Test short file flag")
-
 	_, file, _, _ := runtime.Caller(0)
-
 	short := file
+
 	for i := len(file) - 1; i > 0; i-- {
 		if file[i] == '/' {
 			short = file[i+1:]
 			break
 		}
 	}
+
 	file = short
-
 	expect := fmt.Sprintf("[DEBUG] %s: Test short file flag\n", file)
-
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
 	}
@@ -202,13 +194,10 @@ func TestLevel(t *testing.T) {
 
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
-
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix)
-
 	Debug("\n\nThis line should be padded with newlines.\n\n")
-
 	expect := "\n\n[DEBUG] This line should be padded with newlines.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n%q\nGot:\n%q\n", expect, buf.String())
@@ -217,13 +206,10 @@ func TestPrefixNewline(t *testing.T) {
 
 func TestFlagsLdate(t *testing.T) {
 	var buf bytes.Buffer
-
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix)
-
 	Debugln("This output should not have a date.")
-
 	expect := "[DEBUG] This output should not have a date.\n"
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
@@ -232,13 +218,10 @@ func TestFlagsLdate(t *testing.T) {
 
 func TestFlagsLfunctionName(t *testing.T) {
 	var buf bytes.Buffer
-
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LfunctionName)
-
 	Debugln("This output should have a function name.")
-
 	expect := "[DEBUG] TestFlagsLfunctionName: This output should have a function name.\n"
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
@@ -247,13 +230,10 @@ func TestFlagsLfunctionName(t *testing.T) {
 
 func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 	var buf bytes.Buffer
-
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LfunctionName | LshortFileName)
-
 	Debug("This output should have a file name and a function name.")
-
 	expect := "[DEBUG] logger_test.go: TestFlagsLfunctionNameWithFileName" +
 		": This output should have a file name and a function name."
 	if buf.String() != expect {
