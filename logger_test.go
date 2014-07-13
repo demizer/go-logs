@@ -241,7 +241,7 @@ func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 	}
 }
 
-func TestFlagsLansiWithNewlinePadding(t *testing.T) {
+func TestFlagsLansiWithNewlinePaddingDebug(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
 	SetLevel(LEVEL_DEBUG)
