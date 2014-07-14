@@ -214,7 +214,7 @@ func Printf(format string, v ...interface{}) {
 // of logging level. The output is formatted using the output template and
 // flags. Spaces are added between operands when neither is a string.
 func Print(v ...interface{}) {
-	std.Fprint(LEVEL_ALL, 1, fmt.Sprint(v...), nil)
+	std.Fprint(LEVEL_ALL, 2, fmt.Sprint(v...), nil)
 }
 
 // Println formats using the default formats for its operands and writes to the
