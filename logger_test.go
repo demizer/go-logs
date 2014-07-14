@@ -315,34 +315,33 @@ func TestHeirarchicalPrintln(t *testing.T) {
 	var buf bytes.Buffer
 	var tBuf bytes.Buffer
 
-	SetStreams(&buf)
-	SetLevel(LEVEL_WARNING)
-	SetFlags(LstdFlags | Lheirarchical)
+	logr := New(LEVEL_WARNING, &buf)
+	logr.SetFlags(LstdFlags | Lheirarchical)
 
 	now := time.Now()
 
-	Println("\n\nLevel 0 Output 1")
+	logr.Println("\n\nLevel 0 Output 1")
 	lvl2 := func() {
-		Println("Level 2 Output 1")
-		Println("Level 2 Output 2")
+		logr.Println("Level 2 Output 1")
+		logr.Println("Level 2 Output 2")
 	}
 	lvl1 := func() {
-		Println("Level 1 Output 1")
-		Println("Level 1 Output 2")
+		logr.Println("Level 1 Output 1")
+		logr.Println("Level 1 Output 2")
 		lvl2()
 	}
 	lvl1()
 
-	date = now.Format(std.DateFormat)
+	date = now.Format(std.DateFormat())
 	f := struct {
 		Date string
 	}{Date: date}
 
-	temp := "\n\n{{.Date}} :: [00] Level 0 Output 1\n" +
-		"{{.Date}} ::      [01] Level 1 Output 1\n" +
-		"{{.Date}} ::      [01] Level 1 Output 2\n" +
-		"{{.Date}} ::           [02] Level 2 Output 1\n" +
-		"{{.Date}} ::           [02] Level 2 Output 2\n"
+	temp := "\n\n{{.Date}} \x1b[1m\x1b[32m::\x1b[0m [00] Level 0 Output 1\n" +
+		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m      [01] Level 1 Output 1\n" +
+		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m      [01] Level 1 Output 2\n" +
+		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m           [02] Level 2 Output 1\n" +
+		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m           [02] Level 2 Output 2\n"
 
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
