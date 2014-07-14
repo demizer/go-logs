@@ -113,6 +113,9 @@ const (
 	// Disable prefix output
 	LnoPrefix
 
+	// Enable heirarchical leveling output
+	Lheirarchical
+
 	// initial values for the standard logger
 	LstdFlags = Ldate | Lansi | LnoFileAnsi
 )
@@ -122,14 +125,16 @@ const (
 // Write method. A Logger can be used simultaneously from multiple goroutines;
 // it guarantees to serialize access to the Writer.
 type Logger struct {
-	mu         sync.Mutex         // Ensures atomic writes
-	buf        []byte             // For marshaling output to write
-	DateFormat string             // time.RubyDate is the default format
-	Flags      int                // Properties of the output
-	Level      level              // The default level is warning
-	Template   *template.Template // The format order of the output
-	Prefix     string             // Inserted into every logging output
-	Streams    []io.Writer        // Destination for output
+	mu                 sync.Mutex         // Ensures atomic writes
+	buf                []byte             // For marshaling output to write
+	DateFormat         string             // time.RubyDate is the default format
+	Flags              int                // Properties of the output
+	Level              level              // The default level is warning
+	heirarchicalLevel  int                // The last heirarchical level encountered
+	heirarchicalLevels map[string]int     // Heirarchical level of the log line
+	Template           *template.Template // The format order of the output
+	Prefix             string             // Inserted into every logging output
+	Streams            []io.Writer        // Destination for output
 }
 
 var (
@@ -140,8 +145,15 @@ var (
 // New creates a new logger object and returns it.
 func New(level level, streams ...io.Writer) (obj *Logger) {
 	tmpl := template.Must(template.New("default").Funcs(funcMap).Parse(logFmt))
-	obj = &Logger{Streams: streams, DateFormat: defaultDate,
-		Flags: LstdFlags, Level: level, Template: tmpl, Prefix: defaultPrefixColor}
+	obj = &Logger{
+		heirarchicalLevels: make(map[string]int),
+		Streams:            streams,
+		DateFormat:         defaultDate,
+		Flags:              LstdFlags,
+		Level:              level,
+		Template:           tmpl,
+		Prefix:             defaultPrefixColor,
+	}
 	return
 }
 
@@ -372,11 +384,12 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	var pgmC uintptr
 	var file, fName string
 	var line int
+	var hLevel string
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.Flags&(LlongFileName|LshortFileName|LfunctionName) != 0 {
+	if l.Flags&(LlongFileName|LshortFileName|LfunctionName|Lheirarchical) != 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
@@ -384,6 +397,25 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		if !ok {
 			file = "???"
 			line = 0
+		}
+		if l.Flags&Lheirarchical != 0 {
+			fAtPC := runtime.FuncForPC(pgmC)
+			hName := fAtPC.Name()
+			var hLevelNum int
+			if _, ok := l.heirarchicalLevels[hName]; ok {
+				hLevelNum = l.heirarchicalLevels[hName]
+				// fmt.Println("EXIST", hName, hLevelNum)
+			} else {
+				l.heirarchicalLevels[hName] = l.heirarchicalLevel
+				hLevelNum = l.heirarchicalLevel
+				l.heirarchicalLevel += 1
+				// fmt.Println("NEW  ", hName, hLevelNum)
+			}
+			var pad string
+			for i := 1; i <= hLevelNum; i++ {
+				pad += "     "
+			}
+			hLevel = fmt.Sprintf("%s[%02.f] ", pad, float64(hLevelNum))
 		}
 		if l.Flags&LshortFileName != 0 {
 			short := file
@@ -439,13 +471,14 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	f := &format{
-		Prefix:       prefix,
-		LogLabel:     logLevel.Label(),
-		Date:         date,
-		FileName:     file,
-		FunctionName: fName,
-		LineNumber:   line,
-		Text:         string(l.buf),
+		Prefix:            prefix,
+		LogLabel:          logLevel.Label(),
+		Date:              date,
+		FileName:          file,
+		FunctionName:      fName,
+		LineNumber:        line,
+		HeirarchicalLevel: hLevel,
+		Text:              string(l.buf),
 	}
 
 	var out bytes.Buffer

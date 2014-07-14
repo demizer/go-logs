@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+	"text/template"
 	"time"
 )
 
@@ -308,5 +309,49 @@ func TestFlagsNoLansiWithNewlinePadding(t *testing.T) {
 	expect := "\n\n[DEBUG] This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+	}
+}
+
+func TestHeirarchicalPrintln(t *testing.T) {
+	var buf bytes.Buffer
+	var tBuf bytes.Buffer
+
+	SetStreams(&buf)
+	SetLevel(LEVEL_WARNING)
+	SetFlags(LstdFlags | Lheirarchical)
+
+	now := time.Now()
+
+	Println("\n\nLevel 0 Output 1")
+	lvl2 := func() {
+		Println("Level 2 Output 1")
+		Println("Level 2 Output 2")
+	}
+	lvl1 := func() {
+		Println("Level 1 Output 1")
+		Println("Level 1 Output 2")
+		lvl2()
+	}
+	lvl1()
+
+	date = now.Format(std.DateFormat)
+	f := struct {
+		Date string
+	}{Date: date}
+
+	temp := "\n\n{{.Date}} :: [00] Level 0 Output 1\n" +
+		"{{.Date}} ::      [01] Level 1 Output 1\n" +
+		"{{.Date}} ::      [01] Level 1 Output 2\n" +
+		"{{.Date}} ::           [02] Level 2 Output 1\n" +
+		"{{.Date}} ::           [02] Level 2 Output 2\n"
+
+	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpl.Execute(&tBuf, f)
+
+	if buf.String() != tBuf.String() {
+		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", tBuf.String(), buf.String())
 	}
 }
