@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -513,8 +514,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 // Lansi flag is set, ansi escape codes are used to add coloring to the output.
 func (l *Logger) Write(p []byte) (n int, err error) {
 	for _, w := range l.Streams {
-		if w != os.Stdout && w != os.Stderr && w != os.Stdin &&
-			l.Flags&LnoFileAnsi != 0 {
+		if reflect.TypeOf(w).String() == "*os.File" && l.flags&LnoFileAnsi != 0 {
 			p = stripAnsiByte(p)
 			n, err = w.Write(p)
 		} else {
