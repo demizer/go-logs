@@ -14,6 +14,8 @@ import (
 	"testing"
 	"text/template"
 	"time"
+
+	"github.com/demizer/rgbterm"
 )
 
 func TestStream(t *testing.T) {
@@ -34,7 +36,7 @@ func TestMultiStreams(t *testing.T) {
 	}
 	defer file.Close()
 	var buf bytes.Buffer
-	eLen := 55
+	eLen := 90
 	logr := New(LEVEL_DEBUG, file, &buf)
 	logr.Debugln("Testing debug output!")
 	b := make([]byte, eLen)
@@ -57,7 +59,7 @@ func TestLongFileFlag(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	expect := fmt.Sprintf("[DEBUG] %s: Test long file flag\n", file)
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
@@ -81,15 +83,11 @@ func TestShortFileFlag(t *testing.T) {
 	file = short
 	expect := fmt.Sprintf("[DEBUG] %s: Test short file flag\n", file)
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
-var (
-	boldPrefix  = AnsiEscape(ANSI_BOLD, "TEST>", ANSI_OFF)
-	colorPrefix = AnsiEscape(ANSI_BOLD, ANSI_RED, "TEST>", ANSI_OFF)
-	date        = "Mon 20060102 15:04:05"
-)
+var date = "Mon 20060102 15:04:05"
 
 var outputTests = []struct {
 	template   string
@@ -98,50 +96,104 @@ var outputTests = []struct {
 	dateFormat string
 	flags      int
 	text       string
-	want       string
-	wantErr    bool
+	expect     string
+	expectErr  bool
 }{
-
-	// The %s format specifier is the placeholder for the date.
-	{logFmt, boldPrefix, LEVEL_ALL, date, LstdFlags, "test number 1",
-		"%s \x1b[1mTEST>\x1b[0m test number 1", false},
-
-	{logFmt, colorPrefix, LEVEL_ALL, date, LstdFlags, "test number 2",
-		"%s \x1b[1m\x1b[31mTEST>\x1b[0m test number 2", false},
-
+	// Test with color prefix
+	{
+		template:   logFmt,
+		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		level:      LEVEL_ALL,
+		dateFormat: date,
+		flags:      LstdFlags,
+		text:       "test number 1",
+		// The %s format specifier is the placeholder for the date.
+		expect:    "%s \x1b[38;5;46mTEST>\x1b[0;00m test number 1",
+		expectErr: false,
+	},
 	// Test output with coloring turned off
-	{logFmt, AnsiEscape(ANSI_BOLD, "::", ANSI_OFF), LEVEL_ALL, date, Ldate,
-		"test number 3", "%s :: test number 3", false},
-
-	{logFmt, defaultPrefixColor, LEVEL_DEBUG, time.RubyDate, LstdFlags,
-		"test number 4",
-		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m test number 4",
-		false},
-
-	{logFmt, defaultPrefixColor, LEVEL_INFO, time.RubyDate, LstdFlags,
-		"test number 5",
-		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[32m[INFO]\x1b[0m test number 5",
-		false},
-
-	{logFmt, defaultPrefixColor, LEVEL_WARNING, time.RubyDate, LstdFlags,
-		"test number 6",
-		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[33m[WARNING]\x1b[0m test number 6",
-		false},
-
-	{logFmt, defaultPrefixColor, LEVEL_ERROR, time.RubyDate, LstdFlags,
-		"test number 7",
-		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[35m[ERROR]\x1b[0m test number 7",
-		false},
-
-	{logFmt, defaultPrefixColor, LEVEL_CRITICAL, time.RubyDate, LstdFlags,
-		"test number 8",
-		"%s \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[31m[CRITICAL]\x1b[0m test number 8",
-		false},
-
+	{
+		template:   logFmt,
+		prefix:     "TEST>",
+		level:      LEVEL_ALL,
+		dateFormat: date,
+		flags:      Ldate,
+		text:       "test number 2",
+		expect:     "%s TEST> test number 2",
+		expectErr:  false,
+	},
+	// Test debug output
+	{
+		template:   logFmt,
+		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		level:      LEVEL_DEBUG,
+		dateFormat: time.RubyDate,
+		flags:      LstdFlags,
+		text:       "test number 3",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m test number 3",
+		expectErr:  false,
+	},
+	// Test info output
+	{
+		template:   logFmt,
+		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		level:      LEVEL_INFO,
+		dateFormat: time.RubyDate,
+		flags:      LstdFlags,
+		text:       "test number 4",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;41m[INFO]\x1b[0;00m test number 4",
+		expectErr:  false,
+	},
+	// Test warning output
+	{
+		template:   logFmt,
+		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		level:      LEVEL_WARNING,
+		dateFormat: time.RubyDate,
+		flags:      LstdFlags,
+		text:       "test number 5",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;228m[WARNING]\x1b[0;00m test number 5",
+		expectErr:  false,
+	},
+	// Test error output
+	{
+		template:   logFmt,
+		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		level:      LEVEL_ERROR,
+		dateFormat: time.RubyDate,
+		flags:      LstdFlags,
+		text:       "test number 6",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;200m[ERROR]\x1b[0;00m test number 6",
+		expectErr:  false,
+	},
+	// Test critical output
+	{
+		template:   logFmt,
+		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		level:      LEVEL_CRITICAL,
+		dateFormat: time.RubyDate,
+		flags:      LstdFlags,
+		text:       "test number 7",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;196m[CRITICAL]\x1b[0;00m test number 7",
+		expectErr:  false,
+	},
 	// Test date format
-	{logFmt, defaultPrefixColor, LEVEL_ALL, "Mon 20060102 15:04:05",
-		Ldate, "test number 9",
-		"%s :: test number 9", false},
+	{
+		template:   logFmt,
+		prefix:     "::",
+		level:      LEVEL_ALL,
+		dateFormat: "Mon 20060102 15:04:05",
+		flags:      LstdFlags,
+		text:       "test number 8",
+		expect:     "%s :: test number 8",
+		expectErr:  false,
+	},
+
+	// FIXME: RE-ADD SUPPORT FOR BOLD!
+
+	// {logFmt, boldPrefix, LEVEL_ALL, date, LstdFlags, "test number 1",
+	// "%s \x1b[1mTEST>\x1b[0m test number 1", false},
+
 }
 
 func TestOutput(t *testing.T) {
@@ -157,10 +209,10 @@ func TestOutput(t *testing.T) {
 		if n != buf.Len() {
 			t.Error("Error: ", io.ErrShortWrite)
 		}
-		want := fmt.Sprintf(k.want, d)
-		if buf.String() != want || err != nil && !k.wantErr {
-			t.Errorf("Print test %d failed, \ngot:  %q\nwant: "+
-				"%q", i+1, buf.String(), want)
+		expect := fmt.Sprintf(k.expect, d)
+		if buf.String() != expect || err != nil && !k.expectErr {
+			t.Errorf("Test Number %d\nGot:\t%q\nExpect:\t"+"%q",
+				i+1, buf.String(), expect)
 			continue
 		}
 	}
@@ -195,119 +247,115 @@ func TestLevel(t *testing.T) {
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix)
-	Debug("\n\nThis line should be padded with newlines.\n\n")
-	expect := "\n\n[DEBUG] This line should be padded with newlines.\n\n"
+	Print("\n\nThis line should be padded with newlines.\n\n")
+	expect := "\n\nThis line should be padded with newlines.\n\n"
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n%q\nGot:\n%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
 func TestFlagsLdate(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix)
-	Debugln("This output should not have a date.")
-	expect := "[DEBUG] This output should not have a date.\n"
+	Println("This output should not have a date.")
+	expect := "This output should not have a date.\n"
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
 func TestFlagsLfunctionName(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LfunctionName)
-	Debugln("This output should have a function name.")
-	expect := "[DEBUG] TestFlagsLfunctionName: This output should have a function name.\n"
+	Println("This output should have a function name.")
+	expect := "TestFlagsLfunctionName: This output should have a function name.\n"
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
 func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
 	SetFlags(LnoPrefix | LfunctionName | LshortFileName)
-	Debug("This output should have a file name and a function name.")
-	expect := "[DEBUG] logger_test.go: TestFlagsLfunctionNameWithFileName" +
+	Print("This output should have a file name and a function name.")
+	expect := "logger_test.go: TestFlagsLfunctionNameWithFileName" +
 		": This output should have a file name and a function name."
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
-	}
-}
-
-func TestFlagsLansiWithNewlinePaddingDebug(t *testing.T) {
-	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
-	SetFlags(LnoPrefix | Lansi)
-	Debug("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[1m\x1b[37m[DEBUG]\x1b[0m This output should be " +
-		"padded with newlines and colored.\n\n"
-	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
-	}
-}
-
-func TestFlagsLansiWithNewlinePaddingDebugf(t *testing.T) {
-	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
-	SetFlags(LnoPrefix | Lansi)
-	Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
-		"colored")
-	expect := "\n\n\x1b[1m\x1b[37m[DEBUG]\x1b[0m This output should be " +
-		"padded with newlines and colored.\n\n"
-	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
-	}
-	buf.Reset()
-	Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
-	expect = "\n\n\x1b[1m\x1b[37m[DEBUG]\x1b[0m ##### HELLO NEWMAN #####\n\n"
-	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
-	}
-}
-
-func TestFlagsLansiWithNewlinePaddingDebugln(t *testing.T) {
-	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
-	SetFlags(LnoPrefix | Lansi)
-	Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[1m\x1b[37m[DEBUG]\x1b[0m This output should be " +
-		"padded with newlines and colored.\n\n\n"
-	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
-	}
-	buf.Reset()
-	Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
-	expect = "\n\n\x1b[1m\x1b[37m[DEBUG]\x1b[0m  ### HELLO NEWMAN ### \n\n\n"
-	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
-	}
-	buf.Reset()
-	Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
-	expect = "\n\n\x1b[1m\x1b[37m[DEBUG]\x1b[0m ### HELLO NEWMAN ###\n\n\n"
-	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
 func TestFlagsNoLansiWithNewlinePadding(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
+	SetLevel(LEVEL_ALL)
 	SetFlags(LnoPrefix)
 	Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
 	expect := "\n\n[DEBUG] This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", expect, buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+}
+
+func TestFlagsLansiWithNewlinePaddingDebug(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(&buf)
+	SetLevel(LEVEL_ALL)
+	SetFlags(LnoPrefix | Lansi)
+	Debug("\n\nThis output should be padded with newlines and colored.\n\n")
+	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
+		"padded with newlines and colored.\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+}
+
+func TestFlagsLansiWithNewlinePaddingDebugf(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(&buf)
+	SetLevel(LEVEL_ALL)
+	SetFlags(LnoPrefix | Lansi)
+	Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
+		"colored")
+	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
+		"padded with newlines and colored.\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+	buf.Reset()
+	Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
+	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m ##### HELLO NEWMAN #####\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+}
+
+func TestFlagsLansiWithNewlinePaddingDebugln(t *testing.T) {
+	var buf bytes.Buffer
+	SetStreams(&buf)
+	SetLevel(LEVEL_ALL)
+	SetFlags(LnoPrefix | Lansi)
+	Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
+	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
+		"padded with newlines and colored.\n\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+	buf.Reset()
+	Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
+	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+	buf.Reset()
+	Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
+	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 }
 
@@ -315,7 +363,7 @@ func TestHeirarchicalPrintln(t *testing.T) {
 	var buf bytes.Buffer
 	var tBuf bytes.Buffer
 
-	logr := New(LEVEL_WARNING, &buf)
+	logr := New(LEVEL_ALL, &buf)
 	logr.SetFlags(LstdFlags | Lheirarchical)
 
 	now := time.Now()
@@ -337,11 +385,11 @@ func TestHeirarchicalPrintln(t *testing.T) {
 		Date string
 	}{Date: date}
 
-	temp := "\n\n{{.Date}} \x1b[1m\x1b[32m::\x1b[0m [00] Level 0 Output 1\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m      [01] Level 1 Output 1\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m      [01] Level 1 Output 2\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m           [02] Level 2 Output 1\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m           [02] Level 2 Output 2\n"
+	temp := "\n\n{{.Date}} \x1b[38;5;48m::\x1b[0;00m [00] Level 0 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m      [01] Level 1 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m      [01] Level 1 Output 2\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m           [02] Level 2 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m           [02] Level 2 Output 2\n"
 
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
@@ -350,7 +398,7 @@ func TestHeirarchicalPrintln(t *testing.T) {
 	tmpl.Execute(&tBuf, f)
 
 	if buf.String() != tBuf.String() {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", tBuf.String(), buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), tBuf.String())
 	}
 }
 
@@ -380,11 +428,11 @@ func TestHeirarchicalDebugln(t *testing.T) {
 		Date string
 	}{Date: date}
 
-	temp := "{{.Date}} \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m [00] Level 0 Output 1\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m      [01] Level 1 Output 1\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m      [01] Level 1 Output 2\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m           [02] Level 2 Output 1\n" +
-		"{{.Date}} \x1b[1m\x1b[32m::\x1b[0m \x1b[1m\x1b[37m[DEBUG]\x1b[0m           [02] Level 2 Output 2\n"
+	temp := "{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m [00] Level 0 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m      [01] Level 1 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m      [01] Level 1 Output 2\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m           [02] Level 2 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m           [02] Level 2 Output 2\n"
 
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
@@ -393,6 +441,6 @@ func TestHeirarchicalDebugln(t *testing.T) {
 	tmpl.Execute(&tBuf, f)
 
 	if buf.String() != tBuf.String() {
-		t.Errorf("\nExpect:\n\t%q\nGot:\n\t%q\n", tBuf.String(), buf.String())
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), tBuf.String())
 	}
 }

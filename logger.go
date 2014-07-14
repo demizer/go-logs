@@ -18,6 +18,8 @@ import (
 	"sync"
 	"text/template"
 	"time"
+
+	"github.com/demizer/rgbterm"
 )
 
 // Used for string output of the logging object
@@ -33,11 +35,11 @@ var levels = [6]string{
 // Used to retrieve a ansi colored label of the logger
 var labels = [6]string{
 	// Print labels for special logging functions
-	AnsiEscape(ANSI_BOLD, ANSI_WHITE, "[DEBUG]", ANSI_OFF),
-	AnsiEscape(ANSI_BOLD, ANSI_GREEN, "[INFO]", ANSI_OFF),
-	AnsiEscape(ANSI_BOLD, ANSI_YELLOW, "[WARNING]", ANSI_OFF),
-	AnsiEscape(ANSI_BOLD, ANSI_MAGENTA, "[ERROR]", ANSI_OFF),
-	AnsiEscape(ANSI_BOLD, ANSI_RED, "[CRITICAL]", ANSI_OFF),
+	rgbterm.String("[DEBUG]", 255, 255, 255),   // White
+	rgbterm.String("[INFO]", 0, 215, 95),       // Green
+	rgbterm.String("[WARNING]", 255, 255, 135), // Yellow
+	rgbterm.String("[ERROR]", 255, 0, 215),     // Magenta
+	rgbterm.String("[CRITICAL]", 255, 0, 0),    // Red
 	"", // The Print* functions do not use a label
 }
 
@@ -85,7 +87,7 @@ const (
 var (
 	defaultDate        = "Mon-20060102-15:04:05"
 	defaultPrefix      = "::"
-	defaultPrefixColor = AnsiEscape(ANSI_BOLD, ANSI_GREEN, "::", ANSI_OFF)
+	defaultPrefixColor = rgbterm.String("::", 0, 255, 135) // Green
 )
 
 const (

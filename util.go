@@ -7,10 +7,9 @@ import (
 	"regexp"
 )
 
-// stripAnsi removes all ansi escapes from a string and returns the clean
-// string.
+// stripAnsi removes all ansi escapes from a string.
 func stripAnsi(text string) string {
-	reg := regexp.MustCompile("\x1b\\[\\d+m")
+	reg := regexp.MustCompile("\x1b\\[[\\d;]+m")
 	return reg.ReplaceAllString(text, "")
 }
 
