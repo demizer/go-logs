@@ -10,8 +10,8 @@ var (
 	funcMap = template.FuncMap{"ansiEscape": AnsiEscape}
 	logFmt  = "{{if .Date}}{{.Date}} {{end}}" +
 		"{{if .Prefix}}{{.Prefix}} {{end}}" +
-		"{{if .HeirarchicalLevel}}{{.HeirarchicalLevel}}{{end}}" +
 		"{{if .LogLabel}}{{.LogLabel}} {{end}}" +
+		"{{if .HeirarchicalLevel}}{{.HeirarchicalLevel}}{{end}}" +
 		"{{if .FileName}}{{.FileName}}: {{end}}" +
 		"{{if .FunctionName}}{{.FunctionName}}: {{end}}" +
 		"{{if .LineNumber}}Line {{.LineNumber}}: {{end}}" +

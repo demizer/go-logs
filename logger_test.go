@@ -19,8 +19,7 @@ import (
 func TestStream(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_CRITICAL, os.Stdout, &buf)
-	logr.Streams[1] = &buf
-	if out := logr.Streams[1]; out != &buf {
+	if out := logr.Streams()[1]; out != &buf {
 		t.Errorf("Stream = %p, want %p", out, &buf)
 	}
 }
@@ -149,11 +148,11 @@ func TestOutput(t *testing.T) {
 	for i, k := range outputTests {
 		var buf bytes.Buffer
 		logr := New(LEVEL_DEBUG, &buf)
-		logr.Prefix = k.prefix
-		logr.DateFormat = k.dateFormat
-		logr.Flags = k.flags
-		logr.Level = k.level
-		d := time.Now().Format(logr.DateFormat)
+		logr.SetPrefix(k.prefix)
+		logr.SetDateFormat(k.dateFormat)
+		logr.SetFlags(k.flags)
+		logr.SetLevel(k.level)
+		d := time.Now().Format(logr.DateFormat())
 		n, err := logr.Fprint(k.level, 1, k.text, &buf)
 		if n != buf.Len() {
 			t.Error("Error: ", io.ErrShortWrite)
@@ -174,19 +173,19 @@ func TestLevel(t *testing.T) {
 	if buf.Len() != 0 {
 		t.Errorf("Debug() produced output at LEVEL_CRITICAL logging level")
 	}
-	logr.Level = LEVEL_DEBUG
+	logr.SetLevel(LEVEL_DEBUG)
 	logr.Debug("This level should produce output")
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the LEVEL_DEBUG logging level")
 	}
 	buf.Reset()
-	logr.Level = LEVEL_CRITICAL
+	logr.SetLevel(LEVEL_CRITICAL)
 	logr.Println("This level should produce output")
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
 	}
 	buf.Reset()
-	logr.Level = LEVEL_ALL
+	logr.SetLevel(LEVEL_ALL)
 	logr.Debug("This level should produce output")
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the ALL logging level")

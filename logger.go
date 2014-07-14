@@ -510,6 +510,51 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 	return
 }
 
+// Returns the template of the standard logging object.
+func (l *logger) Template() *template.Template { return l.template }
+
+// SetTemplate allocates and parses a new output template for the logging
+// object.
+func (l *logger) SetTemplate(temp string) error {
+	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
+	if err != nil {
+		return err
+	}
+	l.template = tmpl
+	return nil
+}
+
+// Returns the date format used by the logging object as a string.
+func (l *logger) DateFormat() string { return l.dateFormat }
+
+// Set the date format of the logging object. See the date package
+// documentation for details on using the date format string.
+func (l *logger) SetDateFormat(format string) { l.dateFormat = format }
+
+// Returns the usages flags of the logging object.
+func (l *logger) Flags() int { return l.flags }
+
+// Set the usage flags for the logging object.
+func (l *logger) SetFlags(flags int) { l.flags = flags }
+
+// Get the logging level of the logging object.
+func (l *logger) Level() level { return l.level }
+
+// Set the logging level of the logging object.
+func (l *logger) SetLevel(level level) { l.level = level }
+
+// Get the logging prefix used by the logging object. By default it is "::".
+func (l *logger) Prefix() string { return l.prefix }
+
+// Set the logging prefix of the logging object.
+func (l *logger) SetPrefix(prefix string) { l.prefix = prefix }
+
+// Get the output streams of the logger
+func (l *logger) Streams() []io.Writer { return l.streams }
+
+// Set the output streams of the logger
+func (l *logger) SetStreams(streams ...io.Writer) { l.streams = streams }
+
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
 // Lansi flag is set, ansi escape codes are used to add coloring to the output.
 func (l *logger) Write(p []byte) (n int, err error) {
@@ -529,17 +574,6 @@ func (l *logger) Write(p []byte) (n int, err error) {
 		}
 	}
 	return len(p), nil
-}
-
-// SetTemplate allocates and parses a new output template for the logging
-// object.
-func (l *Logger) SetTemplate(temp string) error {
-	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
-	if err != nil {
-		return err
-	}
-	l.Template = tmpl
-	return nil
 }
 
 // Printf is equivalent to log.Printf().
