@@ -444,3 +444,46 @@ func TestHeirarchicalDebugln(t *testing.T) {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), tBuf.String())
 	}
 }
+
+func TestHeirarchicalWithFilenameDebugln(t *testing.T) {
+	var buf bytes.Buffer
+	var tBuf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix | Lcolor | LfunctionName | LlineNumber | Lheirarchical)
+
+	now := time.Now()
+
+	logr.Debugln("Level 0 Output 1")
+	lvl2 := func() {
+		logr.Debugln("Level 2 Output 1")
+		logr.Debugln("Level 2 Output 2")
+	}
+	lvl1 := func() {
+		logr.Debugln("Level 1 Output 1")
+		logr.Debugln("Level 1 Output 2")
+		lvl2()
+	}
+	lvl1()
+
+	date = now.Format(std.DateFormat())
+	f := struct {
+		Date string
+	}{Date: date}
+
+	temp := "\x1b[38;5;231m[DEBUG]\x1b[0;00m [00] TestHeirarchicalWithFilenameDebugln: Line 457: Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m      [01] func·006: Line 463: Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m      [01] func·006: Line 464: Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m           [02] func·005: Line 459: Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m           [02] func·005: Line 460: Level 2 Output 2\n"
+
+	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpl.Execute(&tBuf, f)
+
+	if buf.String() != tBuf.String() {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), tBuf.String())
+	}
+}
