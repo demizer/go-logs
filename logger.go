@@ -107,8 +107,8 @@ const (
 	// Calling function line number
 	LlineNumber
 
-	// Use ansi escape sequences
-	Lansi
+	// Use color escape sequences
+	Lcolor
 
 	// Disable ansi in file output
 	LnoFileAnsi
@@ -120,7 +120,7 @@ const (
 	Lheirarchical
 
 	// initial values for the standard logger
-	LstdFlags = Ldate | Lansi | LnoFileAnsi
+	LstdFlags = Ldate | Lcolor | LnoFileAnsi
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -489,15 +489,15 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 
 	err = l.template.Execute(&out, f)
 
-	if l.flags&Lansi == 0 {
+	if l.flags&Lcolor == 0 {
 		strippedText = stripAnsi(out.String())
 	}
 
-	if trimedCount > 0 && l.flags&Lansi == 0 {
+	if trimedCount > 0 && l.flags&Lcolor == 0 {
 		finalText = strings.Repeat("\n", trimedCount) + strippedText
-	} else if trimedCount > 0 && l.flags&Lansi != 0 {
+	} else if trimedCount > 0 && l.flags&Lcolor != 0 {
 		finalText = strings.Repeat("\n", trimedCount) + out.String()
-	} else if l.flags&Lansi == 0 {
+	} else if l.flags&Lcolor == 0 {
 		finalText = strippedText
 	} else {
 		finalText = out.String()
@@ -558,7 +558,7 @@ func (l *logger) Streams() []io.Writer { return l.streams }
 func (l *logger) SetStreams(streams ...io.Writer) { l.streams = streams }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
-// Lansi flag is set, ansi escape codes are used to add coloring to the output.
+// Lcolor flag is set, ansi escape codes are used to add coloring to the output.
 func (l *logger) Write(p []byte) (n int, err error) {
 	for _, w := range l.streams {
 		if reflect.TypeOf(w).String() == "*os.File" && l.flags&LnoFileAnsi != 0 {

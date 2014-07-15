@@ -289,7 +289,7 @@ func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 	}
 }
 
-func TestFlagsNoLansiWithNewlinePadding(t *testing.T) {
+func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
 	SetLevel(LEVEL_ALL)
@@ -301,11 +301,11 @@ func TestFlagsNoLansiWithNewlinePadding(t *testing.T) {
 	}
 }
 
-func TestFlagsLansiWithNewlinePaddingDebug(t *testing.T) {
+func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
 	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix | Lansi)
+	SetFlags(LnoPrefix | Lcolor)
 	Debug("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
@@ -314,11 +314,11 @@ func TestFlagsLansiWithNewlinePaddingDebug(t *testing.T) {
 	}
 }
 
-func TestFlagsLansiWithNewlinePaddingDebugf(t *testing.T) {
+func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
 	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix | Lansi)
+	SetFlags(LnoPrefix | Lcolor)
 	Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
 	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
@@ -334,11 +334,11 @@ func TestFlagsLansiWithNewlinePaddingDebugf(t *testing.T) {
 	}
 }
 
-func TestFlagsLansiWithNewlinePaddingDebugln(t *testing.T) {
+func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
 	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix | Lansi)
+	SetFlags(LnoPrefix | Lcolor)
 	Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n\n"
