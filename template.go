@@ -11,7 +11,7 @@ var (
 	logFmt  = "{{if .Date}}{{.Date}} {{end}}" +
 		"{{if .Prefix}}{{.Prefix}} {{end}}" +
 		"{{if .LogLabel}}{{.LogLabel}} {{end}}" +
-		"{{if .HeirarchicalLevel}}{{.HeirarchicalLevel}}{{end}}" +
+		"{{if .Id}}{{.Id}} {{end}}" +
 		"{{if .FileName}}{{.FileName}}: {{end}}" +
 		"{{if .FunctionName}}{{.FunctionName}}: {{end}}" +
 		"{{if .LineNumber}}Line {{.LineNumber}}: {{end}}" +
@@ -20,12 +20,12 @@ var (
 
 // format is the possible values that can be used in a log output format
 type format struct {
-	Prefix            string
-	LogLabel          string
-	Date              string
-	FileName          string
-	FunctionName      string
-	LineNumber        int
-	HeirarchicalLevel string
-	Text              string
+	Prefix       string
+	LogLabel     string
+	Date         string
+	FileName     string
+	FunctionName string
+	LineNumber   int
+	Id           string
+	Text         string
 }

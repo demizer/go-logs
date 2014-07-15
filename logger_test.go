@@ -364,7 +364,7 @@ func TestHeirarchicalPrintln(t *testing.T) {
 	var tBuf bytes.Buffer
 
 	logr := New(LEVEL_ALL, &buf)
-	logr.SetFlags(LstdFlags | Lheirarchical)
+	logr.SetFlags(LstdFlags)
 
 	now := time.Now()
 
