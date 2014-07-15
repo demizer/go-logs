@@ -402,37 +402,29 @@ func TestHeirarchicalPrintln(t *testing.T) {
 	}
 }
 
-func TestHeirarchicalDebugln(t *testing.T) {
+func TestSetIndentDebugln(t *testing.T) {
 	var buf bytes.Buffer
 	var tBuf bytes.Buffer
 
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LstdFlags | Lheirarchical)
+	logr.SetFlags(LstdFlags)
 
 	now := time.Now()
 
 	logr.Debugln("Level 0 Output 1")
-	lvl2 := func() {
-		logr.Debugln("Level 2 Output 1")
-		logr.Debugln("Level 2 Output 2")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		logr.Debugln("Level 1 Output 2")
-		lvl2()
-	}
-	lvl1()
+	logr.SetIndent(1).Debugln("Level 1 Output 1")
+	logr.Debugln("Level 1 Output 2")
+	logr.SetIndent(0).Debugln("Level 1 Output 1")
 
 	date = now.Format(std.DateFormat())
 	f := struct {
 		Date string
 	}{Date: date}
 
-	temp := "{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m [00] Level 0 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m      [01] Level 1 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m      [01] Level 1 Output 2\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m           [02] Level 2 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m           [02] Level 2 Output 2\n"
+	temp := "{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m     Level 1 Output 1\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m     Level 1 Output 2\n" +
+		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 1\n"
 
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {

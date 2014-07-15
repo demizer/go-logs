@@ -139,6 +139,8 @@ type logger struct {
 	template   *template.Template // The format order of the output
 	prefix     string             // Inserted into every logging output
 	streams    []io.Writer        // Destination for output
+	indent     int                // Number of indents to use
+	tabStop    int                // Number of spaces considered to be a tab stop
 }
 
 var (
@@ -157,6 +159,7 @@ func New(level level, streams ...io.Writer) (obj *logger) {
 		level:      level,
 		template:   tmpl,
 		prefix:     defaultPrefixColor,
+		tabStop:    4,
 	}
 	return
 }
@@ -206,6 +209,11 @@ func Streams() []io.Writer { return std.streams }
 
 // Set the output streams of the standard logger
 func SetStreams(streams ...io.Writer) { std.streams = streams }
+
+func SetIndent(level int) *logger {
+	std.indent = level
+	return std
+}
 
 // Printf formats according to a format specifier and writes to standard
 // logger output stream(s).
@@ -470,6 +478,15 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 		line = 0
 	}
 
+	var indent string
+	if l.indent > 0 {
+		for i := 1; i <= l.indent; i++ {
+			for j := 1; j < l.tabStop; j++ {
+				indent += " "
+			}
+		}
+	}
+
 	f := &format{
 		Prefix:       prefix,
 		LogLabel:     logLevel.Label(),
@@ -477,6 +494,7 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 		FileName:     file,
 		FunctionName: fName,
 		LineNumber:   line,
+		Indent:       indent,
 		Id:           id,
 		Text:         string(l.buf),
 	}
@@ -553,6 +571,11 @@ func (l *logger) Streams() []io.Writer { return l.streams }
 
 // Set the output streams of the logger
 func (l *logger) SetStreams(streams ...io.Writer) { l.streams = streams }
+
+func (l *logger) SetIndent(level int) *logger {
+	l.indent = level
+	return l
+}
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
 // Lcolor flag is set, ansi escape codes are used to add coloring to the output.

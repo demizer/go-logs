@@ -11,6 +11,7 @@ var (
 	logFmt  = "{{if .Date}}{{.Date}} {{end}}" +
 		"{{if .Prefix}}{{.Prefix}} {{end}}" +
 		"{{if .LogLabel}}{{.LogLabel}} {{end}}" +
+		"{{if .Indent}}{{.Indent}} {{end}}" +
 		"{{if .Id}}{{.Id}} {{end}}" +
 		"{{if .FileName}}{{.FileName}}: {{end}}" +
 		"{{if .FunctionName}}{{.FunctionName}}: {{end}}" +
@@ -26,6 +27,7 @@ type format struct {
 	FileName     string
 	FunctionName string
 	LineNumber   int
+	Indent       string
 	Id           string
 	Text         string
 }
