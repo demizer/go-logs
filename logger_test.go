@@ -591,10 +591,10 @@ func TestSetTemplate(t *testing.T) {
 
 	logr.Debugln("Hello, World!")
 
-	expe := "Hello, World!"
+	expe := "Hello, World!\n"
 
 	if buf.String() != expe {
-		t.Errorf("\nGot:\t%s\nExpect:\t%s\n", buf.String(), expe)
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expe)
 	}
 }
 
