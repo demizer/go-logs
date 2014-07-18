@@ -654,6 +654,18 @@ func TestSetTemplateBadDataObjectPanic(t *testing.T) {
 
 }
 
+func TestDateFormat(t *testing.T) {
+	logr := New(LEVEL_INFO)
+
+	dateFormat := logr.DateFormat()
+
+	expect := "Mon-20060102-15:04:05"
+
+	if dateFormat != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", dateFormat, expect)
+	}
+}
+
 func TestTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
