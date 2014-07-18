@@ -51,10 +51,9 @@ func TestMultiStreams(t *testing.T) {
 
 func TestLongFileFlag(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
-	SetFlags(LnoPrefix | LlongFileName)
-	Debugln("Test long file flag")
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix | LlongFileName)
+	logr.Debugln("Test long file flag")
 	_, file, _, _ := runtime.Caller(0)
 	expect := fmt.Sprintf("[DEBG] %s: Test long file flag\n", file)
 	if buf.String() != expect {
@@ -64,11 +63,10 @@ func TestLongFileFlag(t *testing.T) {
 
 func TestShortFileFlag(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_DEBUG)
-	SetFlags(LnoPrefix | LshortFileName)
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix | LshortFileName)
 
-	Debugln("Test short file flag")
+	logr.Debugln("Test short file flag")
 	_, file, _, _ := runtime.Caller(0)
 	short := file
 
@@ -247,9 +245,9 @@ func TestLevelString(t *testing.T) {
 
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetFlags(LnoPrefix)
-	Print("\n\nThis line should be padded with newlines.\n\n")
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix)
+	logr.Print("\n\nThis line should be padded with newlines.\n\n")
 	expect := "\n\nThis line should be padded with newlines.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -258,9 +256,9 @@ func TestPrefixNewline(t *testing.T) {
 
 func TestFlagsLdate(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetFlags(LnoPrefix)
-	Println("This output should not have a date.")
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix)
+	logr.Println("This output should not have a date.")
 	expect := "This output should not have a date.\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -269,9 +267,9 @@ func TestFlagsLdate(t *testing.T) {
 
 func TestFlagsLfunctionName(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetFlags(LnoPrefix | LfunctionName)
-	Println("This output should have a function name.")
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix | LfunctionName)
+	logr.Println("This output should have a function name.")
 	expect := "TestFlagsLfunctionName: This output should have a function name.\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -280,9 +278,9 @@ func TestFlagsLfunctionName(t *testing.T) {
 
 func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetFlags(LnoPrefix | LfunctionName | LshortFileName)
-	Print("This output should have a file name and a function name.")
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(LnoPrefix | LfunctionName | LshortFileName)
+	logr.Print("This output should have a file name and a function name.")
 	expect := "logger_test.go: TestFlagsLfunctionNameWithFileName" +
 		": This output should have a file name and a function name."
 	if buf.String() != expect {
@@ -292,10 +290,9 @@ func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 
 func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix)
-	Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
+	logr := New(LEVEL_ALL, &buf)
+	logr.SetFlags(LnoPrefix)
+	logr.Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
 	expect := "\n\n[DEBG] This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -305,9 +302,9 @@ func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix | Lcolor)
-	Debug("\n\nThis output should be padded with newlines and colored.\n\n")
+	logr := New(LEVEL_ALL, &buf)
+	logr.SetFlags(LnoPrefix | Lcolor)
+	logr.Debug("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
@@ -317,10 +314,9 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 
 func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix | Lcolor)
-	Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
+	logr := New(LEVEL_ALL, &buf)
+	logr.SetFlags(LnoPrefix | Lcolor)
+	logr.Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
@@ -328,7 +324,7 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
-	Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
+	logr.Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
 	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m ##### HELLO NEWMAN #####\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -337,23 +333,22 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 
 func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	var buf bytes.Buffer
-	SetStreams(&buf)
-	SetLevel(LEVEL_ALL)
-	SetFlags(LnoPrefix | Lcolor)
-	Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
+	logr := New(LEVEL_ALL, &buf)
+	logr.SetFlags(LnoPrefix | Lcolor)
+	logr.Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
-	Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
+	logr.Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
 	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
-	Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
+	logr.Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
 	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
