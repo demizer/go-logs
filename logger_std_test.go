@@ -167,3 +167,15 @@ func TestStdLevel(t *testing.T) {
 		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", level, expect)
 	}
 }
+
+func TestStdPrefix(t *testing.T) {
+	SetPrefix("TEST::")
+
+	prefix := Prefix()
+
+	expect := "TEST::"
+
+	if prefix != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", prefix, expect)
+	}
+}
