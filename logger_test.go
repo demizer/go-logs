@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
-	"text/template"
 	"time"
 
 	"github.com/demizer/rgbterm"
@@ -396,35 +395,22 @@ func TestTreeDebugln(t *testing.T) {
 
 func TestSetIndentDebugln(t *testing.T) {
 	var buf bytes.Buffer
-	var tBuf bytes.Buffer
 
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LstdFlags)
-
-	now := time.Now()
+	logr.SetFlags(LnoPrefix | Lcolor | Lindent)
 
 	logr.Debugln("Level 0 Output 1")
 	logr.SetIndent(1).Debugln("Level 1 Output 1")
 	logr.Debugln("Level 1 Output 2")
-	logr.SetIndent(0).Debugln("Level 1 Output 1")
+	logr.SetIndent(0).Debugln("Level 0 Output 1")
 
-	date = now.Format(std.DateFormat())
-	f := struct {
-		Date string
-	}{Date: date}
+	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m     Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m     Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n"
 
-	temp := "{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m     Level 1 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m     Level 1 Output 2\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 1\n"
-
-	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	tmpl.Execute(&tBuf, f)
-
-	if buf.String() != tBuf.String() {
-		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), tBuf.String())
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
 	}
 }

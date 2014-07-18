@@ -124,6 +124,9 @@ const (
 	// specific output
 	Lid
 
+	// Use indentation. Ltree assumes Lindent.
+	Lindent
+
 	// Indent output based on stack position of logging function calls
 	Ltree
 
@@ -442,7 +445,7 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 		if l.flags&Ltree != 0 {
 			pc := make([]uintptr, 32)
 			pcNum := runtime.Callers(3, pc)
-			for i := 0; i < pcNum; i++ {
+			for i := 1; i < pcNum; i++ {
 				pcFunc := runtime.FuncForPC(pc[i])
 				funcName := pcFunc.Name()
 				if funcName == "testing.tRunner" || funcName == "runtime.goexit" {
@@ -528,8 +531,8 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 	}
 
 	var indent string
-	if indentCount > 0 {
-		for i := 1; i < indentCount+l.indent; i++ {
+	if indentCount > 0 || l.flags&Lindent != 0 {
+		for i := 0; i < indentCount+l.indent; i++ {
 			for j := 0; j < l.tabStop; j++ {
 				if l.flags&LshowIndent != 0 && j == l.tabStop-1 {
 					indent += "|"
