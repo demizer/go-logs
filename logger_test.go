@@ -237,6 +237,14 @@ func TestLevel(t *testing.T) {
 	}
 }
 
+func TestLevelString(t *testing.T) {
+	var test level
+	test = LEVEL_INFO
+	if test.String() != "LEVEL_INFO" {
+		t.Errorf("\nGot:\t%q\nExpect:\tLEVEL_INFO\n", test.String())
+	}
+}
+
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
