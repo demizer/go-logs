@@ -218,3 +218,36 @@ func TestStdIndent(t *testing.T) {
 		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", indent, expi)
 	}
 }
+
+func TestStdTabStop(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	SetLevel(LEVEL_DEBUG)
+
+	SetFlags(LnoPrefix | Lindent)
+
+	// This SetIndent doesn't have to be on a separate line, but for some
+	// reason go test cover wasn't registering its usage when the functions
+	// below were chained together.
+	SetIndent(1)
+	SetTabStop(2).Debugln("Test 1")
+
+	SetIndent(2)
+	SetTabStop(4).Debugln("Test 2")
+
+	tabStop := TabStop()
+
+	expe := "[DEBG]   Test 1\n[DEBG]         Test 2\n"
+	expt := 4
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+
+	if tabStop != expt {
+		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", tabStop, expt)
+	}
+}
