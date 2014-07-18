@@ -553,3 +553,29 @@ func TestSetIndentWithLindentAndLtreeMinus4Indent(t *testing.T) {
 			buf.String(), buf.String(), expe, expe)
 	}
 }
+
+func TestTemplate(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	logr.SetFlags(LdebugFlags)
+
+	logr.SetTemplate("{{.Text}}")
+	temp := logr.Template()
+
+	type test struct {
+		Text string
+	}
+
+	err := temp.Execute(&buf, &test{"Hello, World!"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expe := "Hello, World!"
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\t%s\nExpect:\t%s\n", buf.String(), expe)
+	}
+}
