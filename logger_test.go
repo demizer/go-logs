@@ -731,6 +731,33 @@ func TestStreams(t *testing.T) {
 	}
 }
 
+func TestIndent(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG)
+
+	logr.SetStreams(&buf)
+
+	logr.SetFlags(LnoPrefix | Lindent)
+
+	logr.SetIndent(0).Debugln("Test 1")
+	logr.SetIndent(2).Debugln("Test 2")
+
+	indent := logr.Indent()
+
+	expe := "[DEBG] Test 1\n[DEBG]         Test 2\n"
+	expi := 2
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+
+	if indent != expi {
+		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", indent, expi)
+	}
+}
+
 func TestTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
