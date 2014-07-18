@@ -102,4 +102,8 @@ func TestStdSetTemplateBadDataObjectPanic(t *testing.T) {
 	}()
 
 	Debugln("Hello, World!")
+
+	// Reset the standard logging object
+	SetTemplate(logFmt)
+	SetIndent(0)
 }
