@@ -475,3 +475,42 @@ func TestSetIndentWithLindentAndLtree(t *testing.T) {
 			buf.String(), buf.String(), expe, expe)
 	}
 }
+
+func TestSetIndentWithLindentAndLtreeMinus2Indent(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	// Lindent should have no effect on Lindent
+	logr.SetFlags(LnoPrefix | Lcolor | Lindent | Ltree | LshowIndent)
+
+	logr.SetIndent(-2).Debugln("Level 0 Output 1")
+	lvl3 := func() {
+		logr.Debugln("Level 3 Output 1")
+	}
+	lvl2 := func() {
+		logr.Debugln("Level 2 Output 1")
+		lvl3()
+		logr.Debugln("Level 2 Output 2")
+	}
+	lvl1 := func() {
+		logr.Debugln("Level 1 Output 1")
+		lvl2()
+		logr.Debugln("Level 1 Output 3")
+	}
+	lvl1()
+	logr.Debugln("Level 0 Output 2")
+
+	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+}
