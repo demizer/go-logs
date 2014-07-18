@@ -717,6 +717,20 @@ func TestPrefix(t *testing.T) {
 	}
 }
 
+func TestStreams(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_INFO)
+
+	logr.SetStreams(&buf)
+
+	bufT := logr.Streams()
+
+	if &buf != bufT[0] {
+		t.Errorf("\nGot:\t%p\nExpect:\t%p\n", &buf, bufT[0])
+	}
+}
+
 func TestTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
