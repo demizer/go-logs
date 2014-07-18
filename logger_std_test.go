@@ -155,3 +155,15 @@ func TestStdFlags(t *testing.T) {
 		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", flags, expect)
 	}
 }
+
+func TestStdLevel(t *testing.T) {
+	SetLevel(LEVEL_DEBUG)
+
+	level := Level()
+
+	expect := "LEVEL_DEBUG"
+
+	if level.String() != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", level, expect)
+	}
+}
