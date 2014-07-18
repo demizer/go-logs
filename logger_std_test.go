@@ -8,6 +8,7 @@ package log
 import (
 	"bytes"
 	"testing"
+	"time"
 )
 
 func TestStdTemplate(t *testing.T) {
@@ -106,4 +107,29 @@ func TestStdSetTemplateBadDataObjectPanic(t *testing.T) {
 	// Reset the standard logging object
 	SetTemplate(logFmt)
 	SetIndent(0)
+}
+
+func TestStdSetDateFormat(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetLevel(LEVEL_ALL)
+
+	SetStreams(&buf)
+
+	SetFlags(Ldate)
+
+	SetDateFormat("20060102-15:04:05")
+
+	SetTemplate("{{.Date}}")
+
+	Debugln("Hello")
+
+	expect := time.Now().Format(DateFormat())
+
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+
+	// Reset the standard logging object
+	SetTemplate(logFmt)
 }
