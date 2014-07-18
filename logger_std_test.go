@@ -191,3 +191,30 @@ func TestStdStreams(t *testing.T) {
 		t.Errorf("\nGot:\t%p\nExpect:\t%p\n", &buf, bufT[0])
 	}
 }
+
+func TestStdIndent(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	SetLevel(LEVEL_DEBUG)
+
+	SetFlags(LnoPrefix | Lindent)
+
+	SetIndent(0).Debugln("Test 1")
+	SetIndent(2).Debugln("Test 2")
+
+	indent := Indent()
+
+	expe := "[DEBG] Test 1\n[DEBG]         Test 2\n"
+	expi := 2
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+
+	if indent != expi {
+		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", indent, expi)
+	}
+}
