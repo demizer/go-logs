@@ -579,3 +579,21 @@ func TestTemplate(t *testing.T) {
 		t.Errorf("\nGot:\t%s\nExpect:\t%s\n", buf.String(), expe)
 	}
 }
+
+func TestSetTemplate(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	logr.SetFlags(LdebugFlags)
+
+	logr.SetTemplate("{{.Text}}")
+
+	logr.Debugln("Hello, World!")
+
+	expe := "Hello, World!"
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\t%s\nExpect:\t%s\n", buf.String(), expe)
+	}
+}
