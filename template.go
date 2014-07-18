@@ -11,8 +11,8 @@ var (
 	logFmt  = "{{if .Date}}{{.Date}} {{end}}" +
 		"{{if .Prefix}}{{.Prefix}} {{end}}" +
 		"{{if .LogLabel}}{{.LogLabel}} {{end}}" +
-		"{{if .Indent}}{{.Indent}} {{end}}" +
 		"{{if .Id}}{{.Id}} {{end}}" +
+		"{{if .Indent}}{{.Indent}}{{end}}" +
 		"{{if .FileName}}{{.FileName}}: {{end}}" +
 		"{{if .FunctionName}}{{.FunctionName}}: {{end}}" +
 		"{{if .LineNumber}}Line {{.LineNumber}}: {{end}}" +
