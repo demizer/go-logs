@@ -233,6 +233,13 @@ func TestLevel(t *testing.T) {
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
 	}
+
+	level := logr.Level()
+	expl := LEVEL_ALL
+
+	if level != expl {
+		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", level, expl)
+	}
 }
 
 func TestLevelString(t *testing.T) {
