@@ -353,46 +353,44 @@ func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	}
 }
 
-func TestHeirarchicalPrintln(t *testing.T) {
+func TestTreeDebugln(t *testing.T) {
 	var buf bytes.Buffer
-	var tBuf bytes.Buffer
 
 	logr := New(LEVEL_ALL, &buf)
-	logr.SetFlags(LstdFlags)
+	logr.SetFlags(LnoPrefix | Lcolor | Lid | Ltree)
 
-	now := time.Now()
-
-	logr.Println("\n\nLevel 0 Output 1")
+	logr.Debugln("Level 0 Output 1")
+	lvl3 := func() {
+		logr.Debugln("Level 3 Output 1")
+	}
 	lvl2 := func() {
-		logr.Println("Level 2 Output 1")
-		logr.Println("Level 2 Output 2")
+		logr.Debugln("Level 2 Output 1")
+		logr.Debugln("Level 2 Output 2")
+		lvl3()
+		logr.Debugln("Level 2 Output 3")
 	}
 	lvl1 := func() {
-		logr.Println("Level 1 Output 1")
-		logr.Println("Level 1 Output 2")
+		logr.Debugln("Level 1 Output 1")
+		logr.Debugln("Level 1 Output 2")
 		lvl2()
+		logr.Debugln("Level 1 Output 3")
 	}
 	lvl1()
+	logr.Debugln("Level 0 Output 2")
 
-	date = now.Format(std.DateFormat())
-	f := struct {
-		Date string
-	}{Date: date}
+	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m [00] Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [01]     Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [01]     Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [02]         Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [02]         Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [03]             Level 3 Output 1\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [02]         Level 2 Output 3\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [01]     Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DEBG]\x1b[0;00m [00] Level 0 Output 2\n"
 
-	temp := "\n\n{{.Date}} \x1b[38;5;48m::\x1b[0;00m [00] Level 0 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m      [01] Level 1 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m      [01] Level 1 Output 2\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m           [02] Level 2 Output 1\n" +
-		"{{.Date}} \x1b[38;5;48m::\x1b[0;00m           [02] Level 2 Output 2\n"
-
-	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	tmpl.Execute(&tBuf, f)
-
-	if buf.String() != tBuf.String() {
-		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), tBuf.String())
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
 	}
 }
 
