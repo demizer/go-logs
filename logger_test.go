@@ -598,6 +598,24 @@ func TestSetTemplate(t *testing.T) {
 	}
 }
 
+func TestSetTemplateBad(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	logr.SetFlags(LdebugFlags)
+
+	err := logr.SetTemplate("{{.Text")
+
+	logr.Debugln("template: default:1: unclosed action")
+
+	expe := "template: default:1: unclosed action"
+
+	if err.Error() != expe {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expe)
+	}
+}
+
 func TestSetTemplateBadDataObjectPanic(t *testing.T) {
 	var buf bytes.Buffer
 
