@@ -129,6 +129,9 @@ const (
 
 	// initial values for the standard logger
 	LstdFlags = Ldate | Lcolor | LnoFileAnsi
+
+	// Special debug output flags
+	LdebugFlags = LnoPrefix | Lcolor | LfunctionName | LlineNumber | Lid | Ltree | LshowIndent
 )
 
 // A Logger represents an active logging object that generates lines of output
