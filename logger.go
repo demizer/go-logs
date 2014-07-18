@@ -88,6 +88,7 @@ var (
 	defaultDate        = "Mon-20060102-15:04:05"
 	defaultPrefix      = "::"
 	defaultPrefixColor = rgbterm.String("::", 0, 255, 135) // Green
+	defaultIndentColor = []uint8{0, 135, 175}              // Grayish blue
 )
 
 const (
@@ -110,6 +111,9 @@ const (
 	// Use color escape sequences
 	Lcolor
 
+	// Show indentation with dots and bars
+	LshowIndent
+
 	// Disable ansi in file output
 	LnoFileAnsi
 
@@ -117,8 +121,11 @@ const (
 	LnoPrefix
 
 	// Show ids for functions generating output. Useful for disabling
-	// specific output.
+	// specific output
 	Lid
+
+	// Indent output based on stack position of logging function calls
+	Ltree
 
 	// initial values for the standard logger
 	LstdFlags = Ldate | Lcolor | LnoFileAnsi
@@ -210,8 +217,24 @@ func Streams() []io.Writer { return std.streams }
 // Set the output streams of the standard logger
 func SetStreams(streams ...io.Writer) { std.streams = streams }
 
+// Indent gets the indent level for all output.
+func Indent() int { return std.indent }
+
+// SetIndent allows setting the indent level of all output. level can be
+// positive or negative.
 func SetIndent(level int) *logger {
 	std.indent = level
+	return std
+}
+
+// TabStop returns the number of spaces per tab for the standard logging
+// object.
+func TabStop() int { return std.tabStop }
+
+// SetTabStop sets the number of spaces for each indention. A pointer to the
+// standard logging object is returned.
+func SetTabStop(stops int) *logger {
+	std.tabStop = stops
 	return std
 }
 
@@ -397,34 +420,51 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 	var file, fName string
 	var line int
 	var id string
+	var indentCount int
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.flags&(LlongFileName|LshortFileName|LfunctionName|Lid) != 0 {
+	if l.flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree) != 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
+
 		pgmC, file, line, ok = runtime.Caller(calldepth)
 		if !ok {
 			file = "???"
 			line = 0
 		}
+
+		if l.flags&Ltree != 0 {
+			pc := make([]uintptr, 32)
+			pcNum := runtime.Callers(3, pc)
+			for i := 0; i < pcNum; i++ {
+				pcFunc := runtime.FuncForPC(pc[i])
+				funcName := pcFunc.Name()
+				if funcName == "testing.tRunner" || funcName == "runtime.goexit" {
+					// FIXME: Fix this hack. There has to
+					// be a better way!
+					continue
+				}
+				indentCount += 1
+			}
+		}
+
 		if l.flags&Lid != 0 {
 			fAtPC := runtime.FuncForPC(pgmC)
-			hName := fAtPC.Name()
+			fName = fAtPC.Name()
 			var idNum int
-			if _, ok := l.ids[hName]; ok {
-				idNum = l.ids[hName]
-				// fmt.Println("EXIST", hName, idNum)
+			if _, ok := l.ids[fName]; ok {
+				idNum = l.ids[fName]
 			} else {
-				l.ids[hName] = l.lastId
+				l.ids[fName] = l.lastId
 				idNum = l.lastId
 				l.lastId += 1
-				// fmt.Println("NEW  ", hName, idNum)
 			}
 			id = fmt.Sprintf("[%02.f]", float64(idNum))
 		}
+
 		if l.flags&LshortFileName != 0 {
 			short := file
 			for i := len(file) - 1; i > 0; i-- {
@@ -435,6 +475,7 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 			}
 			file = short
 		}
+
 		if l.flags&LfunctionName != 0 {
 			fAtPC := runtime.FuncForPC(pgmC)
 			fName = fAtPC.Name()
@@ -445,6 +486,7 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 				}
 			}
 		}
+
 		l.mu.Lock()
 	}
 
@@ -470,20 +512,34 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 		prefix = l.prefix
 	}
 
-	if l.flags&(LlongFileName|LshortFileName) == 0 {
-		file = ""
-	}
-
 	if l.flags&(LlineNumber) == 0 {
 		line = 0
 	}
 
+	if l.flags&(LshortFileName|LlongFileName) == 0 {
+		file = ""
+	}
+
+	if l.flags&(LfunctionName) == 0 {
+		fName = ""
+	}
+
 	var indent string
-	if l.indent > 0 {
-		for i := 1; i <= l.indent; i++ {
-			for j := 1; j < l.tabStop; j++ {
-				indent += " "
+	if indentCount > 0 {
+		for i := 1; i < indentCount+l.indent; i++ {
+			for j := 0; j < l.tabStop; j++ {
+				if l.flags&LshowIndent != 0 && j == l.tabStop-1 {
+					indent += "|"
+				} else if l.flags&LshowIndent != 0 {
+					indent += "."
+				} else {
+					indent += " "
+				}
 			}
+		}
+		if len(indent) > 0 && string(indent[0]) != " " {
+			indent = rgbterm.String(indent, defaultIndentColor[0],
+				defaultIndentColor[1], defaultIndentColor[2])
 		}
 	}
 
@@ -572,9 +628,24 @@ func (l *logger) Streams() []io.Writer { return l.streams }
 // Set the output streams of the logger
 func (l *logger) SetStreams(streams ...io.Writer) { l.streams = streams }
 
+// Indent gets the indent level for all output of the logging object.
+func (l *logger) Indent() int { return l.indent }
+
+// SetIndent sets the indent level of all output in the logging object. level
+// can be positive or negative. A pointer to the logging object is returned.
 func (l *logger) SetIndent(level int) *logger {
 	l.indent = level
 	return l
+}
+
+// TabStop returns the number of spaces per tab for the logging object.
+func (l *logger) TabStop() int { return std.tabStop }
+
+// SetTabStop sets the number of spaces for each indention. A pointer to the
+// logging object is returned.
+func (l *logger) SetTabStop(stops int) *logger {
+	std.tabStop = stops
+	return std
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
