@@ -36,7 +36,7 @@ func TestMultiStreams(t *testing.T) {
 	}
 	defer file.Close()
 	var buf bytes.Buffer
-	eLen := 90
+	eLen := 89
 	logr := New(LEVEL_DEBUG, file, &buf)
 	logr.Debugln("Testing debug output!")
 	b := make([]byte, eLen)
