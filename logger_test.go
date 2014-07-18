@@ -703,6 +703,20 @@ func TestFlags(t *testing.T) {
 	}
 }
 
+func TestPrefix(t *testing.T) {
+	logr := New(LEVEL_INFO)
+
+	logr.SetPrefix("TEST::")
+
+	prefix := logr.Prefix()
+
+	expect := "TEST::"
+
+	if prefix != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", prefix, expect)
+	}
+}
+
 func TestTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
