@@ -91,6 +91,7 @@ var (
 	defaultIndentColor = []uint8{0, 135, 175}              // Grayish blue
 )
 
+// Flags are used to control the formatting of the logging output.
 const (
 	// These flags define which text to prefix to each log entry generated
 	// by the Logger. Bits or'ed together to control what's printed.
@@ -141,7 +142,7 @@ const (
 // to an io.Writer. Each logging operation makes a single call to the Writer's
 // Write method. A Logger can be used simultaneously from multiple goroutines;
 // it guarantees to serialize access to the Writer.
-type logger struct {
+type Logger struct {
 	mu         sync.Mutex         // Ensures atomic writes
 	buf        []byte             // For marshaling output to write
 	dateFormat string             // time.RubyDate is the default format
@@ -162,9 +163,9 @@ var (
 )
 
 // New creates a new logger object and returns it.
-func New(level level, streams ...io.Writer) (obj *logger) {
+func New(level level, streams ...io.Writer) (obj *Logger) {
 	tmpl := template.Must(template.New("default").Funcs(funcMap).Parse(logFmt))
-	obj = &logger{
+	obj = &Logger{
 		ids:        make(map[string]int),
 		streams:    streams,
 		dateFormat: defaultDate,
@@ -230,7 +231,7 @@ func Indent() int { return std.indent }
 
 // SetIndent allows setting the indent level of all output. level can be
 // positive or negative.
-func SetIndent(level int) *logger {
+func SetIndent(level int) *Logger {
 	std.indent = level
 	return std
 }
@@ -241,7 +242,7 @@ func TabStop() int { return std.tabStop }
 
 // SetTabStop sets the number of spaces for each indention. A pointer to the
 // standard logging object is returned.
-func SetTabStop(stops int) *logger {
+func SetTabStop(stops int) *Logger {
 	std.tabStop = stops
 	return std
 }
@@ -415,7 +416,7 @@ func Criticalln(v ...interface{}) {
 // stream is nil, the stream value contained in the logger object is used.
 //
 // Fprint returns the number of bytes written to the stream or an error.
-func (l *logger) Fprint(logLevel level, calldepth int,
+func (l *Logger) Fprint(logLevel level, calldepth int,
 	text string, stream io.Writer) (n int, err error) {
 
 	if (logLevel != LEVEL_ALL && l.level != LEVEL_ALL) &&
@@ -595,13 +596,13 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 }
 
 // Returns the template of the standard logging object.
-func (l *logger) Template() *template.Template { return l.template }
+func (l *Logger) Template() *template.Template { return l.template }
 
 // SetTemplate allocates and parses a new output template for the logging
 // object. error is returned if the template fails to parse. If the template
 // cannot be set, then the default template is used. If data field name are
 // misnamed in the template, a panic is produced.
-func (l *logger) SetTemplate(temp string) error {
+func (l *Logger) SetTemplate(temp string) error {
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
 		return err
@@ -611,59 +612,59 @@ func (l *logger) SetTemplate(temp string) error {
 }
 
 // Returns the date format used by the logging object as a string.
-func (l *logger) DateFormat() string { return l.dateFormat }
+func (l *Logger) DateFormat() string { return l.dateFormat }
 
 // Set the date format of the logging object. See the date package
 // documentation for details on using the date format string.
-func (l *logger) SetDateFormat(format string) { l.dateFormat = format }
+func (l *Logger) SetDateFormat(format string) { l.dateFormat = format }
 
 // Returns the usages flags of the logging object.
-func (l *logger) Flags() int { return l.flags }
+func (l *Logger) Flags() int { return l.flags }
 
 // Set the usage flags for the logging object.
-func (l *logger) SetFlags(flags int) { l.flags = flags }
+func (l *Logger) SetFlags(flags int) { l.flags = flags }
 
 // Get the logging level of the logging object.
-func (l *logger) Level() level { return l.level }
+func (l *Logger) Level() level { return l.level }
 
 // Set the logging level of the logging object.
-func (l *logger) SetLevel(level level) { l.level = level }
+func (l *Logger) SetLevel(level level) { l.level = level }
 
 // Get the logging prefix used by the logging object. By default it is "::".
-func (l *logger) Prefix() string { return l.prefix }
+func (l *Logger) Prefix() string { return l.prefix }
 
 // Set the logging prefix of the logging object.
-func (l *logger) SetPrefix(prefix string) { l.prefix = prefix }
+func (l *Logger) SetPrefix(prefix string) { l.prefix = prefix }
 
 // Get the output streams of the logger
-func (l *logger) Streams() []io.Writer { return l.streams }
+func (l *Logger) Streams() []io.Writer { return l.streams }
 
 // Set the output streams of the logger
-func (l *logger) SetStreams(streams ...io.Writer) { l.streams = streams }
+func (l *Logger) SetStreams(streams ...io.Writer) { l.streams = streams }
 
 // Indent gets the indent level for all output of the logging object.
-func (l *logger) Indent() int { return l.indent }
+func (l *Logger) Indent() int { return l.indent }
 
 // SetIndent sets the indent level of all output in the logging object. level
 // can be positive or negative. A pointer to the logging object is returned.
-func (l *logger) SetIndent(level int) *logger {
+func (l *Logger) SetIndent(level int) *Logger {
 	l.indent = level
 	return l
 }
 
 // TabStop returns the number of spaces per tab for the logging object.
-func (l *logger) TabStop() int { return std.tabStop }
+func (l *Logger) TabStop() int { return std.tabStop }
 
 // SetTabStop sets the number of spaces for each indention. A pointer to the
 // logging object is returned.
-func (l *logger) SetTabStop(stops int) *logger {
+func (l *Logger) SetTabStop(stops int) *Logger {
 	std.tabStop = stops
 	return std
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
 // Lcolor flag is set, ansi escape codes are used to add coloring to the output.
-func (l *logger) Write(p []byte) (n int, err error) {
+func (l *Logger) Write(p []byte) (n int, err error) {
 	for _, w := range l.streams {
 		if reflect.TypeOf(w).String() == "*os.File" && l.flags&LnoFileAnsi != 0 {
 			p = stripAnsiByte(p)
@@ -683,127 +684,127 @@ func (l *logger) Write(p []byte) (n int, err error) {
 }
 
 // Printf is equivalent to log.Printf().
-func (l *logger) Printf(format string, v ...interface{}) {
+func (l *Logger) Printf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_ALL, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Print is equivalent to log.Print().
-func (l *logger) Print(v ...interface{}) {
+func (l *Logger) Print(v ...interface{}) {
 	l.Fprint(LEVEL_ALL, 2, fmt.Sprint(v...), nil)
 }
 
 // Println is equivalent to log.Println().
-func (l *logger) Println(v ...interface{}) {
+func (l *Logger) Println(v ...interface{}) {
 	l.Fprint(LEVEL_ALL, 2, fmt.Sprintln(v...), nil)
 }
 
 // Fatalf is equivalent to log.Fatalf().
-func (l *logger) Fatalf(format string, v ...interface{}) {
+func (l *Logger) Fatalf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 	os.Exit(1)
 }
 
 // Fatal is equivalent to log.Fatal().
-func (l *logger) Fatal(v ...interface{}) {
+func (l *Logger) Fatal(v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 	os.Exit(1)
 }
 
 // Fatalln is equivalent to log.Fatalln().
-func (l *logger) Fatalln(v ...interface{}) {
+func (l *Logger) Fatalln(v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 	os.Exit(1)
 }
 
 // Panicf is equivalent to log.Panicf().
-func (l *logger) Panicf(format string, v ...interface{}) {
+func (l *Logger) Panicf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 	panic(v)
 }
 
 // Panic is equivalent to log.Panic().
-func (l *logger) Panic(v ...interface{}) {
+func (l *Logger) Panic(v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 	panic(v)
 }
 
 // Panicln is equivalent to log.Panicln().
-func (l *logger) Panicln(v ...interface{}) {
+func (l *Logger) Panicln(v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 	panic(v)
 }
 
 // Debugf is equivalent to log.Debugf().
-func (l *logger) Debugf(format string, v ...interface{}) {
+func (l *Logger) Debugf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Debug is equivalent to log.Debug().
-func (l *logger) Debug(v ...interface{}) {
+func (l *Logger) Debug(v ...interface{}) {
 	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
 }
 
 // Debugln is equivalent to log.Debugln().
-func (l *logger) Debugln(v ...interface{}) {
+func (l *Logger) Debugln(v ...interface{}) {
 	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
 }
 
 // Infof is equivalent to log.Infof().
-func (l *logger) Infof(format string, v ...interface{}) {
+func (l *Logger) Infof(format string, v ...interface{}) {
 	l.Fprint(LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Info is equivalent to log.Info().
-func (l *logger) Info(v ...interface{}) {
+func (l *Logger) Info(v ...interface{}) {
 	l.Fprint(LEVEL_INFO, 2, fmt.Sprint(v...), nil)
 }
 
 // Infoln is equivalent to log.Infoln().
-func (l *logger) Infoln(v ...interface{}) {
+func (l *Logger) Infoln(v ...interface{}) {
 	l.Fprint(LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
 }
 
 // Warningf is equivalent to log.Warningf().
-func (l *logger) Warningf(format string, v ...interface{}) {
+func (l *Logger) Warningf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Warning is equivalent to log.Warning().
-func (l *logger) Warning(v ...interface{}) {
+func (l *Logger) Warning(v ...interface{}) {
 	l.Fprint(LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
 }
 
 // Warningln is equivalent to log.Warningln().
-func (l *logger) Warningln(v ...interface{}) {
+func (l *Logger) Warningln(v ...interface{}) {
 	l.Fprint(LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
 }
 
 // Errorf is equivalent to log.Errorf().
-func (l *logger) Errorf(format string, v ...interface{}) {
+func (l *Logger) Errorf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Error is equivalent to log.Error().
-func (l *logger) Error(v ...interface{}) {
+func (l *Logger) Error(v ...interface{}) {
 	l.Fprint(LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
 }
 
 // Errorln is equivalent to log.Errorln().
-func (l *logger) Errorln(v ...interface{}) {
+func (l *Logger) Errorln(v ...interface{}) {
 	l.Fprint(LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
 }
 
 // Criticalf is equivalent to log.Criticalf().
-func (l *logger) Criticalf(format string, v ...interface{}) {
+func (l *Logger) Criticalf(format string, v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Critical is equivalent to log.Critical().
-func (l *logger) Critical(v ...interface{}) {
+func (l *Logger) Critical(v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 }
 
 // Criticalln is equivalent to log.Criticalln().
-func (l *logger) Criticalln(v ...interface{}) {
+func (l *Logger) Criticalln(v ...interface{}) {
 	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
