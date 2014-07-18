@@ -145,7 +145,7 @@ type logger struct {
 	flags      int                // Properties of the output
 	level      level              // The default level is warning
 	lastId     int                // The last id level encountered
-	ids        map[string]int     // ids level of the log line
+	ids        map[string]int     // A map of encountered function names with corresponding ID
 	template   *template.Template // The format order of the output
 	prefix     string             // Inserted into every logging output
 	streams    []io.Writer        // Destination for output
@@ -214,10 +214,10 @@ func Prefix() string { return std.prefix }
 // Set the logging prefix of the standard logging object.
 func SetPrefix(prefix string) { std.prefix = prefix }
 
-// Get the output streams of the standard logger
+// Streams get the output streams of the standard logger
 func Streams() []io.Writer { return std.streams }
 
-// Set the output streams of the standard logger
+// SetStreams set the output streams of the standard logger
 func SetStreams(streams ...io.Writer) { std.streams = streams }
 
 // Indent gets the indent level for all output.
