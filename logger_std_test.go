@@ -179,3 +179,15 @@ func TestStdPrefix(t *testing.T) {
 		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", prefix, expect)
 	}
 }
+
+func TestStdStreams(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	bufT := Streams()
+
+	if &buf != bufT[0] {
+		t.Errorf("\nGot:\t%p\nExpect:\t%p\n", &buf, bufT[0])
+	}
+}
