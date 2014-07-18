@@ -180,8 +180,10 @@ func New(level level, streams ...io.Writer) (obj *logger) {
 // Returns the template of the standard logging object.
 func Template() *template.Template { return std.template }
 
-// SetTemplate allocates and parses a new output template for the logging
-// object.
+// SetTemplate allocates and parses a new output template for the standard
+// logging object. error is returned if the template fails to parse. If the
+// template cannot be set, then the default template is used. If data field
+// name are misnamed in the template, a panic is produced.
 func SetTemplate(temp string) error {
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
@@ -593,7 +595,9 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 func (l *logger) Template() *template.Template { return l.template }
 
 // SetTemplate allocates and parses a new output template for the logging
-// object.
+// object. error is returned if the template fails to parse. If the template
+// cannot be set, then the default template is used. If data field name are
+// misnamed in the template, a panic is produced.
 func (l *logger) SetTemplate(temp string) error {
 	tmpl, err := template.New("default").Funcs(funcMap).Parse(temp)
 	if err != nil {
