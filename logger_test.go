@@ -689,6 +689,20 @@ func TestSetDateFormat(t *testing.T) {
 	SetTemplate(logFmt)
 }
 
+func TestFlags(t *testing.T) {
+	logr := New(LEVEL_INFO)
+
+	logr.SetFlags(LstdFlags)
+
+	flags := logr.Flags()
+
+	expect := LstdFlags
+
+	if flags != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", flags, expect)
+	}
+}
+
 func TestTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
