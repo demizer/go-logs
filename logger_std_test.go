@@ -143,3 +143,15 @@ func TestStdSetDateFormat(t *testing.T) {
 	// Reset the standard logging object
 	SetTemplate(logFmt)
 }
+
+func TestStdFlags(t *testing.T) {
+	SetFlags(LstdFlags)
+
+	flags := Flags()
+
+	expect := LstdFlags
+
+	if flags != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", flags, expect)
+	}
+}
