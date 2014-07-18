@@ -567,6 +567,9 @@ func (l *logger) Fprint(logLevel level, calldepth int,
 	var strippedText, finalText string
 
 	err = l.template.Execute(&out, f)
+	if err != nil {
+		panic(err)
+	}
 
 	if l.flags&Lcolor == 0 {
 		strippedText = stripAnsi(out.String())

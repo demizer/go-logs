@@ -597,3 +597,31 @@ func TestSetTemplate(t *testing.T) {
 		t.Errorf("\nGot:\t%s\nExpect:\t%s\n", buf.String(), expe)
 	}
 }
+
+func TestSetTemplateBadDataObjectPanic(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	logr.SetFlags(LnoPrefix | Lindent)
+
+	logr.SetIndent(1)
+
+	type test struct {
+		Test string
+	}
+
+	err := logr.SetTemplate("{{.Tes}}")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("\nGot:\t%q\nExpect:\tPANIC\n", buf.String())
+		}
+	}()
+
+	logr.Debugln("Hello, World!")
+
+}
