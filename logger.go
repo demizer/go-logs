@@ -653,13 +653,13 @@ func (l *Logger) SetIndent(level int) *Logger {
 }
 
 // TabStop returns the number of spaces per tab for the logging object.
-func (l *Logger) TabStop() int { return std.tabStop }
+func (l *Logger) TabStop() int { return l.tabStop }
 
 // SetTabStop sets the number of spaces for each indention. A pointer to the
 // logging object is returned.
 func (l *Logger) SetTabStop(stops int) *Logger {
-	std.tabStop = stops
-	return std
+	l.tabStop = stops
+	return l
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the

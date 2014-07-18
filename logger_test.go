@@ -646,3 +646,34 @@ func TestSetTemplateBadDataObjectPanic(t *testing.T) {
 	logr.Debugln("Hello, World!")
 
 }
+
+func TestTabStop(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	logr.SetFlags(LnoPrefix | Lindent)
+
+	// This SetIndent doesn't have to be on a separate line, but for some
+	// reason go test cover wasn't registering its usage when the functions
+	// below were chained together.
+	logr.SetIndent(1)
+	logr.SetTabStop(2).Debugln("Test 1")
+
+	logr.SetIndent(2)
+	logr.SetTabStop(4).Debugln("Test 2")
+
+	tabStop := logr.TabStop()
+
+	expe := "[DEBG]   Test 1\n[DEBG]         Test 2\n"
+	expt := 4
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+
+	if tabStop != expt {
+		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", tabStop, expt)
+	}
+}
