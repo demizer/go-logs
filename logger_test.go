@@ -666,6 +666,29 @@ func TestDateFormat(t *testing.T) {
 	}
 }
 
+func TestSetDateFormat(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_ALL, &buf)
+
+	logr.SetFlags(Ldate)
+
+	logr.SetDateFormat("20060102-15:04:05")
+
+	logr.SetTemplate("{{.Date}}")
+
+	logr.Debugln("Hello")
+
+	expect := time.Now().Format(logr.DateFormat())
+
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+	}
+
+	// Reset the standard logging object
+	SetTemplate(logFmt)
+}
+
 func TestTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
