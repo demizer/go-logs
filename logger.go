@@ -35,11 +35,11 @@ var levels = [6]string{
 // Used to retrieve a ansi colored label of the logger
 var labels = [6]string{
 	// Print labels for special logging functions
-	rgbterm.String("[DEBUG]", 255, 255, 255),   // White
-	rgbterm.String("[INFO]", 0, 215, 95),       // Green
-	rgbterm.String("[WARNING]", 255, 255, 135), // Yellow
-	rgbterm.String("[ERROR]", 255, 0, 215),     // Magenta
-	rgbterm.String("[CRITICAL]", 255, 0, 0),    // Red
+	rgbterm.String("[DEBG]", 255, 255, 255), // White
+	rgbterm.String("[INFO]", 0, 215, 95),    // Green
+	rgbterm.String("[WARN]", 255, 255, 135), // Yellow
+	rgbterm.String("[ERRR]", 255, 0, 215),   // Magenta
+	rgbterm.String("[CRIT]", 255, 0, 0),     // Red
 	"", // The Print* functions do not use a label
 }
 

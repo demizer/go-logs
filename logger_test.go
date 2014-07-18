@@ -57,7 +57,7 @@ func TestLongFileFlag(t *testing.T) {
 	SetFlags(LnoPrefix | LlongFileName)
 	Debugln("Test long file flag")
 	_, file, _, _ := runtime.Caller(0)
-	expect := fmt.Sprintf("[DEBUG] %s: Test long file flag\n", file)
+	expect := fmt.Sprintf("[DEBG] %s: Test long file flag\n", file)
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -81,7 +81,7 @@ func TestShortFileFlag(t *testing.T) {
 	}
 
 	file = short
-	expect := fmt.Sprintf("[DEBUG] %s: Test short file flag\n", file)
+	expect := fmt.Sprintf("[DEBG] %s: Test short file flag\n", file)
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -130,7 +130,7 @@ var outputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 3",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m test number 3",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;231m[DEBG]\x1b[0;00m test number 3",
 		expectErr:  false,
 	},
 	// Test info output
@@ -152,7 +152,7 @@ var outputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 5",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;228m[WARNING]\x1b[0;00m test number 5",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;228m[WARN]\x1b[0;00m test number 5",
 		expectErr:  false,
 	},
 	// Test error output
@@ -163,7 +163,7 @@ var outputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 6",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;200m[ERROR]\x1b[0;00m test number 6",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;200m[ERRR]\x1b[0;00m test number 6",
 		expectErr:  false,
 	},
 	// Test critical output
@@ -174,7 +174,7 @@ var outputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 7",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;196m[CRITICAL]\x1b[0;00m test number 7",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;196m[CRIT]\x1b[0;00m test number 7",
 		expectErr:  false,
 	},
 	// Test date format
@@ -188,12 +188,6 @@ var outputTests = []struct {
 		expect:     "%s :: test number 8",
 		expectErr:  false,
 	},
-
-	// FIXME: RE-ADD SUPPORT FOR BOLD!
-
-	// {logFmt, boldPrefix, LEVEL_ALL, date, LstdFlags, "test number 1",
-	// "%s \x1b[1mTEST>\x1b[0m test number 1", false},
-
 }
 
 func TestOutput(t *testing.T) {
@@ -295,7 +289,7 @@ func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	SetLevel(LEVEL_ALL)
 	SetFlags(LnoPrefix)
 	Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
-	expect := "\n\n[DEBUG] This output should be padded with newlines and not colored.\n\n"
+	expect := "\n\n[DEBG] This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -307,7 +301,7 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	SetLevel(LEVEL_ALL)
 	SetFlags(LnoPrefix | Lcolor)
 	Debug("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -321,14 +315,14 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	SetFlags(LnoPrefix | Lcolor)
 	Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
-	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
-	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m ##### HELLO NEWMAN #####\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m ##### HELLO NEWMAN #####\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -340,20 +334,20 @@ func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	SetLevel(LEVEL_ALL)
 	SetFlags(LnoPrefix | Lcolor)
 	Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
-	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
-	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
