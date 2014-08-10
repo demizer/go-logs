@@ -48,8 +48,13 @@ type level int
 // Returns the string representation of the level
 func (l level) String() string { return levels[l] }
 
-// Returns the ansi colorized label for the level
+// Returns the label for the level
 func (l level) Label() string {
+	return stripAnsi(labels[l])
+}
+
+// Returns the ansi colorized label for the level
+func (l level) AnsiLabel() string {
 	return labels[l]
 }
 
@@ -553,7 +558,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	f := &format{
 		Prefix:       prefix,
-		LogLabel:     logLevel.Label(),
+		LogLabel:     logLevel.AnsiLabel(),
 		Date:         date,
 		FileName:     file,
 		FunctionName: fName,
