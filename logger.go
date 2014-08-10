@@ -462,6 +462,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		var ok bool
 
 		pgmC, file, line, ok = runtime.Caller(calldepth)
+		// FIXME: NOT SURE HOW TO TEST THIS!
 		if !ok {
 			file = "???"
 			line = 0
@@ -694,6 +695,7 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 		} else {
 			n, err = w.Write(p)
 		}
+		// FIXME: NOT SURE HOW TO TEST THIS!
 		if err != nil {
 			return
 		}
