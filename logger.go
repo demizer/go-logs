@@ -58,6 +58,16 @@ func (l level) AnsiLabel() string {
 	return labels[l]
 }
 
+// Returns the level using string input. Returns -1 if not found.
+func LevelFromString(s string) level {
+	for num, lvl := range levels {
+		if lvl == "LEVEL_"+s {
+			return level(num)
+		}
+	}
+	return -1
+}
+
 const (
 	// LEVEL_DEBUG level messages should be used for development logging
 	// instead of Printf calls. When used in this manner, instead of
