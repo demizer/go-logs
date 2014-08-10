@@ -931,3 +931,27 @@ func TestPanicf(t *testing.T) {
 
 	logr.Panicf("%s\n", "Panic Error!")
 }
+
+var levelFromStringTests = []struct {
+	name   string
+	input  string
+	expect level
+}{
+	{name: "Test 1", input: "debug", expect: LEVEL_DEBUG},
+	{name: "Test 2", input: "Debug", expect: LEVEL_DEBUG},
+	{name: "Test 3", input: "_debug", expect: LEVEL_PRINT},
+	{name: "Test 4", input: "PRINT", expect: LEVEL_PRINT},
+	{name: "Test 5", input: "level_PRINT", expect: LEVEL_PRINT},
+	{name: "Test 6", input: "info", expect: LEVEL_INFO},
+	{name: "Test 7", input: "_info", expect: LEVEL_PRINT},
+	{name: "Test 8", input: "level_info", expect: LEVEL_INFO},
+}
+
+func TestLevelFromString(t *testing.T) {
+	for _, test := range levelFromStringTests {
+		lvl := LevelFromString(test.input)
+		if lvl != test.expect {
+			t.Errorf("\nTest:\t%q\nGot:\t%q\nExpect:\t%q\n", test.name, lvl, test.expect)
+		}
+	}
+}

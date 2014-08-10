@@ -34,7 +34,6 @@ var levels = [6]string{
 
 // Used to retrieve a ansi colored label of the logger
 var labels = [6]string{
-	// Print labels for special logging functions
 	rgbterm.String("[DEBG]", 255, 255, 255), // White
 	"", // The Print* functions do not use a label
 	rgbterm.String("[INFO]", 0, 215, 95),    // Green
@@ -58,14 +57,23 @@ func (l level) AnsiLabel() string {
 	return labels[l]
 }
 
-// Returns the level using string input. Returns -1 if not found.
-func LevelFromString(s string) level {
-	for num, lvl := range levels {
-		if lvl == "LEVEL_"+s {
+// Returns the level using string input. lvl must be the name of the level in
+// the form of "debug", "DEBUG", "level_debug", or "LEVEL_DEBUG". Returns
+// LEVEL_PRINT if the level is not found.
+func LevelFromString(lvl string) level {
+	// Determine if lvl includes "level"
+	lvl = strings.ToLower(lvl)
+	if len(lvl) > 4 && lvl[0:5] != "level" {
+		lvl = "level_" + lvl
+	} else if len(lvl) < 5 {
+		lvl = "level_" + lvl
+	}
+	for num, llvl := range levels {
+		if lvl == strings.ToLower(llvl) {
 			return level(num)
 		}
 	}
-	return -1
+	return LEVEL_PRINT
 }
 
 const (
