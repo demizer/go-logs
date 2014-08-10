@@ -25,8 +25,8 @@ import (
 // Used for string output of the logging object
 var levels = [6]string{
 	"LEVEL_DEBUG",
-	"LEVEL_PRINT",
 	"LEVEL_INFO",
+	"LEVEL_PRINT",
 	"LEVEL_WARNING",
 	"LEVEL_ERROR",
 	"LEVEL_CRITICAL",
@@ -35,8 +35,8 @@ var levels = [6]string{
 // Used to retrieve a ansi colored label of the logger
 var labels = [6]string{
 	rgbterm.String("[DEBG]", 255, 255, 255), // White
-	"", // The Print* functions do not use a label
 	rgbterm.String("[INFO]", 0, 215, 95),    // Green
+	"", // The Print* functions do not use a label
 	rgbterm.String("[WARN]", 255, 255, 135), // Yellow
 	rgbterm.String("[ERRR]", 255, 0, 215),   // Magenta
 	rgbterm.String("[CRIT]", 255, 0, 0),     // Red
@@ -85,12 +85,12 @@ const (
 	// stream.
 	LEVEL_DEBUG level = iota
 
-	// LEVEL_PRINT shows output for the standard Print functions and above.
-	LEVEL_PRINT
-
 	// LEVEL_INFO level messages should be used to convey more informative
 	// output than debug that could be used by a user.
 	LEVEL_INFO
+
+	// LEVEL_PRINT shows output for the standard Print functions and above.
+	LEVEL_PRINT
 
 	// LEVEL_WARNING messages should be used to notify the user that
 	// something worked, but the expected value was not the result.
