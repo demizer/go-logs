@@ -25,22 +25,22 @@ import (
 // Used for string output of the logging object
 var levels = [6]string{
 	"LEVEL_DEBUG",
+	"LEVEL_PRINT",
 	"LEVEL_INFO",
 	"LEVEL_WARNING",
 	"LEVEL_ERROR",
 	"LEVEL_CRITICAL",
-	"LEVEL_ALL",
 }
 
 // Used to retrieve a ansi colored label of the logger
 var labels = [6]string{
 	// Print labels for special logging functions
 	rgbterm.String("[DEBG]", 255, 255, 255), // White
+	"", // The Print* functions do not use a label
 	rgbterm.String("[INFO]", 0, 215, 95),    // Green
 	rgbterm.String("[WARN]", 255, 255, 135), // Yellow
 	rgbterm.String("[ERRR]", 255, 0, 215),   // Magenta
 	rgbterm.String("[CRIT]", 255, 0, 0),     // Red
-	"", // The Print* functions do not use a label
 }
 
 type level int
@@ -62,6 +62,9 @@ const (
 	// stream.
 	LEVEL_DEBUG level = iota
 
+	// LEVEL_PRINT shows output for the standard Print functions and above.
+	LEVEL_PRINT
+
 	// LEVEL_INFO level messages should be used to convey more informative
 	// output than debug that could be used by a user.
 	LEVEL_INFO
@@ -78,10 +81,6 @@ const (
 	// and unrecoverable. Critical messages are usually followed by
 	// os.Exit().
 	LEVEL_CRITICAL
-
-	// LEVEL_ALL level shows all messages. This is used by default for the
-	// Print*() functions.
-	LEVEL_ALL
 )
 
 var (
@@ -250,21 +249,21 @@ func SetTabStop(stops int) *Logger {
 // Printf formats according to a format specifier and writes to standard
 // logger output stream(s).
 func Printf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_ALL, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(LEVEL_PRINT, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Print sends output to the standard logger object output stream(s) regardless
 // of logging level. The output is formatted using the output template and
 // flags. Spaces are added between operands when neither is a string.
 func Print(v ...interface{}) {
-	std.Fprint(LEVEL_ALL, 2, fmt.Sprint(v...), nil)
+	std.Fprint(LEVEL_PRINT, 2, fmt.Sprint(v...), nil)
 }
 
 // Println formats using the default formats for its operands and writes to the
 // standard logger output stream(s). Spaces are always added between operands and
 // a newline is appended.
 func Println(v ...interface{}) {
-	std.Fprint(LEVEL_ALL, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
 }
 
 // Fatalf is equivalent to Printf(), but will terminate the program with
@@ -419,7 +418,7 @@ func Criticalln(v ...interface{}) {
 func (l *Logger) Fprint(logLevel level, calldepth int,
 	text string, stream io.Writer) (n int, err error) {
 
-	if (logLevel != LEVEL_ALL && l.level != LEVEL_ALL) &&
+	if (logLevel != LEVEL_PRINT && l.level != LEVEL_PRINT) &&
 		logLevel < l.level {
 		return 0, nil
 	}
@@ -685,17 +684,17 @@ func (l *Logger) Write(p []byte) (n int, err error) {
 
 // Printf is equivalent to log.Printf().
 func (l *Logger) Printf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_ALL, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(LEVEL_PRINT, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Print is equivalent to log.Print().
 func (l *Logger) Print(v ...interface{}) {
-	l.Fprint(LEVEL_ALL, 2, fmt.Sprint(v...), nil)
+	l.Fprint(LEVEL_PRINT, 2, fmt.Sprint(v...), nil)
 }
 
 // Println is equivalent to log.Println().
 func (l *Logger) Println(v ...interface{}) {
-	l.Fprint(LEVEL_ALL, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
 }
 
 // Fatalf is equivalent to log.Fatalf().

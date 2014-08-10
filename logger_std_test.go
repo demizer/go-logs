@@ -122,7 +122,7 @@ func TestStdDateFormat(t *testing.T) {
 func TestStdSetDateFormat(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetLevel(LEVEL_ALL)
+	SetLevel(LEVEL_PRINT)
 
 	SetStreams(&buf)
 

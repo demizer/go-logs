@@ -100,7 +100,7 @@ var outputTests = []struct {
 	{
 		template:   logFmt,
 		prefix:     rgbterm.String("TEST>", 0, 255, 0),
-		level:      LEVEL_ALL,
+		level:      LEVEL_PRINT,
 		dateFormat: date,
 		flags:      LstdFlags,
 		text:       "test number 1",
@@ -112,7 +112,7 @@ var outputTests = []struct {
 	{
 		template:   logFmt,
 		prefix:     "TEST>",
-		level:      LEVEL_ALL,
+		level:      LEVEL_PRINT,
 		dateFormat: date,
 		flags:      Ldate,
 		text:       "test number 2",
@@ -178,7 +178,7 @@ var outputTests = []struct {
 	{
 		template:   logFmt,
 		prefix:     "::",
-		level:      LEVEL_ALL,
+		level:      LEVEL_PRINT,
 		dateFormat: "Mon 20060102 15:04:05",
 		flags:      LstdFlags,
 		text:       "test number 8",
@@ -228,14 +228,14 @@ func TestLevel(t *testing.T) {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
 	}
 	buf.Reset()
-	logr.SetLevel(LEVEL_ALL)
+	logr.SetLevel(LEVEL_PRINT)
 	logr.Debug("This level should produce output")
 	if buf.Len() == 0 {
 		t.Errorf("Debug() did not produce output at the ALL logging level")
 	}
 
 	level := logr.Level()
-	expl := LEVEL_ALL
+	expl := LEVEL_PRINT
 
 	if level != expl {
 		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", level, expl)
@@ -297,7 +297,7 @@ func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 
 func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	var buf bytes.Buffer
-	logr := New(LEVEL_ALL, &buf)
+	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(LnoPrefix)
 	logr.Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
 	expect := "\n\n[DEBG] This output should be padded with newlines and not colored.\n\n"
@@ -309,7 +309,7 @@ func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
-	logr := New(LEVEL_ALL, &buf)
+	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(LnoPrefix | Lcolor)
 	logr.Debug("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
@@ -321,7 +321,7 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 
 func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	var buf bytes.Buffer
-	logr := New(LEVEL_ALL, &buf)
+	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(LnoPrefix | Lcolor)
 	logr.Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
@@ -340,7 +340,7 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 
 func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	var buf bytes.Buffer
-	logr := New(LEVEL_ALL, &buf)
+	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(LnoPrefix | Lcolor)
 	logr.Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
@@ -365,7 +365,7 @@ func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 func TestTreeDebugln(t *testing.T) {
 	var buf bytes.Buffer
 
-	logr := New(LEVEL_ALL, &buf)
+	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(LnoPrefix | Lcolor | Lid | Ltree)
 
 	logr.Debugln("Level 0 Output 1")
@@ -669,7 +669,7 @@ func TestDateFormat(t *testing.T) {
 func TestSetDateFormat(t *testing.T) {
 	var buf bytes.Buffer
 
-	logr := New(LEVEL_ALL, &buf)
+	logr := New(LEVEL_PRINT, &buf)
 
 	logr.SetFlags(Ldate)
 
