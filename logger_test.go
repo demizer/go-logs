@@ -87,7 +87,7 @@ func TestShortFileFlag(t *testing.T) {
 
 var date = "Mon 20060102 15:04:05"
 
-var outputTests = []struct {
+var fprintOutputTests = []struct {
 	template   string
 	prefix     string
 	level      level
@@ -188,8 +188,8 @@ var outputTests = []struct {
 	},
 }
 
-func TestOutput(t *testing.T) {
-	for i, k := range outputTests {
+func TestFprintOutput(t *testing.T) {
+	for i, k := range fprintOutputTests {
 		var buf bytes.Buffer
 		logr := New(LEVEL_DEBUG, &buf)
 		logr.SetPrefix(k.prefix)
