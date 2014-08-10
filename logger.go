@@ -289,27 +289,6 @@ func Println(v ...interface{}) {
 	std.Fprint(LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
 }
 
-// Fatalf is equivalent to Printf(), but will terminate the program with
-// os.Exit(1) once output is complete.
-func Fatalf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
-	os.Exit(1)
-}
-
-// Fatal is equivalent to Print(). Once output is finished, os.Exit(1) is used
-// to terminate the program.
-func Fatal(v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
-	os.Exit(1)
-}
-
-// Fatalln is equivalent to Println(). Once output is finished, os.Exit(1) is
-// used to terminate the program.
-func Fatalln(v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
-	os.Exit(1)
-}
-
 // Panicf is equivalent to Printf(), but panic() is called once output is
 // complete.
 func Panicf(format string, v ...interface{}) {
@@ -720,24 +699,6 @@ func (l *Logger) Print(v ...interface{}) {
 // Println is equivalent to log.Println().
 func (l *Logger) Println(v ...interface{}) {
 	l.Fprint(LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
-}
-
-// Fatalf is equivalent to log.Fatalf().
-func (l *Logger) Fatalf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
-	os.Exit(1)
-}
-
-// Fatal is equivalent to log.Fatal().
-func (l *Logger) Fatal(v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
-	os.Exit(1)
-}
-
-// Fatalln is equivalent to log.Fatalln().
-func (l *Logger) Fatalln(v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
-	os.Exit(1)
 }
 
 // Panicf is equivalent to log.Panicf().
