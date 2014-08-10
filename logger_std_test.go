@@ -7,6 +7,8 @@ package log
 
 import (
 	"bytes"
+	"reflect"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -250,4 +252,162 @@ func TestStdTabStop(t *testing.T) {
 	if tabStop != expt {
 		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", tabStop, expt)
 	}
+}
+
+var stdOutputTests = []struct {
+	name   string
+	format string
+	input  string
+	expect string
+}{
+	{name: "Test 1", format: "%s", input: "Hello, world!", expect: "Hello, world!"},
+}
+
+func TestStdOutput(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	SetLevel(LEVEL_DEBUG)
+
+	SetFlags(LnoPrefix)
+
+	SetIndent(0)
+
+	for _, test := range stdOutputTests {
+
+		check := func(output, expect, funcName string) {
+			if output != expect {
+				t.Errorf("\nName: %q\nFunction: %s\nGot: %q\nExpect: %q\n",
+					test.name, funcName, output, expect)
+			}
+		}
+
+		checkOutput := func(pFunc func(...interface{}), lvl string) {
+			nl := ""
+			pFunc(test.input)
+			label := LevelFromString(lvl).Label()
+			if len(label) > 1 {
+				label = label + " "
+			}
+			fName := runtime.FuncForPC(reflect.ValueOf(pFunc).Pointer()).Name()
+			lenfName := len(fName)
+			if fName[lenfName-2:] == "ln" {
+				nl = "\n"
+			}
+			check(buf.String(), label+test.expect+nl, fName)
+			buf.Reset()
+		}
+
+		checkFormatOutput := func(pFunc func(string, ...interface{}), lvl string) {
+			nl := ""
+			pFunc(test.format, test.input)
+			label := LevelFromString(lvl).Label()
+			if len(label) > 1 {
+				label = label + " "
+			}
+			fName := runtime.FuncForPC(reflect.ValueOf(pFunc).Pointer()).Name()
+			lenfName := len(fName)
+			if fName[lenfName-2:] == "ln" {
+				nl = "\n"
+			}
+			check(buf.String(), label+test.expect+nl, fName)
+			buf.Reset()
+		}
+
+		checkOutput(Print, "PRINT")
+		checkOutput(Println, "PRINT")
+		checkFormatOutput(Printf, "PRINT")
+		checkOutput(Debug, "DEBUG")
+		checkOutput(Debugln, "DEBUG")
+		checkFormatOutput(Debugf, "DEBUG")
+		checkOutput(Info, "INFO")
+		checkOutput(Infoln, "INFO")
+		checkFormatOutput(Infof, "INFO")
+		checkOutput(Warning, "WARNING")
+		checkOutput(Warningln, "WARNING")
+		checkFormatOutput(Warningf, "WARNING")
+		checkOutput(Error, "ERROR")
+		checkOutput(Errorln, "ERROR")
+		checkFormatOutput(Errorf, "ERROR")
+		checkOutput(Critical, "CRITICAL")
+		checkOutput(Criticalln, "CRITICAL")
+		checkFormatOutput(Criticalf, "CRITICAL")
+
+	}
+}
+
+func TestStdPanic(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	SetLevel(LEVEL_DEBUG)
+
+	SetFlags(LnoPrefix)
+
+	SetIndent(0)
+
+	expect := "[CRIT] Panic Error!"
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Test should generate panic!")
+		}
+		if buf.String() != expect {
+			t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+		}
+	}()
+
+	Panic("Panic Error!")
+}
+
+func TestStdPanicln(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	SetLevel(LEVEL_DEBUG)
+
+	SetFlags(LnoPrefix)
+
+	SetIndent(0)
+
+	expect := "[CRIT] Panic Error!\n"
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Test should generate panic!")
+		}
+		if buf.String() != expect {
+			t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+		}
+	}()
+
+	Panicln("Panic Error!")
+}
+
+func TestStdPanicf(t *testing.T) {
+	var buf bytes.Buffer
+
+	SetStreams(&buf)
+
+	SetLevel(LEVEL_DEBUG)
+
+	SetFlags(LnoPrefix)
+
+	SetIndent(0)
+
+	expect := "[CRIT] Panic Error!\n"
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Test should generate panic!")
+		}
+		if buf.String() != expect {
+			t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
+		}
+	}()
+
+	Panicf("%s\n", "Panic Error!")
 }
