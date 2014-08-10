@@ -153,11 +153,14 @@ const (
 	// Indent output based on stack position of logging function calls
 	Ltree
 
+	// Show the label for output
+	Llabel
+
 	// initial values for the standard logger
-	LstdFlags = Ldate | Lcolor | LnoFileAnsi
+	LstdFlags = Ldate | Lcolor | LnoFileAnsi | Llabel
 
 	// Special debug output flags
-	LdebugFlags = LnoPrefix | Lcolor | LfunctionName | LlineNumber | Lid | Ltree | LshowIndent
+	LdebugFlags = LnoPrefix | Lcolor | LfunctionName | LlineNumber | Lid | Ltree | LshowIndent | Llabel
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -554,9 +557,14 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		}
 	}
 
+	var label string
+	if l.flags&(Llabel) != 0 {
+		label = logLevel.AnsiLabel()
+	}
+
 	f := &format{
 		Prefix:       prefix,
-		LogLabel:     logLevel.AnsiLabel(),
+		LogLabel:     label,
 		Date:         date,
 		FileName:     file,
 		FunctionName: fName,
