@@ -1,0 +1,8 @@
+language: go
+notificaitons:
+  email:
+    recipients: jeezusjr@gmail.com
+    on_success: change
+    on_failure: always
+before_script:
+    - go get github.com/demizer/go-elog
