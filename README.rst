@@ -2,40 +2,20 @@
 go-elog - An enhanced logging library for Go
 ============================================
 
-go-elog is a simple logging library for Go that aims to be a more robust
-logging package for Go than the log package in the standard library.
+An enhanced logging library for Go.
 
-----------------
-go-elog Features
-----------------
+.. image:: screenshot_1.png
 
-Logging levels
-==============
+--------
+Features
+--------
 
-Never again have to hunt for and remove printf statements (or erroneous package
-imports) when debugging code. Simply switch to another logging level.
-Supported log levels include DEBUG, INFO, WARNING, ERROR, and CRITICAL.
-
-ANSI text attributes
-====================
-
-Colorize and embolden your logging output with AnsiEscape(). Build complex
-colore text output simply and easily by using:
-
-.. code-block:: go
-
-    AnsiEscape(BOLD, GREEN, BG_RED, "Bold green text with a red background")
-
-Multiple output streams
-=======================
-
-With go-elog it is possible to log to stdout, stderr, and a file at the same
-time.
-
-Customize the output format with templates
-==========================================
-
-Logging output is customizable with text templates.
+* Logging levels
+* Colored text output
+* Multiple simultaneous output streams
+* Customizable output formatting using templates
+* Hierarchical output formatting
+* Suppress output from a function or specific output ID.
 
 -------
 Example
@@ -50,9 +30,3 @@ needed.
 
     log.Println("This message will be sent to stdout.")
     log.Debugln("This message will only be shown on stderr if the logging level is DEBUG!")
-
-------------
-Contributors
-------------
-
-See the AUTHORS file.
