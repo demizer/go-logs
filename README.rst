@@ -1,6 +1,6 @@
-============================================
-go-elog - An enhanced logging library for Go
-============================================
+=================================
+go-elog - Enhanced logging for Go
+=================================
 
 An enhanced logging library for Go.
 
