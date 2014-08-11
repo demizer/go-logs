@@ -456,7 +456,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 			for i := 1; i < pcNum; i++ {
 				pcFunc := runtime.FuncForPC(pc[i])
 				funcName := pcFunc.Name()
-				if funcName == "testing.tRunner" || funcName == "runtime.goexit" {
+				if funcName == "runtime.goexit" {
 					continue
 				}
 				indentCount += 1
