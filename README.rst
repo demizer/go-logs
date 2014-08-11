@@ -5,10 +5,6 @@ go-elog - Enhanced logging for Go
 .. image:: https://travis-ci.org/demizer/go-elog.svg?branch=master
     :target: https://travis-ci.org/demizer/go-elog
 
------------------------------------
-An enhanced logging library for Go.
------------------------------------
-
 .. image:: screenshot_1.png
 
 --------
