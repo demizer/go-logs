@@ -198,6 +198,7 @@ func New(level level, streams ...io.Writer) (obj *Logger) {
 		level:      level,
 		template:   tmpl,
 		prefix:     defaultPrefixColor,
+		indent:     -1,
 		tabStop:    4,
 	}
 	return
