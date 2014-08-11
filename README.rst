@@ -4,6 +4,8 @@ go-elog - Enhanced logging for Go
 
 .. image:: https://travis-ci.org/demizer/go-elog.png?branch=master
     :target: https://travis-ci.org/demizer/go-elog
+.. image:: https://drone.io/github.com/demizer/go-elog/status.png
+    :target: https://drone.io/github.com/demizer/go-elog/latest
 .. image:: https://coveralls.io/repos/demizer/go-elog/badge.png?branch=master
     :target: https://coveralls.io/r/demizer/go-elog?branch=master
 
