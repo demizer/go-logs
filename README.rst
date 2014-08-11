@@ -8,7 +8,7 @@ go-elog - Enhanced logging for Go
     :target: https://drone.io/github.com/demizer/go-elog/latest
 .. image:: https://coveralls.io/repos/demizer/go-elog/badge.png?branch=master
     :target: https://coveralls.io/r/demizer/go-elog?branch=master
-.. image:: https://godoc.org/github.com/demizer/go-elog?status.svg)
+.. image:: https://godoc.org/github.com/demizer/go-elog?status.svg
     :target: http://godoc.org/github.com/demizer/go-elog
 |
 
