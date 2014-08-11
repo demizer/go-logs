@@ -85,7 +85,7 @@ func TestStdSetTemplateBadDataObjectPanic(t *testing.T) {
 
 	SetStreams(&buf)
 
-	SetFlags(LnoPrefix | Lindent)
+	SetFlags(Lindent)
 
 	SetIndent(1)
 
@@ -201,7 +201,7 @@ func TestStdIndent(t *testing.T) {
 
 	SetLevel(LEVEL_DEBUG)
 
-	SetFlags(LnoPrefix | Lindent | Llabel)
+	SetFlags(Lindent | Llabel)
 
 	SetIndent(0).Debugln("Test 1")
 	SetIndent(2).Debugln("Test 2")
@@ -228,7 +228,7 @@ func TestStdTabStop(t *testing.T) {
 
 	SetLevel(LEVEL_DEBUG)
 
-	SetFlags(LnoPrefix | Lindent | Llabel)
+	SetFlags(Lindent | Llabel)
 
 	// This SetIndent doesn't have to be on a separate line, but for some
 	// reason go test cover wasn't registering its usage when the functions
@@ -270,7 +270,7 @@ func TestStdOutput(t *testing.T) {
 
 	SetLevel(LEVEL_DEBUG)
 
-	SetFlags(LnoPrefix | Llabel)
+	SetFlags(Llabel)
 
 	SetIndent(0)
 
@@ -344,7 +344,7 @@ func TestStdPanic(t *testing.T) {
 
 	SetLevel(LEVEL_DEBUG)
 
-	SetFlags(LnoPrefix | Llabel)
+	SetFlags(Llabel)
 
 	SetIndent(0)
 
@@ -369,7 +369,7 @@ func TestStdPanicln(t *testing.T) {
 
 	SetLevel(LEVEL_DEBUG)
 
-	SetFlags(LnoPrefix | Llabel)
+	SetFlags(Llabel)
 
 	SetIndent(0)
 
@@ -394,7 +394,7 @@ func TestStdPanicf(t *testing.T) {
 
 	SetLevel(LEVEL_DEBUG)
 
-	SetFlags(LnoPrefix | Llabel)
+	SetFlags(Llabel)
 
 	SetIndent(0)
 

@@ -53,7 +53,7 @@ func TestMultiStreams(t *testing.T) {
 func TestLongFileFlag(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix | LlongFileName | Llabel)
+	logr.SetFlags(LlongFileName | Llabel)
 	logr.Debugln("Test long file flag")
 	_, file, _, _ := runtime.Caller(0)
 	expect := fmt.Sprintf("[DEBG] %s: Test long file flag\n", file)
@@ -65,7 +65,7 @@ func TestLongFileFlag(t *testing.T) {
 func TestShortFileFlag(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix | LshortFileName | Llabel)
+	logr.SetFlags(LshortFileName | Llabel)
 
 	logr.Debugln("Test short file flag")
 	_, file, _, _ := runtime.Caller(0)
@@ -115,7 +115,7 @@ var fprintOutputTests = []struct {
 		prefix:     "TEST>",
 		level:      LEVEL_PRINT,
 		dateFormat: date,
-		flags:      Ldate,
+		flags:      Ldate | Lprefix,
 		text:       "test number 2",
 		expect:     "%s TEST> test number 2",
 		expectErr:  false,
@@ -254,7 +254,7 @@ func TestLevelString(t *testing.T) {
 func TestPrefixNewline(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix)
+	logr.SetFlags(0)
 	logr.Print("\n\nThis line should be padded with newlines.\n\n")
 	expect := "\n\nThis line should be padded with newlines.\n\n"
 	if buf.String() != expect {
@@ -265,7 +265,7 @@ func TestPrefixNewline(t *testing.T) {
 func TestFlagsLdate(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix)
+	logr.SetFlags(0)
 	logr.Println("This output should not have a date.")
 	expect := "This output should not have a date.\n"
 	if buf.String() != expect {
@@ -276,7 +276,7 @@ func TestFlagsLdate(t *testing.T) {
 func TestFlagsLfunctionName(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix | LfunctionName)
+	logr.SetFlags(LfunctionName)
 	logr.Println("This output should have a function name.")
 	expect := "TestFlagsLfunctionName: This output should have a function name.\n"
 	if buf.String() != expect {
@@ -287,7 +287,7 @@ func TestFlagsLfunctionName(t *testing.T) {
 func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix | LfunctionName | LshortFileName)
+	logr.SetFlags(LfunctionName | LshortFileName)
 	logr.Print("This output should have a file name and a function name.")
 	expect := "logger_test.go: TestFlagsLfunctionNameWithFileName" +
 		": This output should have a file name and a function name."
@@ -299,7 +299,7 @@ func TestFlagsLfunctionNameWithFileName(t *testing.T) {
 func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_PRINT, &buf)
-	logr.SetFlags(LnoPrefix | Llabel)
+	logr.SetFlags(Llabel)
 	logr.Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
 	expect := "\n\n[DEBG] This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
@@ -311,7 +311,7 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	var buf bytes.Buffer
 	SetStreams(&buf)
 	logr := New(LEVEL_PRINT, &buf)
-	logr.SetFlags(LnoPrefix | Lcolor | Llabel)
+	logr.SetFlags(Lcolor | Llabel)
 	logr.Debug("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
@@ -323,7 +323,7 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_PRINT, &buf)
-	logr.SetFlags(LnoPrefix | Lcolor | Llabel)
+	logr.SetFlags(Lcolor | Llabel)
 	logr.Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
@@ -342,7 +342,7 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_PRINT, &buf)
-	logr.SetFlags(LnoPrefix | Lcolor | Llabel)
+	logr.SetFlags(Lcolor | Llabel)
 	logr.Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
 	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n\n"
@@ -367,7 +367,7 @@ func TestTreeDebugln(t *testing.T) {
 	var buf bytes.Buffer
 
 	logr := New(LEVEL_PRINT, &buf)
-	logr.SetFlags(LnoPrefix | Lcolor | Lid | Ltree | Llabel)
+	logr.SetFlags(Lcolor | Lid | Ltree | Llabel)
 
 	logr.Debugln("Level 0 Output 1")
 	lvl3 := func() {
@@ -408,7 +408,7 @@ func TestSetIndentDebugln(t *testing.T) {
 	var buf bytes.Buffer
 
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix | Lcolor | Lindent | Llabel)
+	logr.SetFlags(Lcolor | Lindent | Llabel)
 
 	logr.Debugln("Level 0 Output 1")
 	logr.SetIndent(1).Debugln("Level 1 Output 1")
@@ -430,7 +430,7 @@ func TestLindentWithLshowIndent(t *testing.T) {
 	var buf bytes.Buffer
 
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(LnoPrefix | Lcolor | Lindent | LshowIndent | Llabel)
+	logr.SetFlags(Lcolor | Lindent | LshowIndent | Llabel)
 
 	logr.Debugln("Level 0 Output 1")
 	logr.SetIndent(1).Debugln("Level 1 Output 1")
@@ -454,7 +454,7 @@ func TestSetIndentWithLindentAndLtree(t *testing.T) {
 	logr := New(LEVEL_DEBUG, &buf)
 
 	// Lindent should have no effect on Lindent
-	logr.SetFlags(LnoPrefix | Lcolor | Lindent | Ltree | LshowIndent | Llabel)
+	logr.SetFlags(Lcolor | Lindent | Ltree | LshowIndent | Llabel)
 
 	logr.SetIndent(1).Debugln("Level 0 Output 1")
 	lvl3 := func() {
@@ -493,7 +493,7 @@ func TestSetIndentWithLindentAndLtreeMinus2Indent(t *testing.T) {
 	logr := New(LEVEL_DEBUG, &buf)
 
 	// Lindent should have no effect on Lindent
-	logr.SetFlags(LnoPrefix | Lcolor | Lindent | Ltree | LshowIndent | Llabel)
+	logr.SetFlags(Lcolor | Lindent | Ltree | LshowIndent | Llabel)
 
 	logr.SetIndent(-2).Debugln("Level 0 Output 1")
 	lvl3 := func() {
@@ -532,7 +532,7 @@ func TestSetIndentWithLindentAndLtreeMinus4Indent(t *testing.T) {
 	logr := New(LEVEL_DEBUG, &buf)
 
 	// Lindent should have no effect on Lindent
-	logr.SetFlags(LnoPrefix | Lcolor | Lindent | Ltree | LshowIndent | Llabel)
+	logr.SetFlags(Lcolor | Lindent | Ltree | LshowIndent | Llabel)
 
 	logr.SetIndent(-4).Debugln("Level 0 Output 1")
 	lvl3 := func() {
@@ -632,7 +632,7 @@ func TestSetTemplateBadDataObjectPanic(t *testing.T) {
 
 	logr := New(LEVEL_DEBUG, &buf)
 
-	logr.SetFlags(LnoPrefix | Lindent)
+	logr.SetFlags(Lindent)
 
 	logr.SetIndent(1)
 
@@ -739,7 +739,7 @@ func TestIndent(t *testing.T) {
 
 	logr.SetStreams(&buf)
 
-	logr.SetFlags(LnoPrefix | Lindent | Llabel | Llabel)
+	logr.SetFlags(Lindent | Llabel | Llabel)
 
 	logr.SetIndent(0).Debugln("Test 1")
 	logr.SetIndent(2).Debugln("Test 2")
@@ -764,7 +764,7 @@ func TestTabStop(t *testing.T) {
 
 	logr := New(LEVEL_DEBUG, &buf)
 
-	logr.SetFlags(LnoPrefix | Lindent | Llabel)
+	logr.SetFlags(Lindent | Llabel)
 
 	// This SetIndent doesn't have to be on a separate line, but for some
 	// reason go test cover wasn't registering its usage when the functions
@@ -804,7 +804,7 @@ func TestPrintFunctions(t *testing.T) {
 
 	logr := New(LEVEL_DEBUG, &buf)
 
-	logr.SetFlags(LnoPrefix | Llabel)
+	logr.SetFlags(Llabel)
 
 	for _, test := range printFunctionTests {
 
@@ -874,7 +874,7 @@ func TestPanic(t *testing.T) {
 
 	logr := New(LEVEL_DEBUG, &buf)
 
-	logr.SetFlags(LnoPrefix | Llabel)
+	logr.SetFlags(Llabel)
 
 	expect := "[CRIT] Panic Error!"
 
@@ -895,7 +895,7 @@ func TestPanicln(t *testing.T) {
 
 	logr := New(LEVEL_DEBUG, &buf)
 
-	logr.SetFlags(LnoPrefix | Llabel)
+	logr.SetFlags(Llabel)
 
 	expect := "[CRIT] Panic Error!\n"
 
@@ -916,7 +916,7 @@ func TestPanicf(t *testing.T) {
 
 	logr := New(LEVEL_DEBUG, &buf)
 
-	logr.SetFlags(LnoPrefix | Llabel)
+	logr.SetFlags(Llabel)
 
 	expect := "[CRIT] Panic Error!\n"
 

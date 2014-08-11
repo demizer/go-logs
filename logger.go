@@ -140,8 +140,8 @@ const (
 	// Disable ansi in file output
 	LnoFileAnsi
 
-	// Disable prefix output
-	LnoPrefix
+	// Show prefix output
+	Lprefix
 
 	// Show ids for functions generating output. Useful for disabling
 	// specific output
@@ -157,10 +157,10 @@ const (
 	Llabel
 
 	// initial values for the standard logger
-	LstdFlags = Ldate | Lcolor | LnoFileAnsi | Llabel
+	LstdFlags = Lprefix | Ldate | Lcolor | LnoFileAnsi | Llabel
 
 	// Special debug output flags
-	LdebugFlags = LnoPrefix | Lcolor | LfunctionName | LlineNumber | Lid | Ltree | LshowIndent | Llabel
+	LdebugFlags = Lcolor | LfunctionName | LlineNumber | Lid | Ltree | LshowIndent | Llabel
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -522,7 +522,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		date = now.Format(l.dateFormat)
 	}
 
-	if l.flags&(LnoPrefix) == 0 {
+	if l.flags&(Lprefix) != 0 {
 		prefix = l.prefix
 	}
 
