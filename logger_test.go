@@ -368,7 +368,6 @@ func TestTreeDebugln(t *testing.T) {
 
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Lcolor | Lid | Ltree | Llabel)
-	logr.SetIndent(0)
 
 	logr.Debugln("Level 0 Output 1")
 	lvl3 := func() {

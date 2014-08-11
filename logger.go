@@ -198,7 +198,6 @@ func New(level level, streams ...io.Writer) (obj *Logger) {
 		level:      level,
 		template:   tmpl,
 		prefix:     defaultPrefixColor,
-		indent:     -1,
 		tabStop:    4,
 	}
 	return
@@ -453,13 +452,11 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 		if l.flags&Ltree != 0 {
 			pc := make([]uintptr, 32)
-			pcNum := runtime.Callers(3, pc)
+			pcNum := runtime.Callers(4, pc)
 			for i := 1; i < pcNum; i++ {
 				pcFunc := runtime.FuncForPC(pc[i])
 				funcName := pcFunc.Name()
 				if funcName == "testing.tRunner" || funcName == "runtime.goexit" {
-					// FIXME: Fix this hack. There has to
-					// be a better way!
 					continue
 				}
 				indentCount += 1
