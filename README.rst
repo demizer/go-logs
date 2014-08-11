@@ -3,7 +3,7 @@ go-elog - Enhanced logging for Go
 =================================
 
 .. image:: https://travis-ci.org/demizer/go-elog.svg?branch=master :target: https://travis-ci.org/demizer/go-elog
-.. image:: https://coveralls.io/repos/demizer/go-elog/badge.png :target: https://coveralls.io/r/demizer/go-elog
+.. image:: https://coveralls.io/repos/demizer/go-elog/badge.png?branch=master :target: https://coveralls.io/r/demizer/go-elog?branch=master
 
 |
 
