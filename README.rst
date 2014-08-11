@@ -15,7 +15,7 @@ Features
 * Multiple simultaneous output streams
 * Customizable output formatting using templates
 * Hierarchical output formatting
-* Suppress output from a function or specific output ID.
+* Suppress specific output
 
 -------
 Example
