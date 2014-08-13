@@ -107,7 +107,7 @@ const (
 )
 
 var (
-	defaultDate        = "Mon-20060102-15:04:05"
+	defaultDate        = "Mon Jan 02 15:04:05 MST 2006"
 	defaultPrefix      = "::"
 	defaultPrefixColor = rgbterm.String("::", 0, 255, 135) // Green
 	defaultIndentColor = []uint8{0, 135, 175}              // Grayish blue

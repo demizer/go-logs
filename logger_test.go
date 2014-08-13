@@ -36,8 +36,9 @@ func TestMultiStreams(t *testing.T) {
 	}
 	defer file.Close()
 	var buf bytes.Buffer
-	eLen := 89
+	eLen := 22
 	logr := New(LEVEL_DEBUG, file, &buf)
+	logr.SetFlags(0)
 	logr.Debugln("Testing debug output!")
 	b := make([]byte, eLen)
 	n, err := file.ReadAt(b, 0)
@@ -660,7 +661,7 @@ func TestDateFormat(t *testing.T) {
 
 	dateFormat := logr.DateFormat()
 
-	expect := "Mon-20060102-15:04:05"
+	expect := "Mon Jan 02 15:04:05 MST 2006"
 
 	if dateFormat != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", dateFormat, expect)
