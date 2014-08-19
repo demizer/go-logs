@@ -956,3 +956,72 @@ func TestLevelFromString(t *testing.T) {
 		}
 	}
 }
+
+var excludeIDtests = []struct {
+	name   string
+	ids    []int
+	flags  int
+	expect string
+}{
+	{name: "Test excluding one ID", ids: []int{1}, flags: Lid | Ltree | LshowIndent,
+		expect: "[00] Hello!\n[02] ...|...|should be suppressed.\n" +
+			"[03] ...|...|...|Almost forgot...\n" +
+			"[02] ...|...|but we'll find out!\n" +
+			"[00] Goodbye!\n",
+	},
+	{name: "Test excluding two IDs", ids: []int{1, 3}, flags: Lid | Ltree | LshowIndent,
+		expect: "[00] Hello!\n[02] ...|...|should be suppressed.\n" +
+			"[02] ...|...|but we'll find out!\n" +
+			"[00] Goodbye!\n",
+	},
+	{name: "Test excluding two IDs without Lid", ids: []int{1, 3}, flags: Ltree | LshowIndent,
+		expect: "Hello!\n" +
+			"...|The things\n" +
+			"...|...|should be suppressed.\n" +
+			"...|...|...|Almost forgot...\n" +
+			"...|...|but we'll find out!\n" +
+			"...|that can be suppressed.\n" +
+			"Goodbye!\n",
+	},
+	{name: "Test excluding two IDs with only Lid", ids: []int{1, 3}, flags: Lid,
+		expect: "[00] Hello!\n" +
+			"[02] should be suppressed.\n" +
+			"[02] but we'll find out!\n" +
+			"[00] Goodbye!\n",
+	},
+}
+
+func TestExcludeByHeirarchyID(t *testing.T) {
+	var buf bytes.Buffer
+
+	for _, test := range excludeIDtests {
+		logr := New(LEVEL_DEBUG, &buf)
+
+		logr.SetFlags(test.flags)
+
+		logr.ExcludeByHeirarchyID(test.ids...)
+
+		logr.Debugln("Hello!")
+		lvl3 := func() {
+			logr.Debugln("Almost forgot...")
+		}
+		lvl2 := func() {
+			logr.Debugln("should be suppressed.")
+			lvl3()
+			logr.Debugln("but we'll find out!")
+		}
+		lvl1 := func() {
+			logr.Debugln("The things")
+			lvl2()
+			logr.Debugln("that can be suppressed.")
+		}
+		lvl1()
+		logr.Debugln("Goodbye!")
+
+		if buf.String() != test.expect {
+			t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+				buf.String(), buf.String(), test.expect, test.expect)
+		}
+		buf.Reset()
+	}
+}

@@ -14,6 +14,7 @@ import (
 	"os"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -168,18 +169,19 @@ const (
 // Write method. A Logger can be used simultaneously from multiple goroutines;
 // it guarantees to serialize access to the Writer.
 type Logger struct {
-	mu         sync.Mutex         // Ensures atomic writes
-	buf        []byte             // For marshaling output to write
-	dateFormat string             // time.RubyDate is the default format
-	flags      int                // Properties of the output
-	level      level              // The default level is warning
-	lastId     int                // The last id level encountered
-	ids        map[string]int     // A map of encountered function names with corresponding ID
-	template   *template.Template // The format order of the output
-	prefix     string             // Inserted into every logging output
-	streams    []io.Writer        // Destination for output
-	indent     int                // Number of indents to use
-	tabStop    int                // Number of spaces considered to be a tab stop
+	mu               sync.Mutex         // Ensures atomic writes
+	buf              []byte             // For marshaling output to write
+	dateFormat       string             // time.RubyDate is the default format
+	flags            int                // Properties of the output
+	level            level              // The default level is warning
+	lastId           int                // The last id level encountered
+	ids              map[string]int     // A map of encountered function names with corresponding ID
+	template         *template.Template // The format order of the output
+	prefix           string             // Inserted into every logging output
+	streams          []io.Writer        // Destination for output
+	indent           int                // Number of indents to use
+	tabStop          int                // Number of spaces considered to be a tab stop
+	excludeIDs       []int              // Exclude by whatever things
 }
 
 var (
@@ -270,6 +272,13 @@ func TabStop() int { return std.tabStop }
 func SetTabStop(stops int) *Logger {
 	std.tabStop = stops
 	return std
+}
+
+// ExcludeByHeirarchyID excludes output if the output is in the heirarchy ID
+// identified by ids. ExcludeByHeirarchyID is only available if the Lid flag
+// is set.
+func ExcludeByHeirarchyID(ids ...int) {
+	std.excludeIDs = ids
 }
 
 // Printf formats according to a format specifier and writes to standard
@@ -502,6 +511,20 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		l.mu.Lock()
 	}
 
+	// Check excludes and skip output if matches are found
+	var iId int
+	if l.flags&(Lid) != 0 {
+		for _, eId := range l.excludeIDs {
+			iId, err = strconv.Atoi(id[1 : len(id)-1])
+			if err != nil {
+				panic(err)
+			}
+			if iId == eId {
+				return
+			}
+		}
+	}
+
 	// Reset the buffer
 	l.buf = l.buf[:0]
 
@@ -668,6 +691,13 @@ func (l *Logger) TabStop() int { return l.tabStop }
 func (l *Logger) SetTabStop(stops int) *Logger {
 	l.tabStop = stops
 	return l
+}
+
+// ExcludeByHeirarchyID excludes output if the output is in the heirarchy ID
+// identified by ids. ExcludeByHeirarchyID is only available if the Lid flag
+// is set.
+func (l *Logger) ExcludeByHeirarchyID(ids ...int) {
+	l.excludeIDs = ids
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
