@@ -1019,8 +1019,8 @@ func TestExcludeByHeirarchyID(t *testing.T) {
 		logr.Debugln("Goodbye!")
 
 		if buf.String() != test.expect {
-			t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-				buf.String(), buf.String(), test.expect, test.expect)
+			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+				test.name, buf.String(), buf.String(), test.expect, test.expect)
 		}
 		buf.Reset()
 	}
