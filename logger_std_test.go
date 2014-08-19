@@ -16,8 +16,7 @@ import (
 func TestStdTemplate(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetLevel(LEVEL_DEBUG)
-	SetStreams(&buf)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(LdebugFlags)
 
@@ -43,8 +42,7 @@ func TestStdTemplate(t *testing.T) {
 func TestStdSetTemplate(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetLevel(LEVEL_DEBUG)
-	SetStreams(&buf)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(LdebugFlags)
 
@@ -62,8 +60,7 @@ func TestStdSetTemplate(t *testing.T) {
 func TestStdSetTemplateBad(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetLevel(LEVEL_DEBUG)
-	SetStreams(&buf)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(LdebugFlags)
 
@@ -81,9 +78,7 @@ func TestStdSetTemplateBad(t *testing.T) {
 func TestStdSetTemplateBadDataObjectPanic(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetLevel(LEVEL_DEBUG)
-
-	SetStreams(&buf)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Lindent)
 
@@ -124,9 +119,7 @@ func TestStdDateFormat(t *testing.T) {
 func TestStdSetDateFormat(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetLevel(LEVEL_PRINT)
-
-	SetStreams(&buf)
+	std = New(LEVEL_PRINT, &buf)
 
 	SetFlags(Ldate)
 
@@ -197,9 +190,7 @@ func TestStdStreams(t *testing.T) {
 func TestStdIndent(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetStreams(&buf)
-
-	SetLevel(LEVEL_DEBUG)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Lindent | Llabel)
 
@@ -224,9 +215,7 @@ func TestStdIndent(t *testing.T) {
 func TestStdTabStop(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetStreams(&buf)
-
-	SetLevel(LEVEL_DEBUG)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Lindent | Llabel)
 
@@ -266,9 +255,7 @@ var stdOutputTests = []struct {
 func TestStdOutput(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetStreams(&buf)
-
-	SetLevel(LEVEL_DEBUG)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Llabel)
 
@@ -340,9 +327,7 @@ func TestStdOutput(t *testing.T) {
 func TestStdPanic(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetStreams(&buf)
-
-	SetLevel(LEVEL_DEBUG)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Llabel)
 
@@ -365,9 +350,7 @@ func TestStdPanic(t *testing.T) {
 func TestStdPanicln(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetStreams(&buf)
-
-	SetLevel(LEVEL_DEBUG)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Llabel)
 
@@ -390,9 +373,7 @@ func TestStdPanicln(t *testing.T) {
 func TestStdPanicf(t *testing.T) {
 	var buf bytes.Buffer
 
-	SetStreams(&buf)
-
-	SetLevel(LEVEL_DEBUG)
+	std = New(LEVEL_DEBUG, &buf)
 
 	SetFlags(Llabel)
 
@@ -417,9 +398,7 @@ func TestStdExcludeByHeirarchyID(t *testing.T) {
 
 	// excludeIDtests is defined in logger_test.go
 	for _, test := range excludeIDtests {
-		SetLevel(LEVEL_DEBUG)
-
-		SetStreams(&buf)
+		std = New(LEVEL_DEBUG, &buf)
 
 		SetFlags(test.flags)
 
