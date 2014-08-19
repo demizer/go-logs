@@ -411,3 +411,43 @@ func TestStdPanicf(t *testing.T) {
 
 	Panicf("%s\n", "Panic Error!")
 }
+
+func TestStdExcludeByHeirarchyID(t *testing.T) {
+	var buf bytes.Buffer
+
+	// excludeIDtests is defined in logger_test.go
+	for _, test := range excludeIDtests {
+		SetLevel(LEVEL_DEBUG)
+
+		SetStreams(&buf)
+
+		SetFlags(test.flags)
+
+		ExcludeByHeirarchyID(test.ids...)
+
+		Debugln("Hello!")
+		lvl3 := func() {
+			Debugln("Almost forgot...")
+		}
+		lvl2 := func() {
+			Debugln("should be suppressed.")
+			lvl3()
+			Debugln("but we'll find out!")
+		}
+		lvl1 := func() {
+			Debugln("The things")
+			lvl2()
+			Debugln("that can be suppressed.")
+		}
+		lvl1()
+		Debugln("Goodbye!")
+
+		if buf.String() != test.expect {
+			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n"+
+				"\nExpect:\n\n%s\n%q\n\n",
+				test.name, buf.String(), buf.String(),
+				test.expect, test.expect)
+		}
+		buf.Reset()
+	}
+}
