@@ -1102,3 +1102,81 @@ func TestExcludeByString(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func testLvl3(logr *Logger) {
+	logr.Debugln("Almost forgot...")
+}
+
+func testLvl2(logr *Logger) {
+	logr.Debugln("should be suppressed.")
+	testLvl3(logr)
+	logr.Debugln("but we'll find out!")
+}
+
+func testLvl1(logr *Logger) {
+	logr.Debugln("The things")
+	testLvl2(logr)
+	logr.Debugln("that can be suppressed.")
+}
+
+var excludeByFuncNameTests = []struct {
+	name   string
+	flags  int
+	input  []string
+	expect string
+}{
+	{name: "Exclude function", flags: LfunctionName,
+		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName"},
+		expect: "testLvl1: The things\n" +
+			"testLvl2: should be suppressed.\n" +
+			"testLvl3: Almost forgot...\n" +
+			"testLvl2: but we'll find out!\n" +
+			"testLvl1: that can be suppressed.\n",
+	},
+	{name: "Exclude without LfunctionName", flags: Llabel,
+		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName"},
+		expect: "[DEBG] The things\n" +
+			"[DEBG] should be suppressed.\n" +
+			"[DEBG] Almost forgot...\n" +
+			"[DEBG] but we'll find out!\n" +
+			"[DEBG] that can be suppressed.\n",
+	},
+	{name: "Exclude non-existing name", input: []string{"Imaginary"},
+		expect: "Hello!\n" +
+			"The things\n" +
+			"should be suppressed.\n" +
+			"Almost forgot...\n" +
+			"but we'll find out!\n" +
+			"that can be suppressed.\n" +
+			"Goodbye!\n",
+	},
+	{name: "Exclude two function names", flags: Ltree | LfunctionName | Lcolor | Lindent | Lid | LshowIndent,
+		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName", "testLvl3"},
+		expect: "[01] \x1b[38;5;31m...|\x1b[0;00mtestLvl1: The things\n" +
+			"[02] \x1b[38;5;31m...|...|\x1b[0;00mtestLvl2: should be suppressed.\n" +
+			"[02] \x1b[38;5;31m...|...|\x1b[0;00mtestLvl2: but we'll find out!\n" +
+			"[01] \x1b[38;5;31m...|\x1b[0;00mtestLvl1: that can be suppressed.\n",
+	},
+}
+
+func TestExcludeByFuncName(t *testing.T) {
+	var buf bytes.Buffer
+
+	for _, test := range excludeByFuncNameTests {
+		logr := New(LEVEL_DEBUG, &buf)
+
+		logr.SetFlags(test.flags)
+
+		logr.ExcludeByFuncName(test.input...)
+
+		logr.Debugln("Hello!")
+		testLvl1(logr)
+		logr.Debugln("Goodbye!")
+
+		if buf.String() != test.expect {
+			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+				test.name, buf.String(), buf.String(), test.expect, test.expect)
+		}
+		buf.Reset()
+	}
+}

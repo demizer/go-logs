@@ -465,3 +465,25 @@ func TestStdExcludeByString(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func TestStdExcludeByFuncName(t *testing.T) {
+	var buf bytes.Buffer
+
+	for _, test := range excludeByFuncNameTests {
+		std = New(LEVEL_DEBUG, &buf)
+
+		SetFlags(test.flags)
+
+		ExcludeByFuncName(test.input...)
+
+		Debugln("Hello!")
+		testLvl1(std)
+		Debugln("Goodbye!")
+
+		if buf.String() != test.expect {
+			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+				test.name, buf.String(), buf.String(), test.expect, test.expect)
+		}
+		buf.Reset()
+	}
+}

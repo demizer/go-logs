@@ -182,6 +182,7 @@ type Logger struct {
 	indent           int                // Number of indents to use
 	tabStop          int                // Number of spaces considered to be a tab stop
 	excludeIDs       []int              // Exclude by whatever things
+	excludeFuncNames []string
 	excludeStrings   []string
 }
 
@@ -286,6 +287,13 @@ func ExcludeByHeirarchyID(ids ...int) {
 // strings specified by strs.
 func ExcludeByString(strs ...string) {
 	std.excludeStrings = strs
+}
+
+// ExcludeByFuncName excludes output if it comes from functions matching names.
+// ExcludeByFuncName is only available if the LshortFileName or LlongFileName
+// flags are used.
+func ExcludeByFuncName(names ...string) {
+	std.excludeFuncNames = names
 }
 
 // Printf formats according to a format specifier and writes to standard
@@ -463,7 +471,8 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree) != 0 {
+	if l.flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree) != 0 ||
+		len(l.excludeFuncNames) > 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 		var ok bool
@@ -513,7 +522,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 			file = short
 		}
 
-		if l.flags&LfunctionName != 0 {
+		if l.flags&LfunctionName != 0 || len(l.excludeFuncNames) > 0 {
 			fAtPC := runtime.FuncForPC(pgmC)
 			fName = fAtPC.Name()
 			for i := len(fName) - 1; i >= 0; i-- {
@@ -536,6 +545,15 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 				panic(err)
 			}
 			if iId == eId {
+				return
+			}
+		}
+	}
+
+	// Check func name excludes and return if matches are found
+	if len(fName) > 0 {
+		for _, name := range l.excludeFuncNames {
+			if strings.Contains(fName, name) {
 				return
 			}
 		}
@@ -720,6 +738,13 @@ func (l *Logger) ExcludeByHeirarchyID(ids ...int) {
 // strings specified by strs.
 func (l *Logger) ExcludeByString(strs ...string) {
 	l.excludeStrings = strs
+}
+
+// ExcludeByFuncName excludes output if it comes from functions matching names.
+// ExcludeByFuncName is only available if the LshortFileName or LlongFileName
+// flags are used.
+func (l *Logger) ExcludeByFuncName(names ...string) {
+	l.excludeFuncNames = names
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
