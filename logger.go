@@ -182,6 +182,7 @@ type Logger struct {
 	indent           int                // Number of indents to use
 	tabStop          int                // Number of spaces considered to be a tab stop
 	excludeIDs       []int              // Exclude by whatever things
+	excludeStrings   []string
 }
 
 var (
@@ -279,6 +280,12 @@ func SetTabStop(stops int) *Logger {
 // is set.
 func ExcludeByHeirarchyID(ids ...int) {
 	std.excludeIDs = ids
+}
+
+// ExcludeByString excludes output if the output text contains matches for
+// strings specified by strs.
+func ExcludeByString(strs ...string) {
+	std.excludeStrings = strs
 }
 
 // Printf formats according to a format specifier and writes to standard
@@ -434,7 +441,16 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	if (logLevel != LEVEL_PRINT && l.level != LEVEL_PRINT) &&
 		logLevel < l.level {
-		return 0, nil
+		return
+	}
+
+	// Check for string excludes
+	if len(l.excludeStrings) > 0 {
+		for _, val := range l.excludeStrings {
+			if strings.Contains(text, val) {
+				return
+			}
+		}
 	}
 
 	now := time.Now()
@@ -698,6 +714,12 @@ func (l *Logger) SetTabStop(stops int) *Logger {
 // is set.
 func (l *Logger) ExcludeByHeirarchyID(ids ...int) {
 	l.excludeIDs = ids
+}
+
+// ExcludeByString excludes output if the output text contains matches for
+// strings specified by strs.
+func (l *Logger) ExcludeByString(strs ...string) {
+	l.excludeStrings = strs
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the

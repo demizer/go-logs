@@ -1025,3 +1025,80 @@ func TestExcludeByHeirarchyID(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+var excludeByStringTests = []struct {
+	name   string
+	flags  int
+	input  []string
+	expect string
+}{
+	{name: "Exclude single word", flags: Llabel, input: []string{"Hello"},
+		expect: "[DEBG] The things\n" +
+			"[DEBG] should be suppressed.\n" +
+			"[DEBG] Almost forgot...\n" +
+			"[DEBG] but we'll find out!\n" +
+			"[DEBG] that can be suppressed.\n" +
+			"[DEBG] Goodbye!\n",
+	},
+	{name: "Exclude single word 2", flags: Llabel, input: []string{"DEBG"},
+		expect: "[DEBG] Hello!\n" +
+			"[DEBG] The things\n" +
+			"[DEBG] should be suppressed.\n" +
+			"[DEBG] Almost forgot...\n" +
+			"[DEBG] but we'll find out!\n" +
+			"[DEBG] that can be suppressed.\n" +
+			"[DEBG] Goodbye!\n",
+	},
+	{name: "Exclude non-existing word", input: []string{"Things"},
+		expect: "Hello!\n" +
+			"The things\n" +
+			"should be suppressed.\n" +
+			"Almost forgot...\n" +
+			"but we'll find out!\n" +
+			"that can be suppressed.\n" +
+			"Goodbye!\n",
+	},
+	{name: "Exclude two words", flags: Ltree | Lcolor | Lindent | Lid | LshowIndent,
+		input: []string{"forgot", "we'll"},
+		expect: "[00] Hello!\n" +
+			"[01] \x1b[38;5;31m...|\x1b[0;00mThe things\n" +
+			"[02] \x1b[38;5;31m...|...|\x1b[0;00mshould be suppressed.\n" +
+			"[01] \x1b[38;5;31m...|\x1b[0;00mthat can be suppressed.\n" +
+			"[00] Goodbye!\n",
+	},
+}
+
+func TestExcludeByString(t *testing.T) {
+	var buf bytes.Buffer
+
+	for _, test := range excludeByStringTests {
+		logr := New(LEVEL_DEBUG, &buf)
+
+		logr.SetFlags(test.flags)
+
+		logr.ExcludeByString(test.input...)
+
+		logr.Debugln("Hello!")
+		lvl3 := func() {
+			logr.Debugln("Almost forgot...")
+		}
+		lvl2 := func() {
+			logr.Debugln("should be suppressed.")
+			lvl3()
+			logr.Debugln("but we'll find out!")
+		}
+		lvl1 := func() {
+			logr.Debugln("The things")
+			lvl2()
+			logr.Debugln("that can be suppressed.")
+		}
+		lvl1()
+		logr.Debugln("Goodbye!")
+
+		if buf.String() != test.expect {
+			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+				test.name, buf.String(), buf.String(), test.expect, test.expect)
+		}
+		buf.Reset()
+	}
+}

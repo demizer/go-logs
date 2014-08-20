@@ -430,3 +430,38 @@ func TestStdExcludeByHeirarchyID(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func TestStdExcludeByString(t *testing.T) {
+	var buf bytes.Buffer
+
+	for _, test := range excludeByStringTests {
+		std = New(LEVEL_DEBUG, &buf)
+
+		SetFlags(test.flags)
+
+		ExcludeByString(test.input...)
+
+		Debugln("Hello!")
+		lvl3 := func() {
+			Debugln("Almost forgot...")
+		}
+		lvl2 := func() {
+			Debugln("should be suppressed.")
+			lvl3()
+			Debugln("but we'll find out!")
+		}
+		lvl1 := func() {
+			Debugln("The things")
+			lvl2()
+			Debugln("that can be suppressed.")
+		}
+		lvl1()
+		Debugln("Goodbye!")
+
+		if buf.String() != test.expect {
+			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+				test.name, buf.String(), buf.String(), test.expect, test.expect)
+		}
+		buf.Reset()
+	}
+}
