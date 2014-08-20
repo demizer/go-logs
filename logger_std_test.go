@@ -199,7 +199,7 @@ func TestStdIndent(t *testing.T) {
 
 	indent := Indent()
 
-	expe := "[DEBG] Test 1\n[DEBG]         Test 2\n"
+	expe := "[DEBUG] Test 1\n[DEBUG]         Test 2\n"
 	expi := 2
 
 	if buf.String() != expe {
@@ -230,7 +230,7 @@ func TestStdTabStop(t *testing.T) {
 
 	tabStop := TabStop()
 
-	expe := "[DEBG]   Test 1\n[DEBG]         Test 2\n"
+	expe := "[DEBUG]   Test 1\n[DEBUG]         Test 2\n"
 	expt := 4
 
 	if buf.String() != expe {
@@ -333,7 +333,7 @@ func TestStdPanic(t *testing.T) {
 
 	SetIndent(0)
 
-	expect := "[CRIT] Panic Error!"
+	expect := "[CRITICAL] Panic Error!"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -356,7 +356,7 @@ func TestStdPanicln(t *testing.T) {
 
 	SetIndent(0)
 
-	expect := "[CRIT] Panic Error!\n"
+	expect := "[CRITICAL] Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -379,7 +379,7 @@ func TestStdPanicf(t *testing.T) {
 
 	SetIndent(0)
 
-	expect := "[CRIT] Panic Error!\n"
+	expect := "[CRITICAL] Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {

@@ -57,7 +57,7 @@ func TestLongFileFlag(t *testing.T) {
 	logr.SetFlags(LlongFileName | Llabel)
 	logr.Debugln("Test long file flag")
 	_, file, _, _ := runtime.Caller(0)
-	expect := fmt.Sprintf("[DEBG] %s: Test long file flag\n", file)
+	expect := fmt.Sprintf("[DEBUG] %s: Test long file flag\n", file)
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -80,7 +80,7 @@ func TestShortFileFlag(t *testing.T) {
 	}
 
 	file = short
-	expect := fmt.Sprintf("[DEBG] %s: Test short file flag\n", file)
+	expect := fmt.Sprintf("[DEBUG] %s: Test short file flag\n", file)
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -129,7 +129,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 3",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;231m[DEBG]\x1b[0;00m test number 3",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;231m[DEBUG]\x1b[0;00m test number 3",
 		expectErr:  false,
 	},
 	// Test info output
@@ -151,7 +151,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 5",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;228m[WARN]\x1b[0;00m test number 5",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;228m[WARNING]\x1b[0;00m test number 5",
 		expectErr:  false,
 	},
 	// Test error output
@@ -162,7 +162,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 6",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;200m[ERRR]\x1b[0;00m test number 6",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;200m[ERROR]\x1b[0;00m test number 6",
 		expectErr:  false,
 	},
 	// Test critical output
@@ -173,7 +173,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 7",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;196m[CRIT]\x1b[0;00m test number 7",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;196m[CRITICAL]\x1b[0;00m test number 7",
 		expectErr:  false,
 	},
 	// Test date format
@@ -302,7 +302,7 @@ func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Llabel)
 	logr.Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
-	expect := "\n\n[DEBG] This output should be padded with newlines and not colored.\n\n"
+	expect := "\n\n[DEBUG] This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -314,7 +314,7 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Lcolor | Llabel)
 	logr.Debug("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -327,14 +327,14 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	logr.SetFlags(Lcolor | Llabel)
 	logr.Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
-	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	logr.Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
-	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m ##### HELLO NEWMAN #####\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m ##### HELLO NEWMAN #####\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -345,20 +345,20 @@ func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Lcolor | Llabel)
 	logr.Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	logr.Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
-	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	logr.Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
-	expect = "\n\n\x1b[38;5;231m[DEBG]\x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBUG]\x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -389,15 +389,15 @@ func TestTreeDebugln(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m [00] Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [01]     Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [01]     Level 1 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [02]         Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [02]         Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [03]             Level 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [02]         Level 2 Output 3\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [01]     Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m [00] Level 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m [00] Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [01]     Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [01]     Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [02]         Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [02]         Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [03]             Level 3 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [02]         Level 2 Output 3\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [01]     Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [00] Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -416,10 +416,10 @@ func TestSetIndentDebugln(t *testing.T) {
 	logr.Debugln("Level 1 Output 2")
 	logr.SetIndent(0).Debugln("Level 0 Output 1")
 
-	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m     Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m     Level 1 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n"
+	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m     Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m     Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -438,10 +438,10 @@ func TestLindentWithLshowIndent(t *testing.T) {
 	logr.Debugln("Level 1 Output 2")
 	logr.SetIndent(0).Debugln("Level 0 Output 1")
 
-	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 1 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n"
+	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -474,13 +474,13 @@ func TestSetIndentWithLindentAndLtree(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -513,13 +513,13 @@ func TestSetIndentWithLindentAndLtreeMinus2Indent(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -552,13 +552,13 @@ func TestSetIndentWithLindentAndLtreeMinus4Indent(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBG]\x1b[0;00m Level 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 3 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -747,7 +747,7 @@ func TestIndent(t *testing.T) {
 
 	indent := logr.Indent()
 
-	expe := "[DEBG] Test 1\n[DEBG]         Test 2\n"
+	expe := "[DEBUG] Test 1\n[DEBUG]         Test 2\n"
 	expi := 2
 
 	if buf.String() != expe {
@@ -778,7 +778,7 @@ func TestTabStop(t *testing.T) {
 
 	tabStop := logr.TabStop()
 
-	expe := "[DEBG]   Test 1\n[DEBG]         Test 2\n"
+	expe := "[DEBUG]   Test 1\n[DEBUG]         Test 2\n"
 	expt := 4
 
 	if buf.String() != expe {
@@ -877,7 +877,7 @@ func TestPanic(t *testing.T) {
 
 	logr.SetFlags(Llabel)
 
-	expect := "[CRIT] Panic Error!"
+	expect := "[CRITICAL] Panic Error!"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -898,7 +898,7 @@ func TestPanicln(t *testing.T) {
 
 	logr.SetFlags(Llabel)
 
-	expect := "[CRIT] Panic Error!\n"
+	expect := "[CRITICAL] Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -919,7 +919,7 @@ func TestPanicf(t *testing.T) {
 
 	logr.SetFlags(Llabel)
 
-	expect := "[CRIT] Panic Error!\n"
+	expect := "[CRITICAL] Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -1033,21 +1033,21 @@ var excludeByStringTests = []struct {
 	expect string
 }{
 	{name: "Exclude single word", flags: Llabel, input: []string{"Hello"},
-		expect: "[DEBG] The things\n" +
-			"[DEBG] should be suppressed.\n" +
-			"[DEBG] Almost forgot...\n" +
-			"[DEBG] but we'll find out!\n" +
-			"[DEBG] that can be suppressed.\n" +
-			"[DEBG] Goodbye!\n",
+		expect: "[DEBUG] The things\n" +
+			"[DEBUG] should be suppressed.\n" +
+			"[DEBUG] Almost forgot...\n" +
+			"[DEBUG] but we'll find out!\n" +
+			"[DEBUG] that can be suppressed.\n" +
+			"[DEBUG] Goodbye!\n",
 	},
-	{name: "Exclude single word 2", flags: Llabel, input: []string{"DEBG"},
-		expect: "[DEBG] Hello!\n" +
-			"[DEBG] The things\n" +
-			"[DEBG] should be suppressed.\n" +
-			"[DEBG] Almost forgot...\n" +
-			"[DEBG] but we'll find out!\n" +
-			"[DEBG] that can be suppressed.\n" +
-			"[DEBG] Goodbye!\n",
+	{name: "Exclude single word 2", flags: Llabel, input: []string{"DEBUG"},
+		expect: "[DEBUG] Hello!\n" +
+			"[DEBUG] The things\n" +
+			"[DEBUG] should be suppressed.\n" +
+			"[DEBUG] Almost forgot...\n" +
+			"[DEBUG] but we'll find out!\n" +
+			"[DEBUG] that can be suppressed.\n" +
+			"[DEBUG] Goodbye!\n",
 	},
 	{name: "Exclude non-existing word", input: []string{"Things"},
 		expect: "Hello!\n" +
@@ -1135,11 +1135,11 @@ var excludeByFuncNameTests = []struct {
 	},
 	{name: "Exclude without LfunctionName", flags: Llabel,
 		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName"},
-		expect: "[DEBG] The things\n" +
-			"[DEBG] should be suppressed.\n" +
-			"[DEBG] Almost forgot...\n" +
-			"[DEBG] but we'll find out!\n" +
-			"[DEBG] that can be suppressed.\n",
+		expect: "[DEBUG] The things\n" +
+			"[DEBUG] should be suppressed.\n" +
+			"[DEBUG] Almost forgot...\n" +
+			"[DEBUG] but we'll find out!\n" +
+			"[DEBUG] that can be suppressed.\n",
 	},
 	{name: "Exclude non-existing name", input: []string{"Imaginary"},
 		expect: "Hello!\n" +
