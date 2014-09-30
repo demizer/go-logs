@@ -20,7 +20,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/demizer/rgbterm"
+	"github.com/aybabtme/rgbterm"
 )
 
 // Used for string output of the logging object

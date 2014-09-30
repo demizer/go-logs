@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/demizer/rgbterm"
+	"github.com/aybabtme/rgbterm"
 )
 
 var colorTests = []struct {

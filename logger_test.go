@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/demizer/rgbterm"
+	"github.com/aybabtme/rgbterm"
 )
 
 func TestStream(t *testing.T) {
