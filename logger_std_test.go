@@ -7,6 +7,7 @@ package log
 
 import (
 	"bytes"
+	"io/ioutil"
 	"reflect"
 	"runtime"
 	"testing"
@@ -240,6 +241,30 @@ func TestStdTabStop(t *testing.T) {
 
 	if tabStop != expt {
 		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", tabStop, expt)
+	}
+}
+
+func TestStdLnoFileAnsi(t *testing.T) {
+	std = New(LEVEL_DEBUG)
+	SetFlags(Lprefix | Llabel | Lcolor | LnoFileAnsi)
+
+	f, err := ioutil.TempFile("/tmp", "go-elog-test-")
+	defer f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	SetStreams(f)
+
+	Debugln("Test 1")
+	Debugln("Test 2")
+
+	fOut, _ := ioutil.ReadFile(f.Name())
+	expe := ":: [DEBUG] Test 1\n:: [DEBUG] Test 2\n"
+
+	if string(fOut) != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			string(fOut), string(fOut), expe, expe)
 	}
 }
 

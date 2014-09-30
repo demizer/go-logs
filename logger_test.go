@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -788,6 +789,30 @@ func TestTabStop(t *testing.T) {
 
 	if tabStop != expt {
 		t.Errorf("\nGot:\t%d\nExpect:\t%d\n", tabStop, expt)
+	}
+}
+
+func TestLnoFileAnsi(t *testing.T) {
+	logr := New(LEVEL_DEBUG)
+	logr.SetFlags(Lprefix | Llabel | Lcolor | LnoFileAnsi)
+
+	f, err := ioutil.TempFile("/tmp", "go-elog-test-")
+	defer f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	logr.SetStreams(f)
+
+	logr.Debugln("Test 1")
+	logr.Debugln("Test 2")
+
+	fOut, _ := ioutil.ReadFile(f.Name())
+	expe := ":: [DEBUG] Test 1\n:: [DEBUG] Test 2\n"
+
+	if string(fOut) != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			string(fOut), string(fOut), expe, expe)
 	}
 }
 
