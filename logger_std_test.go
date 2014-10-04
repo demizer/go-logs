@@ -8,6 +8,7 @@ package log
 import (
 	"bytes"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"runtime"
 	"testing"
@@ -244,6 +245,8 @@ func TestStdTabStop(t *testing.T) {
 	}
 }
 
+// TestStdLnoFileAnsi verifies output sent to os.Stdout contains color codes
+// and output sent to a file does not.
 func TestStdLnoFileAnsi(t *testing.T) {
 	std = New(LEVEL_DEBUG)
 	SetFlags(Lprefix | Llabel | Lcolor | LnoFileAnsi)
@@ -254,17 +257,36 @@ func TestStdLnoFileAnsi(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	SetStreams(f)
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Error(err)
+	}
+	oStdout := os.Stdout
+	os.Stdout = w
+	SetStreams(f, os.Stdout)
 
 	Debugln("Test 1")
 	Debugln("Test 2")
 
+	os.Stdout = oStdout
+	w.Close()
+
 	fOut, _ := ioutil.ReadFile(f.Name())
+	stdOut, _ := ioutil.ReadAll(r)
+
 	expe := ":: [DEBUG] Test 1\n:: [DEBUG] Test 2\n"
+	expeStdout := "\x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]" +
+		"\x1b[0;00m Test 1\n\x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]" +
+		"\x1b[0;00m Test 2\n"
 
 	if string(fOut) != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			"Incorrect file output!",
 			string(fOut), string(fOut), expe, expe)
+	} else if string(stdOut) != expeStdout {
+		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			"Stdout contained invalid data!",
+			string(stdOut), string(stdOut), expeStdout, expeStdout)
 	}
 }
 

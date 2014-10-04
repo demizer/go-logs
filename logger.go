@@ -749,24 +749,33 @@ func (l *Logger) ExcludeByFuncName(names ...string) {
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
 // Lcolor flag is set, ansi escape codes are used to add coloring to the output.
-func (l *Logger) Write(p []byte) (n int, err error) {
-	for _, w := range l.streams {
-		if reflect.TypeOf(w).String() == "*os.File" && l.flags&LnoFileAnsi != 0 {
-			p = stripAnsiByte(p)
-			n, err = w.Write(p)
-		} else {
-			n, err = w.Write(p)
+func (l *Logger) Write(p []byte) (wLen int, err error) {
+	var write = func(w io.Writer, isStdFile bool) {
+		x := p
+		if !isStdFile && l.flags&LnoFileAnsi != 0 {
+			// TODO: If Lcolor is used, then no coloring should
+			// have to be stripped. Inefficient.
+			x = stripAnsiByte(x)
 		}
-		// FIXME: NOT SURE HOW TO TEST THIS!
-		if err != nil {
-			return
-		}
-		if n != len(p) {
+		wLen, err = w.Write(x)
+		if wLen != len(p) {
 			err = io.ErrShortWrite
-			return
 		}
 	}
-	return len(p), nil
+	for _, w := range l.streams {
+		wIface := reflect.ValueOf(w).Interface()
+		switch wType := wIface.(type) {
+		case *os.File:
+			if wType == os.Stdout || wType == os.Stderr {
+				write(w, true)
+				continue
+			}
+			write(w, false)
+		default:
+			write(w, false)
+		}
+	}
+	return
 }
 
 // Printf is equivalent to log.Printf().
