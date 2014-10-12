@@ -811,7 +811,7 @@ func TestLnoFileAnsi(t *testing.T) {
 	}
 	oStdout := os.Stdout
 	os.Stdout = w
-	logr.SetStreams(f, os.Stdout)
+	logr.SetStreams(os.Stdout, f)
 
 	logr.Debugln("Test 1")
 	logr.Debugln("Test 2")
@@ -1226,4 +1226,8 @@ func TestExcludeByFuncName(t *testing.T) {
 		}
 		buf.Reset()
 	}
+}
+
+func TestExcludeByRegexp(t *testing.T) {
+
 }

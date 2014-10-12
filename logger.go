@@ -13,6 +13,7 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -184,6 +185,7 @@ type Logger struct {
 	excludeIDs       []int              // Exclude by whatever things
 	excludeFuncNames []string
 	excludeStrings   []string
+	excludeRegexp    *regexp.Regexp
 }
 
 var (
@@ -294,6 +296,12 @@ func ExcludeByString(strs ...string) {
 // flags are used.
 func ExcludeByFuncName(names ...string) {
 	std.excludeFuncNames = names
+}
+
+// ExcludeByRegexp will exclude output if the passed regexp matches against the
+// output text.
+func ExcludeByRegexp(reg *regexp.Regexp) {
+	std.excludeRegexp = reg
 }
 
 // Printf formats according to a format specifier and writes to standard
@@ -745,6 +753,12 @@ func (l *Logger) ExcludeByString(strs ...string) {
 // flags are used.
 func (l *Logger) ExcludeByFuncName(names ...string) {
 	l.excludeFuncNames = names
+}
+
+// ExcludeByRegexp will exclude output if the passed regexp matches against the
+// output text.
+func (l *Logger) ExcludeByRegexp(reg *regexp.Regexp) {
+	l.excludeRegexp = reg
 }
 
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
