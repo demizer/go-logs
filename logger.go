@@ -534,14 +534,8 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		len(l.excludeFuncNames) > 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
-		var ok bool
 
-		pgmC, file, line, ok = runtime.Caller(calldepth)
-		// FIXME: NOT SURE HOW TO TEST THIS!
-		if !ok {
-			file = "???"
-			line = 0
-		}
+		pgmC, file, line, _ = runtime.Caller(calldepth)
 
 		if l.flags&Ltree != 0 {
 			pc := make([]uintptr, 32)
@@ -599,10 +593,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	var iId int
 	if l.flags&(Lid) != 0 {
 		for _, eId := range l.excludeIDs {
-			iId, err = strconv.Atoi(id[1 : len(id)-1])
-			if err != nil {
-				panic(err)
-			}
+			iId, _ = strconv.Atoi(id[1 : len(id)-1])
 			if iId == eId {
 				return
 			}
