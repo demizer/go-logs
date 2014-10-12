@@ -23,39 +23,70 @@ import (
 	"github.com/aybabtme/rgbterm"
 )
 
+// Label contains the name of a label as well as the short name and RGB color
+// values.
+type Label struct {
+	name string
+
+	// Short names are use for output when the Ltree flag is set. Short
+	// names of all labels should be the same length.
+	shortName string
+
+	colorRGB [3]uint8
+}
+
+// ShortName() is used for output that must be aligned accross labels.
+// Specifically for output when the Ltree flag is set.
+func (l Label) ShortName() string { return l.shortName }
+
+// String satisfies the Stringer interface.
+func (l Label) String() string { return l.name }
+
+// Colorized returns the colorized label for console output using ANSI escape
+// sequences.
+func (l Label) Colorized() string {
+	return rgbterm.String(l.name, l.colorRGB[0], l.colorRGB[1], l.colorRGB[2])
+}
+
+// Labels are prefixed to the beginning of a string on output. Labels can be
+// colored. A special shortened case is used when the Ltree flag is set so that
+// ouput is properly aligned.
+var Labels = [5]Label{
+	Label{"[DEBUG]", "[DBUG]", [3]uint8{255, 255, 255}},   // White
+	Label{"[INFO]", "[INFO]", [3]uint8{0, 215, 95}},       // Green
+	Label{"[WARNING]", "[WARN]", [3]uint8{255, 255, 135}}, // Yellow
+	Label{"[ERROR]", "[EROR]", [3]uint8{255, 0, 215}},     // Magenta
+	Label{"[CRITICAL]", "[CRIT]", [3]uint8{255, 0, 0}},    // Red
+}
+
+type level int
+
 // Used for string output of the logging object
-var levels = [6]string{
+var levels = [5]string{
 	"LEVEL_DEBUG",
 	"LEVEL_INFO",
-	"LEVEL_PRINT",
 	"LEVEL_WARNING",
 	"LEVEL_ERROR",
 	"LEVEL_CRITICAL",
 }
-
-// Used to retrieve a ansi colored label of the logger
-var labels = [6]string{
-	rgbterm.String("[DEBUG]", 255, 255, 255), // White
-	rgbterm.String("[INFO]", 0, 215, 95),     // Green
-	"", // The Print* functions do not use a label
-	rgbterm.String("[WARNING]", 255, 255, 135), // Yellow
-	rgbterm.String("[ERROR]", 255, 0, 215),     // Magenta
-	rgbterm.String("[CRITICAL]", 255, 0, 0),    // Red
-}
-
-type level int
 
 // Returns the string representation of the level
 func (l level) String() string { return levels[l] }
 
 // Returns the label for the level
 func (l level) Label() string {
-	return stripAnsi(labels[l])
+	if l == LEVEL_PRINT {
+		return ""
+	}
+	return Labels[l].String()
 }
 
 // Returns the ansi colorized label for the level
 func (l level) AnsiLabel() string {
-	return labels[l]
+	if l == LEVEL_PRINT {
+		return ""
+	}
+	return Labels[l].Colorized()
 }
 
 // Returns the level using string input. lvl must be the name of the level in
@@ -90,9 +121,6 @@ const (
 	// output than debug that could be used by a user.
 	LEVEL_INFO
 
-	// LEVEL_PRINT shows output for the standard Print functions and above.
-	LEVEL_PRINT
-
 	// LEVEL_WARNING messages should be used to notify the user that
 	// something worked, but the expected value was not the result.
 	LEVEL_WARNING
@@ -105,6 +133,9 @@ const (
 	// and unrecoverable. Critical messages are usually followed by
 	// os.Exit().
 	LEVEL_CRITICAL
+
+	// LEVEL_PRINT shows output for the standard Print functions and above.
+	LEVEL_PRINT
 )
 
 var (
