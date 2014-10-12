@@ -633,6 +633,47 @@ func TestStandardLabelLength(t *testing.T) {
 			buf.String(), buf.String(), expe, expe)
 	}
 }
+
+func TestStandardLabelLengthNoColor(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	// Lindent should have no effect on Lindent
+	logr.SetFlags(Lindent | Ltree | LshowIndent | Llabel)
+
+	logr.SetIndent(1).Println("Level 0 Output 1")
+	lvl3 := func() {
+		logr.Criticalln("Level 3 Output 1")
+		logr.Errorln("Level 3 Output 2")
+	}
+	lvl2 := func() {
+		logr.Infoln("Level 2 Output 1")
+		lvl3()
+		logr.Infoln("Level 2 Output 2")
+	}
+	lvl1 := func() {
+		logr.Debugln("Level 1 Output 1")
+		lvl2()
+		logr.Warningln("Level 1 Output 3")
+	}
+	lvl1()
+	logr.Println("Level 0 Output 2")
+
+	expe := "       ...|Level 0 Output 1\n" +
+		"[DBUG] ...|...|Level 1 Output 1\n" +
+		"[INFO] ...|...|...|Level 2 Output 1\n" +
+		"[CRIT] ...|...|...|...|Level 3 Output 1\n" +
+		"[EROR] ...|...|...|...|Level 3 Output 2\n" +
+		"[INFO] ...|...|...|Level 2 Output 2\n" +
+		"[WARN] ...|...|Level 1 Output 3\n" +
+		"       ...|Level 0 Output 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+}
 func TestSetTemplate(t *testing.T) {
 	var buf bytes.Buffer
 
