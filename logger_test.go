@@ -163,7 +163,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 6",
-		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;200m[ERROR]\x1b[0;00m test number 6",
+		expect:     "%s \x1b[38;5;46mTEST>\x1b[0;00m \x1b[38;5;202m[ERROR]\x1b[0;00m test number 6",
 		expectErr:  false,
 	},
 	// Test critical output
@@ -390,15 +390,15 @@ func TestTreeDebugln(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m [00] Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [01]     Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [01]     Level 1 Output 2\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [02]         Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [02]         Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [03]             Level 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [02]         Level 2 Output 3\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [01]     Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m [00] Level 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m [00] Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [01]     Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [01]     Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [02]         Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [02]         Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [03]             Level 3 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [02]         Level 2 Output 3\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [01]     Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m [00] Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -475,13 +475,13 @@ func TestSetIndentWithLindentAndLtree(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -514,13 +514,13 @@ func TestSetIndentWithLindentAndLtreeMinus2Indent(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -553,13 +553,13 @@ func TestSetIndentWithLindentAndLtreeMinus4Indent(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 3 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 3 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 2\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 3\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -593,6 +593,46 @@ func TestTemplate(t *testing.T) {
 	}
 }
 
+func TestStandardLabelLength(t *testing.T) {
+	var buf bytes.Buffer
+
+	logr := New(LEVEL_DEBUG, &buf)
+
+	// Lindent should have no effect on Lindent
+	logr.SetFlags(Lcolor | Lindent | Ltree | LshowIndent | Llabel)
+
+	logr.SetIndent(1).Println("Level 0 Output 1")
+	lvl3 := func() {
+		logr.Criticalln("Level 3 Output 1")
+		logr.Errorln("Level 3 Output 2")
+	}
+	lvl2 := func() {
+		logr.Infoln("Level 2 Output 1")
+		lvl3()
+		logr.Infoln("Level 2 Output 2")
+	}
+	lvl1 := func() {
+		logr.Debugln("Level 1 Output 1")
+		lvl2()
+		logr.Warningln("Level 1 Output 3")
+	}
+	lvl1()
+	logr.Println("Level 0 Output 2")
+
+	expe := "       \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
+		"\x1b[38;5;196m[CRIT]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;202m[EROR]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 2\n" +
+		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
+		"\x1b[38;5;228m[WARN]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
+		"       \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			buf.String(), buf.String(), expe, expe)
+	}
+}
 func TestSetTemplate(t *testing.T) {
 	var buf bytes.Buffer
 

@@ -26,18 +26,20 @@ import (
 // Label contains the name of a label as well as the short name and RGB color
 // values.
 type Label struct {
+	level level
+
 	name string
 
-	// Short names are use for output when the Ltree flag is set. Short
+	// StdLengthNames are used for output when the Ltree flag is set. Short
 	// names of all labels should be the same length.
-	shortName string
+	StdLengthName string
 
 	colorRGB [3]uint8
 }
 
-// ShortName() is used for output that must be aligned accross labels.
+// StdLenName() is used for output that must be aligned accross labels.
 // Specifically for output when the Ltree flag is set.
-func (l Label) ShortName() string { return l.shortName }
+func (l Label) StdLenName() string { return l.StdLengthName }
 
 // String satisfies the Stringer interface.
 func (l Label) String() string { return l.name }
@@ -45,49 +47,75 @@ func (l Label) String() string { return l.name }
 // Colorized returns the colorized label for console output using ANSI escape
 // sequences.
 func (l Label) Colorized() string {
+	if l.level == LEVEL_PRINT {
+		return l.name
+	}
 	return rgbterm.String(l.name, l.colorRGB[0], l.colorRGB[1], l.colorRGB[2])
+}
+
+// StdLenColorized returns the colorized standard length label for console
+// output using ANSI escape sequences.
+func (l Label) StdLenColorized() string {
+	if l.level == LEVEL_PRINT {
+		return l.StdLenName()
+	}
+	return rgbterm.String(l.StdLenName(), l.colorRGB[0], l.colorRGB[1],
+		l.colorRGB[2])
 }
 
 // Labels are prefixed to the beginning of a string on output. Labels can be
 // colored. A special shortened case is used when the Ltree flag is set so that
 // ouput is properly aligned.
-var Labels = [5]Label{
-	Label{"[DEBUG]", "[DBUG]", [3]uint8{255, 255, 255}},   // White
-	Label{"[INFO]", "[INFO]", [3]uint8{0, 215, 95}},       // Green
-	Label{"[WARNING]", "[WARN]", [3]uint8{255, 255, 135}}, // Yellow
-	Label{"[ERROR]", "[EROR]", [3]uint8{255, 0, 215}},     // Magenta
-	Label{"[CRITICAL]", "[CRIT]", [3]uint8{255, 0, 0}},    // Red
+var Labels = [6]Label{
+	Label{LEVEL_DEBUG, "[DEBUG]", "[DBUG]",
+		[3]uint8{255, 255, 255}, // White
+	},
+
+	Label{LEVEL_INFO, "[INFO]", "[INFO]",
+		[3]uint8{0, 215, 95}, // Green
+	},
+
+	Label{LEVEL_WARNING, "[WARNING]", "[WARN]",
+		[3]uint8{255, 255, 135}, // Yellow
+	},
+
+	Label{LEVEL_ERROR, "[ERROR]", "[EROR]",
+		[3]uint8{255, 99, 0}, // Orange
+	},
+
+	Label{LEVEL_CRITICAL, "[CRITICAL]", "[CRIT]",
+		[3]uint8{255, 0, 0}, // Red
+	},
+
+	Label{level: LEVEL_PRINT, StdLengthName: "      "}, // LEVEL_PRINT requires no label
 }
 
 type level int
 
 // Used for string output of the logging object
-var levels = [5]string{
+var levels = [6]string{
 	"LEVEL_DEBUG",
 	"LEVEL_INFO",
 	"LEVEL_WARNING",
 	"LEVEL_ERROR",
 	"LEVEL_CRITICAL",
+	"LEVEL_PRINT",
 }
 
 // Returns the string representation of the level
 func (l level) String() string { return levels[l] }
 
 // Returns the label for the level
-func (l level) Label() string {
-	if l == LEVEL_PRINT {
-		return ""
-	}
-	return Labels[l].String()
-}
+func (l level) Label() string { return Labels[l].String() }
+
+// Returns the standard length label.
+func (l level) StdLenLabel() string { return Labels[l].StdLengthName }
 
 // Returns the ansi colorized label for the level
-func (l level) AnsiLabel() string {
-	if l == LEVEL_PRINT {
-		return ""
-	}
-	return Labels[l].Colorized()
-}
+func (l level) AnsiLabel() string { return Labels[l].Colorized() }
+
+// Returns the ansi colorized stdand length label for the level
+func (l level) AnsiStdLenLabel() string { return Labels[l].StdLenColorized() }
 
 // Returns the level using string input. lvl must be the name of the level in
 // the form of "debug", "DEBUG", "level_debug", or "LEVEL_DEBUG". Returns
@@ -604,15 +632,15 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	var date string
 	var prefix string
 
-	if l.flags&(Ldate) != 0 {
+	if l.flags&Ldate != 0 {
 		date = now.Format(l.dateFormat)
 	}
 
-	if l.flags&(Lprefix) != 0 {
+	if l.flags&Lprefix != 0 {
 		prefix = l.prefix
 	}
 
-	if l.flags&(LlineNumber) == 0 {
+	if l.flags&LlineNumber == 0 {
 		line = 0
 	}
 
@@ -620,7 +648,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		file = ""
 	}
 
-	if l.flags&(LfunctionName) == 0 {
+	if l.flags&LfunctionName == 0 {
 		fName = ""
 	}
 
@@ -644,8 +672,18 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	var label string
-	if l.flags&(Llabel) != 0 {
-		label = logLevel.AnsiLabel()
+	if l.flags&Llabel != 0 {
+		if l.flags&Lcolor != 0 {
+			label = logLevel.AnsiLabel()
+			if l.flags&Ltree != 0 {
+				label = logLevel.AnsiStdLenLabel()
+			}
+		} else {
+			label = logLevel.Label()
+			if l.flags&Ltree != 0 {
+				label = logLevel.StdLenLabel()
+			}
+		}
 	}
 
 	f := &format{
