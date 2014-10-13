@@ -534,3 +534,37 @@ func TestStdExcludeByFuncName(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func TestStdWithFlags(t *testing.T) {
+	var buf bytes.Buffer
+	std = New(LEVEL_DEBUG, &buf)
+	SetFlags(Llabel | Lprefix)
+
+	Debugln("Test 1")
+	WithFlags(0, Debugln, "Test 2")
+
+	expe := ":: [DEBUG] Test 1\nTest 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			"Incorrect file output!",
+			buf.String(), buf.String(), expe, expe)
+	}
+}
+
+func TestStdWithFlagsf(t *testing.T) {
+	var buf bytes.Buffer
+	std = New(LEVEL_DEBUG, &buf)
+	SetFlags(Llabel | Lprefix)
+
+	Debugln("Test 1")
+	WithFlagsf(0, Debugf, "%s\n", "Test 2")
+
+	expe := ":: [DEBUG] Test 1\nTest 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			"Incorrect file output!",
+			buf.String(), buf.String(), expe, expe)
+	}
+}

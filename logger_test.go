@@ -199,7 +199,7 @@ func TestFprintOutput(t *testing.T) {
 		logr.SetFlags(k.flags)
 		logr.SetLevel(k.level)
 		d := time.Now().Format(logr.DateFormat())
-		n, err := logr.Fprint(k.level, 1, k.text, &buf)
+		n, err := logr.Fprint(k.flags, k.level, 1, k.text, &buf)
 		if n != buf.Len() {
 			t.Error("Error: ", io.ErrShortWrite)
 		}

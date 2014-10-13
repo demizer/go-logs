@@ -220,7 +220,10 @@ const (
 	LstdFlags = Lprefix | Ldate | Lcolor | LnoFileAnsi | Llabel
 
 	// Special debug output flags
-	LdebugFlags = Lcolor | LfunctionName | LlineNumber | Lid | Ltree | LshowIndent | Llabel
+	LdebugFlags = Lcolor | LfunctionName | LlineNumber | Llabel
+
+	// Special debug outpt flags with hierarchy
+	LdebugTreeFlags = LdebugFlags | Ltree | Lid | Lindent | LshowIndent
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -355,139 +358,159 @@ func ExcludeByFuncName(names ...string) {
 	std.excludeFuncNames = names
 }
 
+// WithFlags uses flags to write output using the print function passed as f.
+func WithFlags(flags int, f func(...interface{}), args ...interface{}) {
+	cFlags := std.flags
+	std.SetFlags(flags)
+	f(args...)
+	std.SetFlags(cFlags)
+}
+
+// WithFlagsf uses flags to write output using the print function passed as f
+// with the format and arguments specified.
+func WithFlagsf(flags int, f func(string, ...interface{}),
+	format string, args ...interface{}) {
+	cFlags := std.flags
+	std.SetFlags(flags)
+	f(format, args...)
+	std.SetFlags(cFlags)
+}
+
 // Printf formats according to a format specifier and writes to standard
 // logger output stream(s).
 func Printf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_PRINT, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_PRINT, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Print sends output to the standard logger object output stream(s) regardless
 // of logging level. The output is formatted using the output template and
 // flags. Spaces are added between operands when neither is a string.
 func Print(v ...interface{}) {
-	std.Fprint(LEVEL_PRINT, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_PRINT, 2, fmt.Sprint(v...), nil)
 }
 
 // Println formats using the default formats for its operands and writes to the
 // standard logger output stream(s). Spaces are always added between operands and
 // a newline is appended.
 func Println(v ...interface{}) {
-	std.Fprint(LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
 }
 
 // Panicf is equivalent to Printf(), but panic() is called once output is
 // complete.
 func Panicf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 	panic(v)
 }
 
 // Panic is equivalent to Print(), but panic() is called once output is
 // complete.
 func Panic(v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 	panic(v)
 }
 
 // Panicln is equivalent to Println(), but panic() is called once output is
 // complete.
 func Panicln(v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 	panic(v)
 }
 
 // Debugf is similar to Printf(), except the colorized LEVEL_DEBUG label is
 // prefixed to the output.
 func Debugf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Debug is similar to Print(), except the colorized LEVEL_DEBUG label is
 // prefixed to the output.
 func Debug(v ...interface{}) {
-	std.Fprint(LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
 }
 
 // Debugln is similar to Println(), except the colorized LEVEL_DEBUG label is
 // prefixed to the output.
 func Debugln(v ...interface{}) {
-	std.Fprint(LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
 }
 
 // Infof is similar to Printf(), except the colorized LEVEL_INFO label is
 // prefixed to the output.
 func Infof(format string, v ...interface{}) {
-	std.Fprint(LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Info is similar to Print(), except the colorized LEVEL_INFO label is prefixed
 // to the output.
 func Info(v ...interface{}) {
-	std.Fprint(LEVEL_INFO, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_INFO, 2, fmt.Sprint(v...), nil)
 }
 
 // Infoln is similar to Println(), except the colorized LEVEL_INFO label is
 // prefixed to the output.
 func Infoln(v ...interface{}) {
-	std.Fprint(LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
 }
 
 // Warningf is similar to Printf(), except the colorized LEVEL_WARNING label is
 // prefixed to the output.
 func Warningf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Warning is similar to Print(), except the colorized LEVEL_WARNING label is
 // prefixed to the output.
 func Warning(v ...interface{}) {
-	std.Fprint(LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
 }
 
 // Warningln is similar to Println(), except the colorized LEVEL_WARNING label
 // is prefixed to the output.
 func Warningln(v ...interface{}) {
-	std.Fprint(LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
 }
 
 // Errorf is similar to Printf(), except the colorized LEVEL_ERROR label is
 // prefixed to the output.
 func Errorf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Error is similar to Print(), except the colorized LEVEL_ERROR label is
 // prefixed to the output.
 func Error(v ...interface{}) {
-	std.Fprint(LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
 }
 
 // Errorln is similar to Println(), except the colorized LEVEL_ERROR label is
 // prefixed to the output.
 func Errorln(v ...interface{}) {
-	std.Fprint(LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
 }
 
 // Criticalf is similar to Printf(), except the colorized LEVEL_CRITICAL label is
 // prefixed to the output.
 func Criticalf(format string, v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+	std.Fprint(std.flags, LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Critical is similar to Prin()t, except the colorized LEVEL_CRITICAL label is
 // prefixed to the output.
 func Critical(v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+	std.Fprint(std.flags, LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 }
 
 // Criticalln is similar to Println(), except the colorized LEVEL_CRITICAL label
 // is prefixed to the output.
 func Criticalln(v ...interface{}) {
-	std.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
+	std.Fprint(std.flags, LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
 
 // Fprint is used by all of the logging functions to send output to the output
 // stream.
+//
+// flags sets the output flags to use when writing the output.
 //
 // logLevel is the level of the output.
 //
@@ -503,7 +526,7 @@ func Criticalln(v ...interface{}) {
 // stream is nil, the stream value contained in the logger object is used.
 //
 // Fprint returns the number of bytes written to the stream or an error.
-func (l *Logger) Fprint(logLevel level, calldepth int,
+func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	text string, stream io.Writer) (n int, err error) {
 
 	if (logLevel != LEVEL_PRINT && l.level != LEVEL_PRINT) &&
@@ -530,14 +553,14 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree) != 0 ||
+	if flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree) != 0 ||
 		len(l.excludeFuncNames) > 0 {
 		// release lock while getting caller info - it's expensive.
 		l.mu.Unlock()
 
 		pgmC, file, line, _ = runtime.Caller(calldepth)
 
-		if l.flags&Ltree != 0 {
+		if flags&Ltree != 0 {
 			pc := make([]uintptr, 32)
 			pcNum := runtime.Callers(4, pc)
 			for i := 1; i < pcNum; i++ {
@@ -550,7 +573,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 			}
 		}
 
-		if l.flags&Lid != 0 {
+		if flags&Lid != 0 {
 			fAtPC := runtime.FuncForPC(pgmC)
 			fName = fAtPC.Name()
 			var idNum int
@@ -564,7 +587,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 			id = fmt.Sprintf("[%02.f]", float64(idNum))
 		}
 
-		if l.flags&LshortFileName != 0 {
+		if flags&LshortFileName != 0 {
 			short := file
 			for i := len(file) - 1; i > 0; i-- {
 				if file[i] == '/' {
@@ -575,7 +598,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 			file = short
 		}
 
-		if l.flags&LfunctionName != 0 || len(l.excludeFuncNames) > 0 {
+		if flags&LfunctionName != 0 || len(l.excludeFuncNames) > 0 {
 			fAtPC := runtime.FuncForPC(pgmC)
 			fName = fAtPC.Name()
 			for i := len(fName) - 1; i >= 0; i-- {
@@ -591,7 +614,7 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 
 	// Check excludes and skip output if matches are found
 	var iId int
-	if l.flags&(Lid) != 0 {
+	if flags&(Lid) != 0 {
 		for _, eId := range l.excludeIDs {
 			iId, _ = strconv.Atoi(id[1 : len(id)-1])
 			if iId == eId {
@@ -623,33 +646,33 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	var date string
 	var prefix string
 
-	if l.flags&Ldate != 0 {
+	if flags&Ldate != 0 {
 		date = now.Format(l.dateFormat)
 	}
 
-	if l.flags&Lprefix != 0 {
+	if flags&Lprefix != 0 {
 		prefix = l.prefix
 	}
 
-	if l.flags&LlineNumber == 0 {
+	if flags&LlineNumber == 0 {
 		line = 0
 	}
 
-	if l.flags&(LshortFileName|LlongFileName) == 0 {
+	if flags&(LshortFileName|LlongFileName) == 0 {
 		file = ""
 	}
 
-	if l.flags&LfunctionName == 0 {
+	if flags&LfunctionName == 0 {
 		fName = ""
 	}
 
 	var indent string
-	if indentCount > 0 || l.flags&Lindent != 0 {
+	if indentCount > 0 || flags&Lindent != 0 {
 		for i := 0; i < indentCount+l.indent; i++ {
 			for j := 0; j < l.tabStop; j++ {
-				if l.flags&LshowIndent != 0 && j == l.tabStop-1 {
+				if flags&LshowIndent != 0 && j == l.tabStop-1 {
 					indent += "|"
-				} else if l.flags&LshowIndent != 0 {
+				} else if flags&LshowIndent != 0 {
 					indent += "."
 				} else {
 					indent += " "
@@ -663,15 +686,15 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 	}
 
 	var label string
-	if l.flags&Llabel != 0 {
-		if l.flags&Lcolor != 0 {
+	if flags&Llabel != 0 {
+		if flags&Lcolor != 0 {
 			label = logLevel.AnsiLabel()
-			if l.flags&Ltree != 0 {
+			if flags&Ltree != 0 {
 				label = logLevel.AnsiStdLenLabel()
 			}
 		} else {
 			label = logLevel.Label()
-			if l.flags&Ltree != 0 {
+			if flags&Ltree != 0 {
 				label = logLevel.StdLenLabel()
 			}
 		}
@@ -697,15 +720,15 @@ func (l *Logger) Fprint(logLevel level, calldepth int,
 		panic(err)
 	}
 
-	if l.flags&Lcolor == 0 {
+	if flags&Lcolor == 0 {
 		strippedText = stripAnsi(out.String())
 	}
 
-	if trimedCount > 0 && l.flags&Lcolor == 0 {
+	if trimedCount > 0 && flags&Lcolor == 0 {
 		finalText = strings.Repeat("\n", trimedCount) + strippedText
-	} else if trimedCount > 0 && l.flags&Lcolor != 0 {
+	} else if trimedCount > 0 && flags&Lcolor != 0 {
 		finalText = strings.Repeat("\n", trimedCount) + out.String()
-	} else if l.flags&Lcolor == 0 {
+	} else if flags&Lcolor == 0 {
 		finalText = strippedText
 	} else {
 		finalText = out.String()
@@ -807,6 +830,24 @@ func (l *Logger) ExcludeByFuncName(names ...string) {
 	l.excludeFuncNames = names
 }
 
+// WithFlags uses flags to write output using the print function passed as f.
+func (l *Logger) WithFlags(flags int, f func(...interface{}), args ...interface{}) {
+	cFlags := l.flags
+	std.SetFlags(flags)
+	f(args...)
+	l.SetFlags(cFlags)
+}
+
+// WithFlagsf uses flags to write output using the print function passed as f
+// with the format and arguments specified.
+func (l *Logger) WithFlagsf(flags int, f func(string, ...interface{}),
+	format string, args ...interface{}) {
+	cFlags := l.flags
+	std.SetFlags(flags)
+	f(format, args...)
+	l.SetFlags(cFlags)
+}
+
 // Write writes the array of bytes (p) to all of the logger.Streams. If the
 // Lcolor flag is set, ansi escape codes are used to add coloring to the output.
 func (l *Logger) Write(p []byte) (wLen int, err error) {
@@ -840,108 +881,108 @@ func (l *Logger) Write(p []byte) (wLen int, err error) {
 
 // Printf is equivalent to log.Printf().
 func (l *Logger) Printf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_PRINT, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_PRINT, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Print is equivalent to log.Print().
 func (l *Logger) Print(v ...interface{}) {
-	l.Fprint(LEVEL_PRINT, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_PRINT, 2, fmt.Sprint(v...), nil)
 }
 
 // Println is equivalent to log.Println().
 func (l *Logger) Println(v ...interface{}) {
-	l.Fprint(LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_PRINT, 2, fmt.Sprintln(v...), nil)
 }
 
 // Panicf is equivalent to log.Panicf().
 func (l *Logger) Panicf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 	panic(v)
 }
 
 // Panic is equivalent to log.Panic().
 func (l *Logger) Panic(v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 	panic(v)
 }
 
 // Panicln is equivalent to log.Panicln().
 func (l *Logger) Panicln(v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 	panic(v)
 }
 
 // Debugf is equivalent to log.Debugf().
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_DEBUG, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Debug is equivalent to log.Debug().
 func (l *Logger) Debug(v ...interface{}) {
-	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_DEBUG, 2, fmt.Sprint(v...), nil)
 }
 
 // Debugln is equivalent to log.Debugln().
 func (l *Logger) Debugln(v ...interface{}) {
-	l.Fprint(LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_DEBUG, 2, fmt.Sprintln(v...), nil)
 }
 
 // Infof is equivalent to log.Infof().
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.Fprint(LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_INFO, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Info is equivalent to log.Info().
 func (l *Logger) Info(v ...interface{}) {
-	l.Fprint(LEVEL_INFO, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_INFO, 2, fmt.Sprint(v...), nil)
 }
 
 // Infoln is equivalent to log.Infoln().
 func (l *Logger) Infoln(v ...interface{}) {
-	l.Fprint(LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_INFO, 2, fmt.Sprintln(v...), nil)
 }
 
 // Warningf is equivalent to log.Warningf().
 func (l *Logger) Warningf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_WARNING, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Warning is equivalent to log.Warning().
 func (l *Logger) Warning(v ...interface{}) {
-	l.Fprint(LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_WARNING, 2, fmt.Sprint(v...), nil)
 }
 
 // Warningln is equivalent to log.Warningln().
 func (l *Logger) Warningln(v ...interface{}) {
-	l.Fprint(LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_WARNING, 2, fmt.Sprintln(v...), nil)
 }
 
 // Errorf is equivalent to log.Errorf().
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_ERROR, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Error is equivalent to log.Error().
 func (l *Logger) Error(v ...interface{}) {
-	l.Fprint(LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_ERROR, 2, fmt.Sprint(v...), nil)
 }
 
 // Errorln is equivalent to log.Errorln().
 func (l *Logger) Errorln(v ...interface{}) {
-	l.Fprint(LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_ERROR, 2, fmt.Sprintln(v...), nil)
 }
 
 // Criticalf is equivalent to log.Criticalf().
 func (l *Logger) Criticalf(format string, v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
+	l.Fprint(l.flags, LEVEL_CRITICAL, 2, fmt.Sprintf(format, v...), nil)
 }
 
 // Critical is equivalent to log.Critical().
 func (l *Logger) Critical(v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
+	l.Fprint(l.flags, LEVEL_CRITICAL, 2, fmt.Sprint(v...), nil)
 }
 
 // Criticalln is equivalent to log.Criticalln().
 func (l *Logger) Criticalln(v ...interface{}) {
-	l.Fprint(LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
+	l.Fprint(l.flags, LEVEL_CRITICAL, 2, fmt.Sprintln(v...), nil)
 }
