@@ -1308,3 +1308,37 @@ func TestExcludeByFuncName(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func TestWithFlags(t *testing.T) {
+	var buf bytes.Buffer
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(Llabel | Lprefix)
+
+	logr.Debugln("Test 1")
+	logr.WithFlags(0, logr.Debugln, "Test 2")
+
+	expe := ":: [DEBUG] Test 1\nTest 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			"Incorrect output!",
+			buf.String(), buf.String(), expe, expe)
+	}
+}
+
+func TestWithFlagsf(t *testing.T) {
+	var buf bytes.Buffer
+	logr := New(LEVEL_DEBUG, &buf)
+	logr.SetFlags(Llabel | Lprefix)
+
+	logr.Debugln("Test 1")
+	logr.WithFlagsf(0, logr.Debugf, "%s\n", "Test 2")
+
+	expe := ":: [DEBUG] Test 1\nTest 2\n"
+
+	if buf.String() != expe {
+		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
+			"Incorrect output!",
+			buf.String(), buf.String(), expe, expe)
+	}
+}

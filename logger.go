@@ -833,7 +833,7 @@ func (l *Logger) ExcludeByFuncName(names ...string) {
 // WithFlags uses flags to write output using the print function passed as f.
 func (l *Logger) WithFlags(flags int, f func(...interface{}), args ...interface{}) {
 	cFlags := l.flags
-	std.SetFlags(flags)
+	l.SetFlags(flags)
 	f(args...)
 	l.SetFlags(cFlags)
 }
@@ -843,7 +843,7 @@ func (l *Logger) WithFlags(flags int, f func(...interface{}), args ...interface{
 func (l *Logger) WithFlagsf(flags int, f func(string, ...interface{}),
 	format string, args ...interface{}) {
 	cFlags := l.flags
-	std.SetFlags(flags)
+	l.SetFlags(flags)
 	f(format, args...)
 	l.SetFlags(cFlags)
 }
