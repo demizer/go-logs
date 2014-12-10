@@ -564,11 +564,6 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 			pc := make([]uintptr, 32)
 			pcNum := runtime.Callers(4, pc)
 			for i := 1; i < pcNum; i++ {
-				pcFunc := runtime.FuncForPC(pc[i])
-				funcName := pcFunc.Name()
-				if funcName == "runtime.goexit" {
-					continue
-				}
 				indentCount += 1
 			}
 		}
