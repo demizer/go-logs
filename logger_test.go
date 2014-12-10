@@ -440,8 +440,8 @@ func TestLindentWithLshowIndent(t *testing.T) {
 	logr.SetIndent(0).Debugln("Level 0 Output 1")
 
 	expe := "\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 1 Output 2\n" +
 		"\x1b[38;5;231m[DEBUG]\x1b[0;00m Level 0 Output 1\n"
 
 	if buf.String() != expe {
@@ -475,13 +475,13 @@ func TestSetIndentWithLindentAndLtree(t *testing.T) {
 	lvl1()
 	logr.Debugln("Level 0 Output 2")
 
-	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
+	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...|...|...\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 2\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 3\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -517,7 +517,7 @@ func TestSetIndentWithLindentAndLtreeMinus2Indent(t *testing.T) {
 	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 1\n" +
 		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 1\n" +
 		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 3 Output 1\n" +
 		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 2\n" +
 		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 3\n" +
 		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 2\n"
@@ -619,14 +619,14 @@ func TestStandardLabelLength(t *testing.T) {
 	lvl1()
 	logr.Println("Level 0 Output 2")
 
-	expe := "       \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 1\n" +
-		"\x1b[38;5;196m[CRIT]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;202m[EROR]\x1b[0;00m \x1b[38;5;31m...|...|...|...|\x1b[0;00mLevel 3 Output 2\n" +
-		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m...|...|...|\x1b[0;00mLevel 2 Output 2\n" +
-		"\x1b[38;5;228m[WARN]\x1b[0;00m \x1b[38;5;31m...|...|\x1b[0;00mLevel 1 Output 3\n" +
-		"       \x1b[38;5;31m...|\x1b[0;00mLevel 0 Output 2\n"
+	expe := "       \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 1\n" +
+		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 1\n" +
+		"\x1b[38;5;196m[CRIT]\x1b[0;00m \x1b[38;5;31m|...|...|...|...\x1b[0;00mLevel 3 Output 1\n" +
+		"\x1b[38;5;202m[EROR]\x1b[0;00m \x1b[38;5;31m|...|...|...|...\x1b[0;00mLevel 3 Output 2\n" +
+		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 2\n" +
+		"\x1b[38;5;228m[WARN]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 3\n" +
+		"       \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -660,14 +660,14 @@ func TestStandardLabelLengthNoColor(t *testing.T) {
 	lvl1()
 	logr.Println("Level 0 Output 2")
 
-	expe := "       ...|Level 0 Output 1\n" +
-		"[DBUG] ...|...|Level 1 Output 1\n" +
-		"[INFO] ...|...|...|Level 2 Output 1\n" +
-		"[CRIT] ...|...|...|...|Level 3 Output 1\n" +
-		"[EROR] ...|...|...|...|Level 3 Output 2\n" +
-		"[INFO] ...|...|...|Level 2 Output 2\n" +
-		"[WARN] ...|...|Level 1 Output 3\n" +
-		"       ...|Level 0 Output 2\n"
+	expe := "       |...Level 0 Output 1\n" +
+		"[DBUG] |...|...Level 1 Output 1\n" +
+		"[INFO] |...|...|...Level 2 Output 1\n" +
+		"[CRIT] |...|...|...|...Level 3 Output 1\n" +
+		"[EROR] |...|...|...|...Level 3 Output 2\n" +
+		"[INFO] |...|...|...Level 2 Output 2\n" +
+		"[WARN] |...|...Level 1 Output 3\n" +
+		"       |...Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -1092,23 +1092,23 @@ var excludeIDtests = []struct {
 	expect string
 }{
 	{name: "Test excluding one ID", ids: []int{1}, flags: Lid | Ltree | LshowIndent,
-		expect: "[00] Hello!\n[02] ...|...|should be suppressed.\n" +
-			"[03] ...|...|...|Almost forgot...\n" +
-			"[02] ...|...|but we'll find out!\n" +
+		expect: "[00] Hello!\n[02] |...|...should be suppressed.\n" +
+			"[03] |...|...|...Almost forgot...\n" +
+			"[02] |...|...but we'll find out!\n" +
 			"[00] Goodbye!\n",
 	},
 	{name: "Test excluding two IDs", ids: []int{1, 3}, flags: Lid | Ltree | LshowIndent,
-		expect: "[00] Hello!\n[02] ...|...|should be suppressed.\n" +
-			"[02] ...|...|but we'll find out!\n" +
+		expect: "[00] Hello!\n[02] |...|...should be suppressed.\n" +
+			"[02] |...|...but we'll find out!\n" +
 			"[00] Goodbye!\n",
 	},
 	{name: "Test excluding two IDs without Lid", ids: []int{1, 3}, flags: Ltree | LshowIndent,
 		expect: "Hello!\n" +
-			"...|The things\n" +
-			"...|...|should be suppressed.\n" +
-			"...|...|...|Almost forgot...\n" +
-			"...|...|but we'll find out!\n" +
-			"...|that can be suppressed.\n" +
+			"|...The things\n" +
+			"|...|...should be suppressed.\n" +
+			"|...|...|...Almost forgot...\n" +
+			"|...|...but we'll find out!\n" +
+			"|...that can be suppressed.\n" +
 			"Goodbye!\n",
 	},
 	{name: "Test excluding two IDs with only Lid", ids: []int{1, 3}, flags: Lid,
@@ -1189,9 +1189,9 @@ var excludeByStringTests = []struct {
 	{name: "Exclude two words", flags: Ltree | Lcolor | Lindent | Lid | LshowIndent,
 		input: []string{"forgot", "we'll"},
 		expect: "[00] Hello!\n" +
-			"[01] \x1b[38;5;31m...|\x1b[0;00mThe things\n" +
-			"[02] \x1b[38;5;31m...|...|\x1b[0;00mshould be suppressed.\n" +
-			"[01] \x1b[38;5;31m...|\x1b[0;00mthat can be suppressed.\n" +
+			"[01] \x1b[38;5;31m|...\x1b[0;00mThe things\n" +
+			"[02] \x1b[38;5;31m|...|...\x1b[0;00mshould be suppressed.\n" +
+			"[01] \x1b[38;5;31m|...\x1b[0;00mthat can be suppressed.\n" +
 			"[00] Goodbye!\n",
 	},
 }
@@ -1280,10 +1280,10 @@ var excludeByFuncNameTests = []struct {
 	},
 	{name: "Exclude two function names", flags: Ltree | LfunctionName | Lcolor | Lindent | Lid | LshowIndent,
 		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName", "testLvl3"},
-		expect: "[01] \x1b[38;5;31m...|\x1b[0;00mtestLvl1: The things\n" +
-			"[02] \x1b[38;5;31m...|...|\x1b[0;00mtestLvl2: should be suppressed.\n" +
-			"[02] \x1b[38;5;31m...|...|\x1b[0;00mtestLvl2: but we'll find out!\n" +
-			"[01] \x1b[38;5;31m...|\x1b[0;00mtestLvl1: that can be suppressed.\n",
+		expect: "[01] \x1b[38;5;31m|...\x1b[0;00mtestLvl1: The things\n" +
+			"[02] \x1b[38;5;31m|...|...\x1b[0;00mtestLvl2: should be suppressed.\n" +
+			"[02] \x1b[38;5;31m|...|...\x1b[0;00mtestLvl2: but we'll find out!\n" +
+			"[01] \x1b[38;5;31m|...\x1b[0;00mtestLvl1: that can be suppressed.\n",
 	},
 }
 

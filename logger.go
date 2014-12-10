@@ -632,8 +632,7 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 		}
 	}
 
-	// Reset the buffer
-	l.buf = l.buf[:0]
+	l.buf = l.buf[:0] // Reset!
 
 	trimText := strings.TrimLeft(text, "\n")
 	trimedCount := len(text) - len(trimText)
@@ -670,7 +669,7 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	if indentCount > 0 || flags&Lindent != 0 {
 		for i := 0; i < indentCount+l.indent; i++ {
 			for j := 0; j < l.tabStop; j++ {
-				if flags&LshowIndent != 0 && j == l.tabStop-1 {
+				if flags&LshowIndent != 0 && j == 0 {
 					indent += "|"
 				} else if flags&LshowIndent != 0 {
 					indent += "."
