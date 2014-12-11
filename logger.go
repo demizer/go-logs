@@ -211,7 +211,13 @@ const (
 	Lindent
 
 	// Indent output based on stack position of logging function calls
+	// Useful for testing or debugging.
 	Ltree
+
+	// Indent output based on *encountered* position. This prevents
+	// inconsistent heirarchical log output from functions higher up the
+	// stack then the calling function.
+	LtreeTrim
 
 	// Show the label for output
 	Llabel
@@ -242,8 +248,10 @@ type Logger struct {
 	prefix           string             // Inserted into every logging output
 	streams          []io.Writer        // Destination for output
 	indent           int                // Number of indents to use
-	tabStop          int                // Number of spaces considered to be a tab stop
-	excludeIDs       []int              // Exclude by whatever things
+	indentLevel      int
+	lastIndent       int
+	tabStop          int   // Number of spaces considered to be a tab stop
+	excludeIDs       []int // Exclude by whatever things
 	excludeFuncNames []string
 	excludeStrings   []string
 }
@@ -257,14 +265,15 @@ var (
 func New(level level, streams ...io.Writer) (obj *Logger) {
 	tmpl := template.Must(template.New("default").Funcs(funcMap).Parse(logFmt))
 	obj = &Logger{
-		ids:        make(map[string]int),
-		streams:    streams,
-		dateFormat: defaultDate,
-		flags:      LstdFlags,
-		level:      level,
-		template:   tmpl,
-		prefix:     defaultPrefixColor,
-		tabStop:    4,
+		ids:         make(map[string]int),
+		streams:     streams,
+		dateFormat:  defaultDate,
+		flags:       LstdFlags,
+		level:       level,
+		template:    tmpl,
+		prefix:      defaultPrefixColor,
+		tabStop:     4,
+		indentLevel: -1,
 	}
 	return
 }
@@ -553,19 +562,36 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree) != 0 ||
+	if flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree|LtreeTrim) != 0 ||
 		len(l.excludeFuncNames) > 0 {
+
 		// release lock while getting caller info - it's expensive.
-		l.mu.Unlock()
+		// l.mu.Unlock()
 
 		pgmC, file, line, _ = runtime.Caller(calldepth)
 
-		if flags&Ltree != 0 {
+		if flags&Ltree != 0 && flags&LtreeTrim == 0 {
 			pc := make([]uintptr, 32)
 			pcNum := runtime.Callers(4, pc)
 			for i := 1; i < pcNum; i++ {
 				indentCount += 1
 			}
+		}
+
+		if flags&Ltree == 0 && flags&LtreeTrim != 0 {
+			pc := make([]uintptr, 32)
+			pcNum := runtime.Callers(4, pc)
+			sCount := 0
+			for i := 1; i < pcNum; i++ {
+				sCount += 1
+			}
+			if l.lastIndent < sCount {
+				l.indentLevel++
+			} else if l.lastIndent > sCount {
+				l.indentLevel--
+			}
+			l.lastIndent = sCount
+			indentCount = l.indentLevel
 		}
 
 		if flags&Lid != 0 {
@@ -604,7 +630,7 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 			}
 		}
 
-		l.mu.Lock()
+		// l.mu.Lock()
 	}
 
 	// Check excludes and skip output if matches are found
@@ -683,12 +709,12 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	if flags&Llabel != 0 {
 		if flags&Lcolor != 0 {
 			label = logLevel.AnsiLabel()
-			if flags&Ltree != 0 {
+			if flags&Ltree != 0 || flags&LtreeTrim != 0 {
 				label = logLevel.AnsiStdLenLabel()
 			}
 		} else {
 			label = logLevel.Label()
-			if flags&Ltree != 0 {
+			if flags&Ltree != 0 || flags&LtreeTrim != 0 {
 				label = logLevel.StdLenLabel()
 			}
 		}
