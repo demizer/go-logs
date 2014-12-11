@@ -219,6 +219,9 @@ const (
 	// stack then the calling function.
 	LtreeTrim
 
+	// Show function entry and exit
+	LinOut
+
 	// Show the label for output
 	Llabel
 
