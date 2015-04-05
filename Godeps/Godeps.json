@@ -1,0 +1,10 @@
+{
+	"ImportPath": "github.com/demizer/go-elog",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/aybabtme/rgbterm",
+			"Rev": "9e3d038e1b8341ed7416c841a884cab4a3487941"
+		}
+	]
+}
