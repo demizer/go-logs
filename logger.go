@@ -228,8 +228,11 @@ const (
 	// Special debug output flags
 	LdebugFlags = Lcolor | LfunctionName | LlineNumber | Llabel
 
-	// Special debug outpt flags with hierarchy
+	// Special debug output flags with tree hierarchy
 	LdebugTreeFlags = LdebugFlags | Ltree | Lid | Lindent | LshowIndent
+
+	// Special debug output flags with encountered tree hierarchy
+	LdebugTreeTrimFlags = LdebugFlags | LtreeTrim | Lid | LshowIndent
 )
 
 // A Logger represents an active logging object that generates lines of output
