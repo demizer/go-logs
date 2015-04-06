@@ -9,8 +9,8 @@ import "text/template"
 var (
 	funcMap = template.FuncMap{}
 	logFmt  = "{{if .Date}}{{.Date}} {{end}}" +
-		"{{if .Prefix}}{{.Prefix}} {{end}}" +
 		"{{if .LogLabel}}{{.LogLabel}} {{end}}" +
+		"{{if .Seperator}}{{.Seperator}} {{end}}" +
 		"{{if .Id}}{{.Id}} {{end}}" +
 		"{{if .Indent}}{{.Indent}}{{end}}" +
 		"{{if .FileName}}{{.FileName}}: {{end}}" +
@@ -21,7 +21,7 @@ var (
 
 // format is the possible values that can be used in a log output format
 type format struct {
-	Prefix       string
+	Seperator    string
 	LogLabel     string
 	Date         string
 	FileName     string

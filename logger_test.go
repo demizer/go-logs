@@ -91,7 +91,7 @@ var date = "Mon 20060102 15:04:05"
 
 var fprintOutputTests = []struct {
 	template   string
-	prefix     string
+	seperator  string
 	level      level
 	dateFormat string
 	flags      int
@@ -99,10 +99,10 @@ var fprintOutputTests = []struct {
 	expect     string
 	expectErr  bool
 }{
-	// Test with color prefix
+	// Test with color seperator
 	{
 		template:   logFmt,
-		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.String("TEST>", 0, 255, 0),
 		level:      LEVEL_PRINT,
 		dateFormat: date,
 		flags:      LstdFlags,
@@ -114,10 +114,10 @@ var fprintOutputTests = []struct {
 	// Test output with coloring turned off
 	{
 		template:   logFmt,
-		prefix:     "TEST>",
+		seperator:  "TEST>",
 		level:      LEVEL_PRINT,
 		dateFormat: date,
-		flags:      Ldate | Lprefix,
+		flags:      Ldate | Lseperator,
 		text:       "test number 2",
 		expect:     "%s TEST> test number 2",
 		expectErr:  false,
@@ -125,7 +125,7 @@ var fprintOutputTests = []struct {
 	// Test debug output
 	{
 		template:   logFmt,
-		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.String("TEST>", 0, 255, 0),
 		level:      LEVEL_DEBUG,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -136,7 +136,7 @@ var fprintOutputTests = []struct {
 	// Test info output
 	{
 		template:   logFmt,
-		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.String("TEST>", 0, 255, 0),
 		level:      LEVEL_INFO,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -147,7 +147,7 @@ var fprintOutputTests = []struct {
 	// Test warning output
 	{
 		template:   logFmt,
-		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.String("TEST>", 0, 255, 0),
 		level:      LEVEL_WARNING,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -158,7 +158,7 @@ var fprintOutputTests = []struct {
 	// Test error output
 	{
 		template:   logFmt,
-		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.String("TEST>", 0, 255, 0),
 		level:      LEVEL_ERROR,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -169,7 +169,7 @@ var fprintOutputTests = []struct {
 	// Test critical output
 	{
 		template:   logFmt,
-		prefix:     rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.String("TEST>", 0, 255, 0),
 		level:      LEVEL_CRITICAL,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -180,7 +180,7 @@ var fprintOutputTests = []struct {
 	// Test date format
 	{
 		template:   logFmt,
-		prefix:     "::",
+		seperator:  "::",
 		level:      LEVEL_PRINT,
 		dateFormat: "Mon 20060102 15:04:05",
 		flags:      LstdFlags,
@@ -194,7 +194,7 @@ func TestFprintOutput(t *testing.T) {
 	for i, k := range fprintOutputTests {
 		var buf bytes.Buffer
 		logr := New(LEVEL_DEBUG, &buf)
-		logr.SetPrefix(k.prefix)
+		logr.SetSeperator(k.seperator)
 		logr.SetDateFormat(k.dateFormat)
 		logr.SetFlags(k.flags)
 		logr.SetLevel(k.level)
@@ -787,17 +787,17 @@ func TestFlags(t *testing.T) {
 	}
 }
 
-func TestPrefix(t *testing.T) {
+func TestSeperator(t *testing.T) {
 	logr := New(LEVEL_INFO)
 
-	logr.SetPrefix("TEST::")
+	logr.SetSeperator("%%")
 
-	prefix := logr.Prefix()
+	seperator := logr.Seperator()
 
-	expect := "TEST::"
+	expect := "%%"
 
-	if prefix != expect {
-		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", prefix, expect)
+	if seperator != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", seperator, expect)
 	}
 }
 
@@ -878,7 +878,7 @@ func TestTabStop(t *testing.T) {
 func TestLnoFileAnsi(t *testing.T) {
 	logr := New(LEVEL_DEBUG)
 
-	logr.SetFlags(Lprefix | Llabel | Lcolor | LnoFileAnsi)
+	logr.SetFlags(Lseperator | Llabel | Lcolor | LnoFileAnsi)
 
 	f, err := ioutil.TempFile("/tmp", "go-elog-test-")
 	defer f.Close()
@@ -1312,7 +1312,7 @@ func TestExcludeByFuncName(t *testing.T) {
 func TestWithFlags(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(Llabel | Lprefix)
+	logr.SetFlags(Llabel | Lseperator)
 
 	logr.Debugln("Test 1")
 	logr.WithFlags(0, logr.Debugln, "Test 2")
@@ -1329,7 +1329,7 @@ func TestWithFlags(t *testing.T) {
 func TestWithFlagsf(t *testing.T) {
 	var buf bytes.Buffer
 	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(Llabel | Lprefix)
+	logr.SetFlags(Llabel | Lseperator)
 
 	logr.Debugln("Test 1")
 	logr.WithFlagsf(0, logr.Debugf, "%s\n", "Test 2")

@@ -165,15 +165,15 @@ func TestStdLevel(t *testing.T) {
 	}
 }
 
-func TestStdPrefix(t *testing.T) {
-	SetPrefix("TEST::")
+func TestStdSeperator(t *testing.T) {
+	SetSeperator("%%")
 
-	prefix := Prefix()
+	seperator := Seperator()
 
-	expect := "TEST::"
+	expect := "%%"
 
-	if prefix != expect {
-		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", prefix, expect)
+	if seperator != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", seperator, expect)
 	}
 }
 
@@ -249,7 +249,7 @@ func TestStdTabStop(t *testing.T) {
 // and output sent to a file does not.
 func TestStdLnoFileAnsi(t *testing.T) {
 	std = New(LEVEL_DEBUG)
-	SetFlags(Lprefix | Llabel | Lcolor | LnoFileAnsi)
+	SetFlags(Lseperator | Llabel | Lcolor | LnoFileAnsi)
 
 	f, err := ioutil.TempFile("/tmp", "go-elog-test-")
 	defer f.Close()
@@ -538,7 +538,7 @@ func TestStdExcludeByFuncName(t *testing.T) {
 func TestStdWithFlags(t *testing.T) {
 	var buf bytes.Buffer
 	std = New(LEVEL_DEBUG, &buf)
-	SetFlags(Llabel | Lprefix)
+	SetFlags(Llabel | Lseperator)
 
 	Debugln("Test 1")
 	WithFlags(0, Debugln, "Test 2")
@@ -555,7 +555,7 @@ func TestStdWithFlags(t *testing.T) {
 func TestStdWithFlagsf(t *testing.T) {
 	var buf bytes.Buffer
 	std = New(LEVEL_DEBUG, &buf)
-	SetFlags(Llabel | Lprefix)
+	SetFlags(Llabel | Lseperator)
 
 	Debugln("Test 1")
 	WithFlagsf(0, Debugf, "%s\n", "Test 2")

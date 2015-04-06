@@ -167,10 +167,10 @@ const (
 )
 
 var (
-	defaultDate        = "Mon Jan 02 15:04:05 MST 2006"
-	defaultPrefix      = "::"
-	defaultPrefixColor = rgbterm.String("::", 0, 255, 135) // Green
-	defaultIndentColor = []uint8{0, 135, 175}              // Grayish blue
+	defaultDate           = "Mon Jan 02 15:04:05 MST 2006"
+	defaultSeperator      = "::"
+	defaultSeperatorColor = rgbterm.String("::", 0, 255, 135) // Green
+	defaultIndentColor    = []uint8{0, 135, 175}              // Grayish blue
 )
 
 // Flags are used to control the formatting of the logging output.
@@ -200,8 +200,8 @@ const (
 	// Disable ansi in file output
 	LnoFileAnsi
 
-	// Show prefix output
-	Lprefix
+	// Show seperator
+	Lseperator
 
 	// Show ids for functions generating output. Useful for disabling
 	// specific output
@@ -223,7 +223,7 @@ const (
 	Llabel
 
 	// initial values for the standard logger
-	LstdFlags = Lprefix | Ldate | Lcolor | LnoFileAnsi | Llabel
+	LstdFlags = Lseperator | Ldate | Lcolor | LnoFileAnsi | Llabel
 
 	// Special debug output flags
 	LdebugFlags = Lcolor | LfunctionName | LlineNumber | Llabel
@@ -248,7 +248,7 @@ type Logger struct {
 	lastId           int                // The last id level encountered
 	ids              map[string]int     // A map of encountered function names with corresponding ID
 	template         *template.Template // The format order of the output
-	prefix           string             // Inserted into every logging output
+	seperator        string             // Inserted into every logging output
 	streams          []io.Writer        // Destination for output
 	indent           int                // Number of indents to use
 	indentLevel      int
@@ -274,7 +274,7 @@ func New(level level, streams ...io.Writer) (obj *Logger) {
 		flags:       LstdFlags,
 		level:       level,
 		template:    tmpl,
-		prefix:      defaultPrefixColor,
+		seperator:   defaultSeperatorColor,
 		tabStop:     4,
 		indentLevel: -1,
 	}
@@ -316,12 +316,12 @@ func Level() level { return std.level }
 // Set the logging level of the standard logging object.
 func SetLevel(level level) { std.level = level }
 
-// Get the logging prefix used by the standard logging object. By default it is
+// Get the logging seperator used by the standard logging object. By default it is
 // "::".
-func Prefix() string { return std.prefix }
+func Seperator() string { return std.seperator }
 
-// Set the logging prefix of the standard logging object.
-func SetPrefix(prefix string) { std.prefix = prefix }
+// Set the logging seperator of the standard logging object.
+func SetSeperator(seperator string) { std.seperator = seperator }
 
 // Streams get the output streams of the standard logger
 func Streams() []io.Writer { return std.streams }
@@ -667,14 +667,14 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	}
 
 	var date string
-	var prefix string
+	var seperator string
 
 	if flags&Ldate != 0 {
 		date = now.Format(l.dateFormat)
 	}
 
-	if flags&Lprefix != 0 {
-		prefix = l.prefix
+	if flags&Lseperator != 0 {
+		seperator = l.seperator
 	}
 
 	if flags&LlineNumber == 0 {
@@ -724,7 +724,7 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	}
 
 	f := &format{
-		Prefix:       prefix,
+		Seperator:    seperator,
 		LogLabel:     label,
 		Date:         date,
 		FileName:     file,
@@ -748,9 +748,9 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	}
 
 	if trimedCount > 0 && flags&Lcolor == 0 {
-		finalText = strings.Repeat("\n", trimedCount) + strippedText
+		finalText = text[:trimedCount] + strippedText
 	} else if trimedCount > 0 && flags&Lcolor != 0 {
-		finalText = strings.Repeat("\n", trimedCount) + out.String()
+		finalText = text[:trimedCount] + out.String()
 	} else if flags&Lcolor == 0 {
 		finalText = strippedText
 	} else {
@@ -801,11 +801,11 @@ func (l *Logger) Level() level { return l.level }
 // Set the logging level of the logging object.
 func (l *Logger) SetLevel(level level) { l.level = level }
 
-// Get the logging prefix used by the logging object. By default it is "::".
-func (l *Logger) Prefix() string { return l.prefix }
+// Get the logging seperator used by the logging object. By default it is "::".
+func (l *Logger) Seperator() string { return l.seperator }
 
-// Set the logging prefix of the logging object.
-func (l *Logger) SetPrefix(prefix string) { l.prefix = prefix }
+// Set the logging seperator of the logging object.
+func (l *Logger) SetSeperator(seperator string) { l.seperator = seperator }
 
 // Get the output streams of the logger
 func (l *Logger) Streams() []io.Writer { return l.streams }
