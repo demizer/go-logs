@@ -58,7 +58,7 @@ func TestLongFileFlag(t *testing.T) {
 	logr.SetFlags(LlongFileName | Llabel)
 	logr.Debugln("Test long file flag")
 	_, file, _, _ := runtime.Caller(0)
-	expect := fmt.Sprintf("  [DEBUG]    %s: Test long file flag\n", file)
+	expect := fmt.Sprintf("[DEBUG]    %s: Test long file flag\n", file)
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -81,7 +81,7 @@ func TestShortFileFlag(t *testing.T) {
 	}
 
 	file = short
-	expect := fmt.Sprintf("  [DEBUG]    %s: Test short file flag\n", file)
+	expect := fmt.Sprintf("[DEBUG]    %s: Test short file flag\n", file)
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -130,7 +130,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 3",
-		expect:     "%s \x1b[38;5;231m  [DEBUG]   \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 3",
+		expect:     "%s \x1b[38;5;231m[DEBUG]   \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 3",
 		expectErr:  false,
 	},
 	// Test info output
@@ -141,7 +141,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 4",
-		expect:     "%s \x1b[38;5;41m   [INFO]   \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 4",
+		expect:     "%s \x1b[38;5;41m[INFO]    \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 4",
 		expectErr:  false,
 	},
 	// Test warning output
@@ -152,7 +152,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 5",
-		expect:     "%s \x1b[38;5;228m [WARNING]  \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 5",
+		expect:     "%s \x1b[38;5;228m[WARNING] \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 5",
 		expectErr:  false,
 	},
 	// Test error output
@@ -163,7 +163,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 6",
-		expect:     "%s \x1b[38;5;202m   [ERROR]   \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 6",
+		expect:     "%s \x1b[38;5;202m[ERROR]   \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 6",
 		expectErr:  false,
 	},
 	// Test critical output
@@ -174,7 +174,7 @@ var fprintOutputTests = []struct {
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
 		text:       "test number 7",
-		expect:     "%s \x1b[38;5;196m [CRITICAL] \x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 7",
+		expect:     "%s \x1b[38;5;196m[CRITICAL]\x1b[0;00m \x1b[38;5;46mTEST>\x1b[0;00m test number 7",
 		expectErr:  false,
 	},
 	// Test date format
@@ -303,7 +303,7 @@ func TestFlagsNoLcolorWithNewlinePadding(t *testing.T) {
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Llabel)
 	logr.Debug("\n\nThis output should be padded with newlines and not colored.\n\n")
-	expect := "\n\n  [DEBUG]    This output should be padded with newlines and not colored.\n\n"
+	expect := "\n\n[DEBUG]    This output should be padded with newlines and not colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -315,7 +315,7 @@ func TestFlagsLcolorWithNewlinePaddingDebug(t *testing.T) {
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Lcolor | Llabel)
 	logr.Debug("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBUG]   \x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
@@ -328,14 +328,14 @@ func TestFlagsLcolorWithNewlinePaddingDebugf(t *testing.T) {
 	logr.SetFlags(Lcolor | Llabel)
 	logr.Debugf("\n\nThis output should be padded with newlines and %s.\n\n",
 		"colored")
-	expect := "\n\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBUG]   \x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	logr.Debugf("\n\n##### HELLO %s #####\n\n", "NEWMAN")
-	expect = "\n\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m ##### HELLO NEWMAN #####\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBUG]   \x1b[0;00m ##### HELLO NEWMAN #####\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -346,20 +346,20 @@ func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	logr := New(LEVEL_PRINT, &buf)
 	logr.SetFlags(Lcolor | Llabel)
 	logr.Debugln("\n\nThis output should be padded with newlines and colored.\n\n")
-	expect := "\n\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m This output should be " +
+	expect := "\n\n\x1b[38;5;231m[DEBUG]   \x1b[0;00m This output should be " +
 		"padded with newlines and colored.\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	logr.Debugln("\n\n", "### HELLO", "NEWMAN", "###", "\n\n")
-	expect = "\n\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBUG]   \x1b[0;00m  ### HELLO NEWMAN ### \n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
 	buf.Reset()
 	logr.Debugln("\n\n### HELLO", "NEWMAN", "###\n\n")
-	expect = "\n\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
+	expect = "\n\n\x1b[38;5;231m[DEBUG]   \x1b[0;00m ### HELLO NEWMAN ###\n\n\n"
 	if buf.String() != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", buf.String(), expect)
 	}
@@ -417,10 +417,10 @@ func TestSetIndentDebugln(t *testing.T) {
 	logr.Debugln("Level 1 Output 2")
 	logr.SetIndent(0).Debugln("Level 0 Output 1")
 
-	expe := "\x1b[38;5;231m  [DEBUG]   \x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m  [DEBUG]   \x1b[0;00m     Level 1 Output 1\n" +
-		"\x1b[38;5;231m  [DEBUG]   \x1b[0;00m     Level 1 Output 2\n" +
-		"\x1b[38;5;231m  [DEBUG]   \x1b[0;00m Level 0 Output 1\n"
+	expe := "\x1b[38;5;231m[DEBUG]   \x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]   \x1b[0;00m     Level 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]   \x1b[0;00m     Level 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]   \x1b[0;00m Level 0 Output 1\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -439,10 +439,10 @@ func TestLindentWithLshowIndent(t *testing.T) {
 	logr.Debugln("Level 1 Output 2")
 	logr.SetIndent(0).Debugln("Level 0 Output 1")
 
-	expe := "\x1b[38;5;231m  [DEBUG]   \x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m  [DEBUG]   \x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m  [DEBUG]   \x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 1 Output 2\n" +
-		"\x1b[38;5;231m  [DEBUG]   \x1b[0;00m Level 0 Output 1\n"
+	expe := "\x1b[38;5;231m[DEBUG]   \x1b[0;00m Level 0 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]   \x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 1 Output 1\n" +
+		"\x1b[38;5;231m[DEBUG]   \x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 1 Output 2\n" +
+		"\x1b[38;5;231m[DEBUG]   \x1b[0;00m Level 0 Output 1\n"
 
 	if buf.String() != expe {
 		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -829,7 +829,7 @@ func TestIndent(t *testing.T) {
 
 	indent := logr.Indent()
 
-	expe := "  [DEBUG]    Test 1\n  [DEBUG]            Test 2\n"
+	expe := "[DEBUG]    Test 1\n[DEBUG]            Test 2\n"
 	expi := 2
 
 	if buf.String() != expe {
@@ -860,7 +860,7 @@ func TestTabStop(t *testing.T) {
 
 	tabStop := logr.TabStop()
 
-	expe := "  [DEBUG]      Test 1\n  [DEBUG]            Test 2\n"
+	expe := "[DEBUG]      Test 1\n[DEBUG]            Test 2\n"
 	expt := 4
 
 	if buf.String() != expe {
@@ -903,9 +903,9 @@ func TestLnoFileAnsi(t *testing.T) {
 	fOut, _ := ioutil.ReadFile(f.Name())
 	stdOut, _ := ioutil.ReadAll(r)
 
-	expe := "  [DEBUG]    :: Test 1\n  [DEBUG]    :: Test 2\n"
-	expeStdout := "\x1b[38;5;231m  [DEBUG]   \x1b[0;00m \x1b[38;5;48m::" +
-		"\x1b[0;00m Test 1\n\x1b[38;5;231m  [DEBUG]   " +
+	expe := "[DEBUG]    :: Test 1\n[DEBUG]    :: Test 2\n"
+	expeStdout := "\x1b[38;5;231m[DEBUG]   \x1b[0;00m \x1b[38;5;48m::" +
+		"\x1b[0;00m Test 1\n\x1b[38;5;231m[DEBUG]   " +
 		"\x1b[0;00m \x1b[38;5;48m::\x1b[0;00m Test 2\n"
 
 	if string(fOut) != expe {
@@ -1005,7 +1005,7 @@ func TestPanic(t *testing.T) {
 
 	logr.SetFlags(Llabel)
 
-	expect := " [CRITICAL]  Panic Error!"
+	expect := "[CRITICAL] Panic Error!"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -1026,7 +1026,7 @@ func TestPanicln(t *testing.T) {
 
 	logr.SetFlags(Llabel)
 
-	expect := " [CRITICAL]  Panic Error!\n"
+	expect := "[CRITICAL] Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -1047,7 +1047,7 @@ func TestPanicf(t *testing.T) {
 
 	logr.SetFlags(Llabel)
 
-	expect := " [CRITICAL]  Panic Error!\n"
+	expect := "[CRITICAL] Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -1161,21 +1161,21 @@ var excludeByStringTests = []struct {
 	expect string
 }{
 	{name: "Exclude single word", flags: Llabel, input: []string{"Hello"},
-		expect: "  [DEBUG]    The things\n" +
-			"  [DEBUG]    should be suppressed.\n" +
-			"  [DEBUG]    Almost forgot...\n" +
-			"  [DEBUG]    but we'll find out!\n" +
-			"  [DEBUG]    that can be suppressed.\n" +
-			"  [DEBUG]    Goodbye!\n",
+		expect: "[DEBUG]    The things\n" +
+			"[DEBUG]    should be suppressed.\n" +
+			"[DEBUG]    Almost forgot...\n" +
+			"[DEBUG]    but we'll find out!\n" +
+			"[DEBUG]    that can be suppressed.\n" +
+			"[DEBUG]    Goodbye!\n",
 	},
 	{name: "Exclude single word 2", flags: Llabel, input: []string{"DEBUG"},
-		expect: "  [DEBUG]    Hello!\n" +
-			"  [DEBUG]    The things\n" +
-			"  [DEBUG]    should be suppressed.\n" +
-			"  [DEBUG]    Almost forgot...\n" +
-			"  [DEBUG]    but we'll find out!\n" +
-			"  [DEBUG]    that can be suppressed.\n" +
-			"  [DEBUG]    Goodbye!\n",
+		expect: "[DEBUG]    Hello!\n" +
+			"[DEBUG]    The things\n" +
+			"[DEBUG]    should be suppressed.\n" +
+			"[DEBUG]    Almost forgot...\n" +
+			"[DEBUG]    but we'll find out!\n" +
+			"[DEBUG]    that can be suppressed.\n" +
+			"[DEBUG]    Goodbye!\n",
 	},
 	{name: "Exclude non-existing word", input: []string{"Things"},
 		expect: "Hello!\n" +
@@ -1263,11 +1263,11 @@ var excludeByFuncNameTests = []struct {
 	},
 	{name: "Exclude without LfunctionName", flags: Llabel,
 		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName"},
-		expect: "  [DEBUG]    The things\n" +
-			"  [DEBUG]    should be suppressed.\n" +
-			"  [DEBUG]    Almost forgot...\n" +
-			"  [DEBUG]    but we'll find out!\n" +
-			"  [DEBUG]    that can be suppressed.\n",
+		expect: "[DEBUG]    The things\n" +
+			"[DEBUG]    should be suppressed.\n" +
+			"[DEBUG]    Almost forgot...\n" +
+			"[DEBUG]    but we'll find out!\n" +
+			"[DEBUG]    that can be suppressed.\n",
 	},
 	{name: "Exclude non-existing name", input: []string{"Imaginary"},
 		expect: "Hello!\n" +
@@ -1317,7 +1317,7 @@ func TestWithFlags(t *testing.T) {
 	logr.Debugln("Test 1")
 	logr.WithFlags(0, logr.Debugln, "Test 2")
 
-	expe := "  [DEBUG]    :: Test 1\nTest 2\n"
+	expe := "[DEBUG]    :: Test 1\nTest 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -1334,7 +1334,7 @@ func TestWithFlagsf(t *testing.T) {
 	logr.Debugln("Test 1")
 	logr.WithFlagsf(0, logr.Debugf, "%s\n", "Test 2")
 
-	expe := "  [DEBUG]    :: Test 1\nTest 2\n"
+	expe := "[DEBUG]    :: Test 1\nTest 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",

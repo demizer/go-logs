@@ -67,23 +67,23 @@ func (l Label) StdLenColorized() string {
 // colored. A special shortened case is used when the Ltree flag is set so that
 // ouput is properly aligned.
 var Labels = [6]Label{
-	Label{LEVEL_DEBUG, "  [DEBUG]   ", "[DBUG]",
+	Label{LEVEL_DEBUG, "[DEBUG]   ", "[DBUG]",
 		[3]uint8{255, 255, 255}, // White
 	},
 
-	Label{LEVEL_INFO, "   [INFO]   ", "[INFO]",
+	Label{LEVEL_INFO, "[INFO]    ", "[INFO]",
 		[3]uint8{0, 215, 95}, // Green
 	},
 
-	Label{LEVEL_WARNING, " [WARNING]  ", "[WARN]",
+	Label{LEVEL_WARNING, "[WARNING] ", "[WARN]",
 		[3]uint8{255, 255, 135}, // Yellow
 	},
 
-	Label{LEVEL_ERROR, "   [ERROR]   ", "[EROR]",
+	Label{LEVEL_ERROR, "[ERROR]   ", "[EROR]",
 		[3]uint8{255, 99, 0}, // Orange
 	},
 
-	Label{LEVEL_CRITICAL, " [CRITICAL] ", "[CRIT]",
+	Label{LEVEL_CRITICAL, "[CRITICAL]", "[CRIT]",
 		[3]uint8{255, 0, 0}, // Red
 	},
 
