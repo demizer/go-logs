@@ -12,6 +12,10 @@ func main() {
 	var buf bytes.Buffer
 
 	logr := log.New(log.LEVEL_DEBUG, os.Stdout)
+	logr.SetFlags(log.Ldate | log.Lseperator)
+
+	logr.Println("\nDUAL STREAM OUTPUT EXAMPLE (like the tee command)")
+
 	logr.SetFlags(log.LdebugFlags | log.Ldate | log.Lseperator)
 
 	logr.Println("\nstdout output:\n")
