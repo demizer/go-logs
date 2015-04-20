@@ -167,7 +167,7 @@ const (
 )
 
 var (
-	defaultDate           = "Mon Jan 02 15:04:05 MST 2006"
+	defaultDate           = time.RFC3339
 	defaultSeperator      = "::"
 	defaultSeperatorColor = rgbterm.String("::", 0, 255, 135) // Green
 	defaultIndentColor    = []uint8{0, 135, 175}              // Grayish blue

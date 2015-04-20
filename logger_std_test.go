@@ -111,7 +111,7 @@ func TestStdSetTemplateBadDataObjectPanic(t *testing.T) {
 func TestStdDateFormat(t *testing.T) {
 	dateFormat := DateFormat()
 
-	expect := "Mon Jan 02 15:04:05 MST 2006"
+	expect := "2006-01-02T15:04:05Z07:00"
 
 	if dateFormat != expect {
 		t.Errorf("\nGot:\t%q\nExpect:\t%q\n", dateFormat, expect)
