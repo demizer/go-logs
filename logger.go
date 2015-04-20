@@ -573,14 +573,6 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 
 		pgmC, file, line, _ = runtime.Caller(calldepth)
 
-		if flags&Ltree != 0 && flags&LtreeTrim == 0 {
-			pc := make([]uintptr, 32)
-			pcNum := runtime.Callers(4, pc)
-			for i := 1; i < pcNum; i++ {
-				indentCount += 1
-			}
-		}
-
 		if flags&Ltree == 0 && flags&LtreeTrim != 0 {
 			pc := make([]uintptr, 32)
 			pcNum := runtime.Callers(4, pc)
