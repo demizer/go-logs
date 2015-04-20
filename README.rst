@@ -14,7 +14,7 @@ go-elog - Enhanced logging for Go
 
 A drop-in replacement for the Go standard library logger package.
 
-.. image:: screenshot_1.png
+.. image:: Screenshot-2015-04-20-01-04-21.png
 
 --------
 Features
