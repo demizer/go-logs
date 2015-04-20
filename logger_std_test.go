@@ -201,7 +201,7 @@ func TestStdIndent(t *testing.T) {
 
 	indent := Indent()
 
-	expe := "[DEBUG] Test 1\n[DEBUG]         Test 2\n"
+	expe := "  [DEBUG]    Test 1\n  [DEBUG]            Test 2\n"
 	expi := 2
 
 	if buf.String() != expe {
@@ -232,7 +232,7 @@ func TestStdTabStop(t *testing.T) {
 
 	tabStop := TabStop()
 
-	expe := "[DEBUG]   Test 1\n[DEBUG]         Test 2\n"
+	expe := "  [DEBUG]      Test 1\n  [DEBUG]            Test 2\n"
 	expt := 4
 
 	if buf.String() != expe {
@@ -274,10 +274,10 @@ func TestStdLnoFileAnsi(t *testing.T) {
 	fOut, _ := ioutil.ReadFile(f.Name())
 	stdOut, _ := ioutil.ReadAll(r)
 
-	expe := ":: [DEBUG] Test 1\n:: [DEBUG] Test 2\n"
-	expeStdout := "\x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]" +
-		"\x1b[0;00m Test 1\n\x1b[38;5;48m::\x1b[0;00m \x1b[38;5;231m[DEBUG]" +
-		"\x1b[0;00m Test 2\n"
+	expe := "  [DEBUG]    :: Test 1\n  [DEBUG]    :: Test 2\n"
+	expeStdout := "\x1b[38;5;231m  [DEBUG]   \x1b[0;00m \x1b[38;5;48m::" +
+		"\x1b[0;00m Test 1\n\x1b[38;5;231m  [DEBUG]   \x1b[0;00m " +
+		"\x1b[38;5;48m::\x1b[0;00m Test 2\n"
 
 	if string(fOut) != expe {
 		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -380,7 +380,7 @@ func TestStdPanic(t *testing.T) {
 
 	SetIndent(0)
 
-	expect := "[CRITICAL] Panic Error!"
+	expect := " [CRITICAL]  Panic Error!"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -403,7 +403,7 @@ func TestStdPanicln(t *testing.T) {
 
 	SetIndent(0)
 
-	expect := "[CRITICAL] Panic Error!\n"
+	expect := " [CRITICAL]  Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -426,7 +426,7 @@ func TestStdPanicf(t *testing.T) {
 
 	SetIndent(0)
 
-	expect := "[CRITICAL] Panic Error!\n"
+	expect := " [CRITICAL]  Panic Error!\n"
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -543,7 +543,7 @@ func TestStdWithFlags(t *testing.T) {
 	Debugln("Test 1")
 	WithFlags(0, Debugln, "Test 2")
 
-	expe := ":: [DEBUG] Test 1\nTest 2\n"
+	expe := "  [DEBUG]    :: Test 1\nTest 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
@@ -560,7 +560,7 @@ func TestStdWithFlagsf(t *testing.T) {
 	Debugln("Test 1")
 	WithFlagsf(0, Debugf, "%s\n", "Test 2")
 
-	expe := ":: [DEBUG] Test 1\nTest 2\n"
+	expe := "  [DEBUG]    :: Test 1\nTest 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
