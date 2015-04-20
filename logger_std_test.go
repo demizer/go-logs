@@ -189,6 +189,24 @@ func TestStdStreams(t *testing.T) {
 	}
 }
 
+func TestStdCarriageReturn(t *testing.T) {
+	// See https://github.com/demizer/go-elog/issues/11
+	var buf bytes.Buffer
+
+	SetLevel(LEVEL_DEBUG)
+	SetFlags(Llabel | Lseperator)
+	SetSeperator("::")
+	SetStreams(&buf)
+
+	Debugln("\rBla bla bla")
+
+	expect := "\r  [DEBUG]    :: Bla bla bla\n"
+
+	if buf.String() != expect {
+		t.Errorf("\nGot:\t%#v\nExpect:\t%#v\n", buf.String(), expect)
+	}
+}
+
 func TestStdIndent(t *testing.T) {
 	var buf bytes.Buffer
 

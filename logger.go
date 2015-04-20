@@ -658,7 +658,7 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 
 	l.buf = l.buf[:0] // Reset!
 
-	trimText := strings.TrimLeft(text, "\n")
+	trimText := strings.TrimLeft(text, "\t\v\r\n")
 	trimedCount := len(text) - len(trimText)
 	if trimedCount > 0 {
 		l.buf = append(l.buf, trimText...)
