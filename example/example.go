@@ -12,7 +12,7 @@ func main() {
 	var buf bytes.Buffer
 
 	logr := log.New(log.LEVEL_DEBUG, os.Stdout)
-	logr.SetFlags(log.LdebugFlags | log.Ldate | log.Lprefix)
+	logr.SetFlags(log.LdebugFlags | log.Ldate | log.Lseperator)
 
 	logr.Println("\nstdout output:\n")
 
@@ -24,15 +24,15 @@ func main() {
 	}
 	lvl2 := func() {
 		logr.Debugln("Level 2 Output 1")
-		logr.Debugln("Level 2 Output 2")
+		logr.Criticalln("Level 2 Output 2")
 		lvl3()
 		logr.Debugln("Level 2 Output 3")
 	}
 	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		logr.Debugln("Level 1 Output 2")
+		logr.Infoln("Level 1 Output 1")
+		logr.Errorln("Level 1 Output 2")
 		lvl2()
-		logr.Debugln("Level 1 Output 3")
+		logr.Warningln("Level 1 Output 3")
 	}
 	lvl1()
 
