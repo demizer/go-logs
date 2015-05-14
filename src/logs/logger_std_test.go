@@ -1,9 +1,9 @@
-// Copyright 2013,2014 The go-logger Authors. All rights reserved.
+// Copyright 2013,2014,2015 The go-logs Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
 // Tests for the default standard logging object
 
-package log
+package logs
 
 import (
 	"bytes"
@@ -190,7 +190,7 @@ func TestStdStreams(t *testing.T) {
 }
 
 func TestStdCarriageReturn(t *testing.T) {
-	// See https://github.com/demizer/go-elog/issues/11
+	// See https://github.com/demizer/go-logs/issues/11
 	var buf bytes.Buffer
 
 	SetLevel(LEVEL_DEBUG)
@@ -269,7 +269,7 @@ func TestStdLnoFileAnsi(t *testing.T) {
 	std = New(LEVEL_DEBUG)
 	SetFlags(Lseperator | Llabel | Lcolor | LnoFileAnsi)
 
-	f, err := ioutil.TempFile("/tmp", "go-elog-test-")
+	f, err := ioutil.TempFile("/tmp", "go-logs-test-")
 	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
@@ -456,44 +456,6 @@ func TestStdPanicf(t *testing.T) {
 	}()
 
 	Panicf("%s\n", "Panic Error!")
-}
-
-func TestStdExcludeByHeirarchyID(t *testing.T) {
-	var buf bytes.Buffer
-
-	// excludeIDtests is defined in logger_test.go
-	for _, test := range excludeIDtests {
-		std = New(LEVEL_DEBUG, &buf)
-
-		SetFlags(test.flags)
-
-		ExcludeByHeirarchyID(test.ids...)
-
-		Debugln("Hello!")
-		lvl3 := func() {
-			Debugln("Almost forgot...")
-		}
-		lvl2 := func() {
-			Debugln("should be suppressed.")
-			lvl3()
-			Debugln("but we'll find out!")
-		}
-		lvl1 := func() {
-			Debugln("The things")
-			lvl2()
-			Debugln("that can be suppressed.")
-		}
-		lvl1()
-		Debugln("Goodbye!")
-
-		if buf.String() != test.expect {
-			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n"+
-				"\nExpect:\n\n%s\n%q\n\n",
-				test.name, buf.String(), buf.String(),
-				test.expect, test.expect)
-		}
-		buf.Reset()
-	}
 }
 
 func TestStdExcludeByString(t *testing.T) {

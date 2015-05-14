@@ -3,5 +3,5 @@
 *.bak
 tags
 c.out
-example/example
-_vendor/
+bin/
+pkg/

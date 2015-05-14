@@ -1,7 +1,7 @@
-// Copyright 2013 The go-elog Authors. All rights reserved.
+// Copyright 2013,2014,2015 The go-logs Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
-package log
+package logs
 
 import "text/template"
 

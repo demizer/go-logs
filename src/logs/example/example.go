@@ -3,20 +3,19 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"logs"
 	"os"
-
-	"github.com/demizer/go-elog"
 )
 
 func main() {
 	var buf bytes.Buffer
 
-	logr := log.New(log.LEVEL_DEBUG, os.Stdout)
-	logr.SetFlags(log.Ldate | log.Lseperator)
+	logr := logs.New(logs.LEVEL_DEBUG, os.Stdout)
+	logr.SetFlags(logs.Ldate | logs.Lseperator)
 
 	logr.Println("\nDUAL STREAM OUTPUT EXAMPLE (like the tee command)")
 
-	logr.SetFlags(log.LdebugFlags | log.Ldate | log.Lseperator)
+	logr.SetFlags(logs.LdebugFlags | logs.Ldate | logs.Lseperator)
 
 	logr.Println("\nstdout output:\n")
 

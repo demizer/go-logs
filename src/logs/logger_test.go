@@ -1,7 +1,7 @@
-// Copyright 2013,2014 The go-logger Authors. All rights reserved.
+// Copyright 2013,2014,2015 The go-logs Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
-package log
+package logs
 
 import (
 	"bytes"
@@ -102,7 +102,7 @@ var fprintOutputTests = []struct {
 	// Test with color seperator
 	{
 		template:   logFmt,
-		seperator:  rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.FgString("TEST>", 0, 255, 0),
 		level:      LEVEL_PRINT,
 		dateFormat: date,
 		flags:      LstdFlags,
@@ -125,7 +125,7 @@ var fprintOutputTests = []struct {
 	// Test debug output
 	{
 		template:   logFmt,
-		seperator:  rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.FgString("TEST>", 0, 255, 0),
 		level:      LEVEL_DEBUG,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -136,7 +136,7 @@ var fprintOutputTests = []struct {
 	// Test info output
 	{
 		template:   logFmt,
-		seperator:  rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.FgString("TEST>", 0, 255, 0),
 		level:      LEVEL_INFO,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -147,7 +147,7 @@ var fprintOutputTests = []struct {
 	// Test warning output
 	{
 		template:   logFmt,
-		seperator:  rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.FgString("TEST>", 0, 255, 0),
 		level:      LEVEL_WARNING,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -158,7 +158,7 @@ var fprintOutputTests = []struct {
 	// Test error output
 	{
 		template:   logFmt,
-		seperator:  rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.FgString("TEST>", 0, 255, 0),
 		level:      LEVEL_ERROR,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -169,7 +169,7 @@ var fprintOutputTests = []struct {
 	// Test critical output
 	{
 		template:   logFmt,
-		seperator:  rgbterm.String("TEST>", 0, 255, 0),
+		seperator:  rgbterm.FgString("TEST>", 0, 255, 0),
 		level:      LEVEL_CRITICAL,
 		dateFormat: time.RubyDate,
 		flags:      LstdFlags,
@@ -880,7 +880,7 @@ func TestLnoFileAnsi(t *testing.T) {
 
 	logr.SetFlags(Lseperator | Llabel | Lcolor | LnoFileAnsi)
 
-	f, err := ioutil.TempFile("/tmp", "go-elog-test-")
+	f, err := ioutil.TempFile("/tmp", "go-logs-test-")
 	defer f.Close()
 	if err != nil {
 		t.Fatal(err)

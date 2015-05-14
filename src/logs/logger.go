@@ -1,11 +1,11 @@
-// Copyright 2013,2014 The go-elog Authors. All rights reserved.
+// Copyright 2013,2014,2015 The go-logs Authors. All rights reserved.
 // This code is MIT licensed. See the LICENSE file for more info.
 
-// The go-elog package is a drop in replacement for the Go standard log package
+// The go-logs package is a drop in replacement for the Go standard log package
 // that provides a number of enhancements. Including colored output, logging
 // levels, custom log formatting, and multiple simultaneous output streams like
 // os.Stdout or a File.
-package log
+package logs
 
 import (
 	"bytes"
@@ -14,7 +14,6 @@ import (
 	"os"
 	"reflect"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -50,17 +49,7 @@ func (l Label) Colorized() string {
 	if l.level == LEVEL_PRINT {
 		return l.name
 	}
-	return rgbterm.String(l.name, l.colorRGB[0], l.colorRGB[1], l.colorRGB[2])
-}
-
-// StdLenColorized returns the colorized standard length label for console
-// output using ANSI escape sequences.
-func (l Label) StdLenColorized() string {
-	if l.level == LEVEL_PRINT {
-		return l.StdLenName()
-	}
-	return rgbterm.String(l.StdLenName(), l.colorRGB[0], l.colorRGB[1],
-		l.colorRGB[2])
+	return rgbterm.FgString(l.name, l.colorRGB[0], l.colorRGB[1], l.colorRGB[2])
 }
 
 // Labels are prefixed to the beginning of a string on output. Labels can be
@@ -114,9 +103,6 @@ func (l level) StdLenLabel() string { return Labels[l].StdLengthName }
 // Returns the ansi colorized label for the level
 func (l level) AnsiLabel() string { return Labels[l].Colorized() }
 
-// Returns the ansi colorized stdand length label for the level
-func (l level) AnsiStdLenLabel() string { return Labels[l].StdLenColorized() }
-
 // Returns the level using string input. lvl must be the name of the level in
 // the form of "debug", "DEBUG", "level_debug", or "LEVEL_DEBUG". Returns
 // LEVEL_PRINT if the level is not found.
@@ -169,8 +155,8 @@ const (
 var (
 	defaultDate           = time.RFC3339
 	defaultSeperator      = "::"
-	defaultSeperatorColor = rgbterm.String("::", 0, 255, 135) // Green
-	defaultIndentColor    = []uint8{0, 135, 175}              // Grayish blue
+	defaultSeperatorColor = rgbterm.FgString("::", 0, 255, 135) // Green
+	defaultIndentColor    = []uint8{0, 135, 175}                // Grayish blue
 )
 
 // Flags are used to control the formatting of the logging output.
@@ -695,7 +681,7 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 			}
 		}
 		if len(indent) > 0 && string(indent[0]) != " " {
-			indent = rgbterm.String(indent, defaultIndentColor[0],
+			indent = rgbterm.FgString(indent, defaultIndentColor[0],
 				defaultIndentColor[1], defaultIndentColor[2])
 		}
 	}
