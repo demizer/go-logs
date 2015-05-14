@@ -2,15 +2,14 @@
 go-logs - Enhanced logging for Go
 =================================
 
-.. image:: https://travis-ci.org/demizer/go-logs.png?branch=master
-    :target: https://travis-ci.org/demizer/go-logs
-.. image:: https://img.shields.io/github.com/demizer/go-logs/status.png
-    :target: https://drone.io/github.com/demizer/go-logs/latest
-.. image:: https://coveralls.io/repos/demizer/go-logs/badge.png?branch=master
-    :target: https://coveralls.io/r/demizer/go-logs?branch=master
+.. .. image:: https://travis-ci.org/demizer/go-logs.png?branch=master
+    .. :target: https://travis-ci.org/demizer/go-logs
+.. .. image:: https://img.shields.io/github.com/demizer/go-logs/status.png
+    .. :target: https://drone.io/github.com/demizer/go-logs/latest
+.. .. image:: https://coveralls.io/repos/demizer/go-logs/badge.png?branch=master
+    .. :target: https://coveralls.io/r/demizer/go-logs?branch=master
 .. image:: https://godoc.org/github.com/demizer/go-logs?status.svg
     :target: http://godoc.org/github.com/demizer/go-logs
-|
 
 A drop-in replacement for the Go standard library logger package.
 
@@ -38,5 +37,5 @@ needed.
 
     import "github.com/demizer/go-logs/src/logs"
 
-    log.Println("This message will be sent to stdout.")
-    log.Debugln("This message will only be shown on stderr if the logging level is DEBUG!")
+    logs.Println("This message will be sent to stdout.")
+    logs.Debugln("This message will only be shown on stderr if the logging level is DEBUG!")
