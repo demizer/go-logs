@@ -365,47 +365,6 @@ func TestFlagsLcolorWithNewlinePaddingDebugln(t *testing.T) {
 	}
 }
 
-func TestTreeDebugln(t *testing.T) {
-	var buf bytes.Buffer
-
-	logr := New(LEVEL_PRINT, &buf)
-	logr.SetFlags(Lcolor | Lid | LtreeTrim | Llabel)
-
-	logr.Debugln("Level 0 Output 1")
-	lvl3 := func() {
-		logr.Debugln("Level 3 Output 1")
-	}
-	lvl2 := func() {
-		logr.Debugln("Level 2 Output 1")
-		logr.Debugln("Level 2 Output 2")
-		lvl3()
-		logr.Debugln("Level 2 Output 3")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		logr.Debugln("Level 1 Output 2")
-		lvl2()
-		logr.Debugln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Debugln("Level 0 Output 2")
-
-	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m [00] Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [01]     Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [01]     Level 1 Output 2\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [02]         Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [02]         Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [03]             Level 3 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [02]         Level 2 Output 3\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [01]     Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m [00] Level 0 Output 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
-
 func TestSetIndentDebugln(t *testing.T) {
 	var buf bytes.Buffer
 
@@ -450,123 +409,6 @@ func TestLindentWithLshowIndent(t *testing.T) {
 	}
 }
 
-func TestSetIndentWithLindentAndLtree(t *testing.T) {
-	var buf bytes.Buffer
-
-	logr := New(LEVEL_DEBUG, &buf)
-
-	// Lindent should have no effect on Lindent
-	logr.SetFlags(Lcolor | Lindent | LtreeTrim | LshowIndent | Llabel)
-
-	logr.SetIndent(1).Debugln("Level 0 Output 1")
-	lvl3 := func() {
-		logr.Debugln("Level 3 Output 1")
-	}
-	lvl2 := func() {
-		logr.Debugln("Level 2 Output 1")
-		lvl3()
-		logr.Debugln("Level 2 Output 2")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		lvl2()
-		logr.Debugln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Debugln("Level 0 Output 2")
-
-	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...|...|...\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 2\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 3\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
-
-func TestSetIndentWithLindentAndLtreeMinus2Indent(t *testing.T) {
-	var buf bytes.Buffer
-
-	logr := New(LEVEL_DEBUG, &buf)
-
-	// Lindent should have no effect on Lindent
-	logr.SetFlags(Lcolor | Lindent | LtreeTrim | LshowIndent | Llabel)
-
-	logr.SetIndent(-2).Debugln("Level 0 Output 1")
-	lvl3 := func() {
-		logr.Debugln("Level 3 Output 1")
-	}
-	lvl2 := func() {
-		logr.Debugln("Level 2 Output 1")
-		lvl3()
-		logr.Debugln("Level 2 Output 2")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		lvl2()
-		logr.Debugln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Debugln("Level 0 Output 2")
-
-	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
-
-func TestSetIndentWithLindentAndLtreeMinus4Indent(t *testing.T) {
-	var buf bytes.Buffer
-
-	logr := New(LEVEL_DEBUG, &buf)
-
-	// Lindent should have no effect on Lindent
-	logr.SetFlags(Lcolor | Lindent | LtreeTrim | LshowIndent | Llabel)
-
-	logr.SetIndent(-4).Debugln("Level 0 Output 1")
-	lvl3 := func() {
-		logr.Debugln("Level 3 Output 1")
-	}
-	lvl2 := func() {
-		logr.Debugln("Level 2 Output 1")
-		lvl3()
-		logr.Debugln("Level 2 Output 2")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		lvl2()
-		logr.Debugln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Debugln("Level 0 Output 2")
-
-	expe := "\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 3 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 2 Output 2\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 1 Output 3\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m Level 0 Output 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
-
 func TestTemplate(t *testing.T) {
 	var buf bytes.Buffer
 
@@ -593,87 +435,6 @@ func TestTemplate(t *testing.T) {
 	}
 }
 
-func TestStandardLabelLength(t *testing.T) {
-	var buf bytes.Buffer
-
-	logr := New(LEVEL_DEBUG, &buf)
-
-	// Lindent should have no effect on Lindent
-	logr.SetFlags(Lcolor | Lindent | LtreeTrim | LshowIndent | Llabel)
-
-	logr.SetIndent(1).Println("Level 0 Output 1")
-	lvl3 := func() {
-		logr.Criticalln("Level 3 Output 1")
-		logr.Errorln("Level 3 Output 2")
-	}
-	lvl2 := func() {
-		logr.Infoln("Level 2 Output 1")
-		lvl3()
-		logr.Infoln("Level 2 Output 2")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		lvl2()
-		logr.Warningln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Println("Level 0 Output 2")
-
-	expe := "       \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 1\n" +
-		"\x1b[38;5;231m[DBUG]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 1\n" +
-		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 1\n" +
-		"\x1b[38;5;196m[CRIT]\x1b[0;00m \x1b[38;5;31m|...|...|...|...\x1b[0;00mLevel 3 Output 1\n" +
-		"\x1b[38;5;202m[EROR]\x1b[0;00m \x1b[38;5;31m|...|...|...|...\x1b[0;00mLevel 3 Output 2\n" +
-		"\x1b[38;5;41m[INFO]\x1b[0;00m \x1b[38;5;31m|...|...|...\x1b[0;00mLevel 2 Output 2\n" +
-		"\x1b[38;5;228m[WARN]\x1b[0;00m \x1b[38;5;31m|...|...\x1b[0;00mLevel 1 Output 3\n" +
-		"       \x1b[38;5;31m|...\x1b[0;00mLevel 0 Output 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
-
-func TestStandardLabelLengthNoColor(t *testing.T) {
-	var buf bytes.Buffer
-
-	logr := New(LEVEL_DEBUG, &buf)
-
-	// Lindent should have no effect on Lindent
-	logr.SetFlags(Lindent | LtreeTrim | LshowIndent | Llabel)
-
-	logr.SetIndent(1).Println("Level 0 Output 1")
-	lvl3 := func() {
-		logr.Criticalln("Level 3 Output 1")
-		logr.Errorln("Level 3 Output 2")
-	}
-	lvl2 := func() {
-		logr.Infoln("Level 2 Output 1")
-		lvl3()
-		logr.Infoln("Level 2 Output 2")
-	}
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		lvl2()
-		logr.Warningln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Println("Level 0 Output 2")
-
-	expe := "       |...Level 0 Output 1\n" +
-		"[DBUG] |...|...Level 1 Output 1\n" +
-		"[INFO] |...|...|...Level 2 Output 1\n" +
-		"[CRIT] |...|...|...|...Level 3 Output 1\n" +
-		"[EROR] |...|...|...|...Level 3 Output 2\n" +
-		"[INFO] |...|...|...Level 2 Output 2\n" +
-		"[WARN] |...|...Level 1 Output 3\n" +
-		"       |...Level 0 Output 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
 func TestSetTemplate(t *testing.T) {
 	var buf bytes.Buffer
 
@@ -1085,75 +846,6 @@ func TestLevelFromString(t *testing.T) {
 	}
 }
 
-var excludeIDtests = []struct {
-	name   string
-	ids    []int
-	flags  int
-	expect string
-}{
-	{name: "Test excluding one ID", ids: []int{1}, flags: Lid | LtreeTrim | LshowIndent,
-		expect: "[00] Hello!\n[02] |...|...should be suppressed.\n" +
-			"[03] |...|...|...Almost forgot...\n" +
-			"[02] |...|...but we'll find out!\n" +
-			"[00] Goodbye!\n",
-	},
-	{name: "Test excluding two IDs", ids: []int{1, 3}, flags: Lid | LtreeTrim | LshowIndent,
-		expect: "[00] Hello!\n[02] |...|...should be suppressed.\n" +
-			"[02] |...|...but we'll find out!\n" +
-			"[00] Goodbye!\n",
-	},
-	{name: "Test excluding two IDs without Lid", ids: []int{1, 3}, flags: LtreeTrim | LshowIndent,
-		expect: "Hello!\n" +
-			"|...The things\n" +
-			"|...|...should be suppressed.\n" +
-			"|...|...|...Almost forgot...\n" +
-			"|...|...but we'll find out!\n" +
-			"|...that can be suppressed.\n" +
-			"Goodbye!\n",
-	},
-	{name: "Test excluding two IDs with only Lid", ids: []int{1, 3}, flags: Lid,
-		expect: "[00] Hello!\n" +
-			"[02] should be suppressed.\n" +
-			"[02] but we'll find out!\n" +
-			"[00] Goodbye!\n",
-	},
-}
-
-func TestExcludeByHeirarchyID(t *testing.T) {
-	var buf bytes.Buffer
-
-	for _, test := range excludeIDtests {
-		logr := New(LEVEL_DEBUG, &buf)
-
-		logr.SetFlags(test.flags)
-
-		logr.ExcludeByHeirarchyID(test.ids...)
-
-		logr.Debugln("Hello!")
-		lvl3 := func() {
-			logr.Debugln("Almost forgot...")
-		}
-		lvl2 := func() {
-			logr.Debugln("should be suppressed.")
-			lvl3()
-			logr.Debugln("but we'll find out!")
-		}
-		lvl1 := func() {
-			logr.Debugln("The things")
-			lvl2()
-			logr.Debugln("that can be suppressed.")
-		}
-		lvl1()
-		logr.Debugln("Goodbye!")
-
-		if buf.String() != test.expect {
-			t.Errorf("\nTest: %s\n\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-				test.name, buf.String(), buf.String(), test.expect, test.expect)
-		}
-		buf.Reset()
-	}
-}
-
 var excludeByStringTests = []struct {
 	name   string
 	flags  int
@@ -1185,14 +877,6 @@ var excludeByStringTests = []struct {
 			"but we'll find out!\n" +
 			"that can be suppressed.\n" +
 			"Goodbye!\n",
-	},
-	{name: "Exclude two words", flags: LtreeTrim | Lcolor | Lindent | Lid | LshowIndent,
-		input: []string{"forgot", "we'll"},
-		expect: "[00] Hello!\n" +
-			"[01] \x1b[38;5;31m|...\x1b[0;00mThe things\n" +
-			"[02] \x1b[38;5;31m|...|...\x1b[0;00mshould be suppressed.\n" +
-			"[01] \x1b[38;5;31m|...\x1b[0;00mthat can be suppressed.\n" +
-			"[00] Goodbye!\n",
 	},
 }
 
@@ -1278,13 +962,6 @@ var excludeByFuncNameTests = []struct {
 			"that can be suppressed.\n" +
 			"Goodbye!\n",
 	},
-	{name: "Exclude two function names", flags: LtreeTrim | LfunctionName | Lcolor | Lindent | Lid | LshowIndent,
-		input: []string{"TestExcludeByFuncName", "TestStdExcludeByFuncName", "testLvl3"},
-		expect: "[01] \x1b[38;5;31m|...\x1b[0;00mtestLvl1: The things\n" +
-			"[02] \x1b[38;5;31m|...|...\x1b[0;00mtestLvl2: should be suppressed.\n" +
-			"[02] \x1b[38;5;31m|...|...\x1b[0;00mtestLvl2: but we'll find out!\n" +
-			"[01] \x1b[38;5;31m|...\x1b[0;00mtestLvl1: that can be suppressed.\n",
-	},
 }
 
 func TestExcludeByFuncName(t *testing.T) {
@@ -1335,49 +1012,6 @@ func TestWithFlagsf(t *testing.T) {
 	logr.WithFlagsf(0, logr.Debugf, "%s\n", "Test 2")
 
 	expe := "[DEBUG]    :: Test 1\nTest 2\n"
-
-	if buf.String() != expe {
-		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",
-			"Incorrect output!",
-			buf.String(), buf.String(), expe, expe)
-	}
-}
-
-func TestLtreeTrim(t *testing.T) {
-	var buf bytes.Buffer
-	logr := New(LEVEL_DEBUG, &buf)
-	logr.SetFlags(Llabel | LtreeTrim | LshowIndent)
-
-	logr.Debugln("Level 0 Output 1")
-	lvl7 := func() { logr.Debugln("Level 3 Output 1") }
-	lvl6 := func() { lvl7() }
-	lvl5 := func() {
-		logr.Debugln("Level 2 Output 1")
-		logr.Debugln("Level 2 Output 2")
-		lvl6()
-		logr.Debugln("Level 2 Output 3")
-	}
-	lvl4 := func() { lvl5() }
-	lvl3 := func() { lvl4() }
-	lvl2 := func() { lvl3() }
-	lvl1 := func() {
-		logr.Debugln("Level 1 Output 1")
-		logr.Debugln("Level 1 Output 2")
-		lvl2()
-		logr.Debugln("Level 1 Output 3")
-	}
-	lvl1()
-	logr.Debugln("Level 0 Output 2")
-
-	expe := "[DBUG] Level 0 Output 1\n" +
-		"[DBUG] |...Level 1 Output 1\n" +
-		"[DBUG] |...Level 1 Output 2\n" +
-		"[DBUG] |...|...Level 2 Output 1\n" +
-		"[DBUG] |...|...Level 2 Output 2\n" +
-		"[DBUG] |...|...|...Level 3 Output 1\n" +
-		"[DBUG] |...|...Level 2 Output 3\n" +
-		"[DBUG] |...Level 1 Output 3\n" +
-		"[DBUG] Level 0 Output 2\n"
 
 	if buf.String() != expe {
 		t.Errorf("%s\nGot:\n\n%s\n%q\n\nExpect:\n\n%s\n%q\n\n",

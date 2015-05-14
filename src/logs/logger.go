@@ -25,20 +25,10 @@ import (
 // Label contains the name of a label as well as the short name and RGB color
 // values.
 type Label struct {
-	level level
-
-	name string
-
-	// StdLengthNames are used for output when the Ltree flag is set. Short
-	// names of all labels should be the same length.
-	StdLengthName string
-
+	level    level
+	name     string
 	colorRGB [3]uint8
 }
-
-// StdLenName() is used for output that must be aligned accross labels.
-// Specifically for output when the Ltree flag is set.
-func (l Label) StdLenName() string { return l.StdLengthName }
 
 // String satisfies the Stringer interface.
 func (l Label) String() string { return l.name }
@@ -53,30 +43,29 @@ func (l Label) Colorized() string {
 }
 
 // Labels are prefixed to the beginning of a string on output. Labels can be
-// colored. A special shortened case is used when the Ltree flag is set so that
-// ouput is properly aligned.
+// colored.
 var Labels = [6]Label{
-	Label{LEVEL_DEBUG, "[DEBUG]   ", "[DBUG]",
+	Label{LEVEL_DEBUG, "[DEBUG]   ",
 		[3]uint8{255, 255, 255}, // White
 	},
 
-	Label{LEVEL_INFO, "[INFO]    ", "[INFO]",
+	Label{LEVEL_INFO, "[INFO]    ",
 		[3]uint8{0, 215, 95}, // Green
 	},
 
-	Label{LEVEL_WARNING, "[WARNING] ", "[WARN]",
+	Label{LEVEL_WARNING, "[WARNING] ",
 		[3]uint8{255, 255, 135}, // Yellow
 	},
 
-	Label{LEVEL_ERROR, "[ERROR]   ", "[EROR]",
+	Label{LEVEL_ERROR, "[ERROR]   ",
 		[3]uint8{255, 99, 0}, // Orange
 	},
 
-	Label{LEVEL_CRITICAL, "[CRITICAL]", "[CRIT]",
+	Label{LEVEL_CRITICAL, "[CRITICAL]",
 		[3]uint8{255, 0, 0}, // Red
 	},
 
-	Label{level: LEVEL_PRINT, StdLengthName: "      "}, // LEVEL_PRINT requires no label
+	Label{level: LEVEL_PRINT}, // LEVEL_PRINT requires no label
 }
 
 type level int
@@ -96,9 +85,6 @@ func (l level) String() string { return levels[l] }
 
 // Returns the label for the level
 func (l level) Label() string { return Labels[l].String() }
-
-// Returns the standard length label.
-func (l level) StdLenLabel() string { return Labels[l].StdLengthName }
 
 // Returns the ansi colorized label for the level
 func (l level) AnsiLabel() string { return Labels[l].Colorized() }
@@ -189,21 +175,8 @@ const (
 	// Show seperator
 	Lseperator
 
-	// Show ids for functions generating output. Useful for disabling
-	// specific output
-	Lid
-
-	// Use indentation. Ltree assumes Lindent.
+	// Use indentation.
 	Lindent
-
-	// Indent output based on stack position of logging function calls
-	// Useful for testing or debugging.
-	Ltree
-
-	// Indent output based on *encountered* position. This prevents
-	// inconsistent heirarchical log output from functions higher up the
-	// stack then the calling function.
-	LtreeTrim
 
 	// Show the label for output
 	Llabel
@@ -213,12 +186,6 @@ const (
 
 	// Special debug output flags
 	LdebugFlags = Lcolor | LfunctionName | LlineNumber | Llabel
-
-	// Special debug output flags with tree hierarchy
-	LdebugTreeFlags = LdebugFlags | Ltree | Lid | Lindent | LshowIndent
-
-	// Special debug output flags with encountered tree hierarchy
-	LdebugTreeTrimFlags = LdebugFlags | LtreeTrim | Lid | LshowIndent
 )
 
 // A Logger represents an active logging object that generates lines of output
@@ -334,13 +301,6 @@ func TabStop() int { return std.tabStop }
 func SetTabStop(stops int) *Logger {
 	std.tabStop = stops
 	return std
-}
-
-// ExcludeByHeirarchyID excludes output if the output is in the heirarchy ID
-// identified by ids. ExcludeByHeirarchyID is only available if the Lid flag
-// is set.
-func ExcludeByHeirarchyID(ids ...int) {
-	std.excludeIDs = ids
 }
 
 // ExcludeByString excludes output if the output text contains matches for
@@ -551,43 +511,13 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if flags&(LlongFileName|LshortFileName|LfunctionName|Lid|Ltree|LtreeTrim) != 0 ||
+	if flags&(LlongFileName|LshortFileName|LfunctionName) != 0 ||
 		len(l.excludeFuncNames) > 0 {
 
 		// release lock while getting caller info - it's expensive.
 		// l.mu.Unlock()
 
 		pgmC, file, line, _ = runtime.Caller(calldepth)
-
-		if flags&Ltree == 0 && flags&LtreeTrim != 0 {
-			pc := make([]uintptr, 32)
-			pcNum := runtime.Callers(4, pc)
-			sCount := 0
-			for i := 1; i < pcNum; i++ {
-				sCount += 1
-			}
-			if l.lastIndent < sCount {
-				l.indentLevel++
-			} else if l.lastIndent > sCount {
-				l.indentLevel--
-			}
-			l.lastIndent = sCount
-			indentCount = l.indentLevel
-		}
-
-		if flags&Lid != 0 {
-			fAtPC := runtime.FuncForPC(pgmC)
-			fName = fAtPC.Name()
-			var idNum int
-			if _, ok := l.ids[fName]; ok {
-				idNum = l.ids[fName]
-			} else {
-				l.ids[fName] = l.lastId
-				idNum = l.lastId
-				l.lastId += 1
-			}
-			id = fmt.Sprintf("[%02.f]", float64(idNum))
-		}
 
 		if flags&LshortFileName != 0 {
 			short := file
@@ -612,17 +542,6 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 		}
 
 		// l.mu.Lock()
-	}
-
-	// Check excludes and skip output if matches are found
-	var iId int
-	if flags&(Lid) != 0 {
-		for _, eId := range l.excludeIDs {
-			iId, _ = strconv.Atoi(id[1 : len(id)-1])
-			if iId == eId {
-				return
-			}
-		}
 	}
 
 	// Check func name excludes and return if matches are found
@@ -690,14 +609,8 @@ func (l *Logger) Fprint(flags int, logLevel level, calldepth int,
 	if flags&Llabel != 0 {
 		if flags&Lcolor != 0 {
 			label = logLevel.AnsiLabel()
-			if flags&Ltree != 0 || flags&LtreeTrim != 0 {
-				label = logLevel.AnsiStdLenLabel()
-			}
 		} else {
 			label = logLevel.Label()
-			if flags&Ltree != 0 || flags&LtreeTrim != 0 {
-				label = logLevel.StdLenLabel()
-			}
 		}
 	}
 
@@ -809,13 +722,6 @@ func (l *Logger) TabStop() int { return l.tabStop }
 func (l *Logger) SetTabStop(stops int) *Logger {
 	l.tabStop = stops
 	return l
-}
-
-// ExcludeByHeirarchyID excludes output if the output is in the heirarchy ID
-// identified by ids. ExcludeByHeirarchyID is only available if the Lid flag
-// is set.
-func (l *Logger) ExcludeByHeirarchyID(ids ...int) {
-	l.excludeIDs = ids
 }
 
 // ExcludeByString excludes output if the output text contains matches for
